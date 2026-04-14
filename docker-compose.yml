@@ -3,24 +3,24 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB:       gordo
-      POSTGRES_USER:     gordo
-      POSTGRES_PASSWORD: gordo
+      POSTGRES_DB:       pichel
+      POSTGRES_USER:     pichel
+      POSTGRES_PASSWORD: pichel
     ports:
       - "5432:5432"
     volumes:
-      - /tmp/gordo-pg:/var/lib/postgresql/data
+      - /tmp/pichel-pg:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gordo -d gordo"]
+      test: ["CMD-SHELL", "pg_isready -U pichel -d pichel"]
       interval: 3s
       timeout: 5s
       retries: 10
 
   # ── API (future: built image) ─────────────────────────────────────────────
   # api:
-  #   image: gordo-api:latest
+  #   image: pichel-api:latest
   #   environment:
-  #     DATABASE_URL: postgres://gordo:gordo@db:5432/gordo
+  #     DATABASE_URL: postgres://pichel:pichel@db:5432/pichel
   #     JWT_SECRET:   change-me
   #   ports:
   #     - "3000:3000"
