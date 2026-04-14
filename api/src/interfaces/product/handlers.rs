@@ -16,9 +16,16 @@ pub async fn list_products(
 
 pub async fn create_product(
     State(state): State<AppState>,
-    _user: AuthenticatedUser, // ← declaring this param IS the auth check — no JWT code here
+    _user: AuthenticatedUser,
     Json(body): Json<CreateProductRequest>,
 ) -> Result<Json<ProductResponse>, AppError> {
-    let product = state.create_product_uc.execute(body.name, body.price).await?;
+    let product = state.create_product_uc.execute(
+        body.name,
+        body.description,
+        body.price_cents,
+        body.unit_amount,
+        body.unit_type,
+        body.image_url,
+    ).await?;
     Ok(Json(ProductResponse::from(product)))
 }

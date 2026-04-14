@@ -362,7 +362,7 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const API = 'http://localhost:3000';
+    const API = '';
 
     // ── Auth guard ──
     const token = localStorage.getItem('token');
@@ -444,9 +444,9 @@
       </div>`;
 
       try {
-        const res      = await apiFetch('/products/');
+        const res      = await apiFetch('/products');
         const products = res.ok ? await res.json() : [];
-        const total    = products.reduce((s, p) => s + p.price, 0);
+        const total    = products.reduce((s, p) => s + p.price_cents, 0);
         const avg      = products.length ? total / products.length : 0;
 
         el.innerHTML = `
@@ -458,12 +458,12 @@
             </div>
             <div class="stat-card">
               <div class="stat-label">Total value</div>
-              <div class="stat-value">${fmt(total)}</div>
+              <div class="stat-value">${fmtCents(total)}</div>
               <div class="stat-sub">sum of prices</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Avg. price</div>
-              <div class="stat-value">${fmt(avg)}</div>
+              <div class="stat-value">${fmtCents(avg)}</div>
               <div class="stat-sub">per product</div>
             </div>
             <div class="stat-card">
@@ -495,11 +495,15 @@
             <div class="form-row">
               <div class="form-field">
                 <label>Name</label>
-                <input id="p-name" placeholder="e.g. Wagyu Steak" required />
+                <input id="p-name" placeholder="e.g. Wagyu Ribeye" required />
               </div>
               <div class="form-field">
-                <label>Price (USD)</label>
-                <input id="p-price" type="number" min="0" step="0.01" placeholder="0.00" required />
+                <label>Unit</label>
+                <input id="p-unit" placeholder="e.g. 200g" required />
+              </div>
+              <div class="form-field">
+                <label>Price (cents)</label>
+                <input id="p-price" type="number" min="0" step="1" placeholder="4500" required />
               </div>
               <button class="btn btn-primary" type="submit" id="add-btn">Add</button>
             </div>
@@ -517,20 +521,22 @@
 
       document.getElementById('add-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name  = document.getElementById('p-name').value.trim();
-        const price = parseFloat(document.getElementById('p-price').value);
-        if (!name || isNaN(price)) return;
+        const name        = document.getElementById('p-name').value.trim();
+        const unit_amount = document.getElementById('p-unit').value.trim();
+        const price_cents = parseInt(document.getElementById('p-price').value);
+        if (!name || !unit_amount || isNaN(price_cents)) return;
 
         const btn = document.getElementById('add-btn');
         btn.disabled = true; btn.textContent = '…';
 
         try {
-          const res = await apiFetch('/products/', {
+          const res = await apiFetch('/products', {
             method: 'POST',
-            body: JSON.stringify({ name, price }),
+            body: JSON.stringify({ name, unit_amount, price_cents, unit_type: 1 }),
           });
           if (!res.ok) { toast('Failed to create product', 'error'); return; }
           document.getElementById('p-name').value  = '';
+          document.getElementById('p-unit').value  = '';
           document.getElementById('p-price').value = '';
           toast('Product added');
           await loadProductsAdmin();
@@ -541,7 +547,7 @@
 
     async function loadProductsAdmin() {
       try {
-        const res      = await apiFetch('/products/');
+        const res      = await apiFetch('/products');
         const products = res.ok ? await res.json() : [];
         document.getElementById('prod-count').textContent = `${products.length} items`;
         document.getElementById('prod-table-wrap').innerHTML = productsTable(products);
@@ -556,6 +562,7 @@
       return `<table>
         <thead><tr>
           <th>Name</th>
+          <th>Unit</th>
           <th>Price</th>
           <th>Status</th>
           <th>ID</th>
@@ -563,7 +570,8 @@
         <tbody>
           ${products.map(p => `<tr>
             <td style="font-weight:600">${p.name}</td>
-            <td>${fmt(p.price)}</td>
+            <td style="color:var(--muted)">${p.unit_amount}</td>
+            <td>${fmtCents(p.price_cents)}</td>
             <td><span class="badge badge-green">Active</span></td>
             <td style="color:var(--muted);font-size:.78rem;font-family:monospace">${p.id.slice(0,8)}…</td>
           </tr>`).join('')}
@@ -572,8 +580,8 @@
     }
 
     // ── Helpers ──
-    function fmt(n) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+    function fmtCents(cents) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
     }
     function statSkeleton() {
       return `<div class="stat-card" style="opacity:.35">

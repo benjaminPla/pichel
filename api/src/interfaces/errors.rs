@@ -44,9 +44,10 @@ impl From<ProductDomainError> for AppError {
     fn from(e: ProductDomainError) -> Self {
         match e {
             ProductDomainError::EmptyName
-            | ProductDomainError::NegativePrice => AppError::BadRequest(e.to_string()),
-            ProductDomainError::NotFound        => AppError::NotFound,
-            ProductDomainError::Internal        => AppError::Internal,
+            | ProductDomainError::NegativePrice 
+            | ProductDomainError::EmptyUnitAmount => AppError::BadRequest(e.to_string()),
+            ProductDomainError::NotFound          => AppError::NotFound,
+            ProductDomainError::Internal          => AppError::Internal,
         }
     }
 }

@@ -23,8 +23,6 @@ async fn main() {
 
     let pool = create_pool(&database_url).await.expect("failed to connect to db");
 
-    sqlx::migrate!("./migrations").run(&pool).await.expect("migrations failed");
-
     // ── Infrastructure (adapters) ──────────────────────────────────────────
     let user_repo    = Arc::new(PostgresUserRepository::new(pool.clone()));
     let product_repo = Arc::new(PostgresProductRepository::new(pool.clone()));
