@@ -2,7 +2,7 @@ use axum::{routing::{get, post}, Router};
 
 use crate::interfaces::{
     auth::handlers::{login, register},
-    product::handlers::{create_product, list_products},
+    product::handlers::{create_product, list_products, list_products_admin},
     state::AppState,
 };
 
@@ -21,5 +21,6 @@ fn auth_routes() -> Router<AppState> {
 
 fn product_routes() -> Router<AppState> {
     Router::new()
-        .route("/", get(list_products).post(create_product))
+        .route("/",      get(list_products).post(create_product))
+        .route("/admin", get(list_products_admin))
 }

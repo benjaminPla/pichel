@@ -8,7 +8,6 @@
 </head>
 <body class="layout-admin">
 
-  <!-- ── Sidebar ── -->
   <aside class="sidebar" id="sidebar">
     <a href="/" class="sidebar-brand">Pichel <small>ADMIN</small></a>
     <nav class="sidebar-nav">
@@ -24,7 +23,6 @@
     </div>
   </aside>
 
-  <!-- ── Main ── -->
   <div class="main">
     <div class="topbar">
       <button class="menu-toggle" id="menu-toggle">
@@ -32,7 +30,6 @@
       </button>
       <span class="topbar-title" id="topbar-title">Dashboard</span>
     </div>
-
     <div class="content" id="content"></div>
   </div>
 
@@ -89,6 +86,12 @@
       return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
     }
 
+    function stockStatusBadge(status) {
+      if (status === 'out_of_stock') return `<span class="badge badge-out">Sin stock</span>`;
+      if (status === 'low_stock')    return `<span class="badge badge-low">Stock bajo</span>`;
+      return `<span class="badge badge-green">En stock</span>`;
+    }
+
     // ── Pages ──────────────────────────────────────────────────────
 
     function renderPage(page) {
@@ -103,35 +106,51 @@
       el.innerHTML = `<div class="stats">${statSkeleton()}${statSkeleton()}${statSkeleton()}</div>`;
 
       try {
-        const res      = await apiFetch('/products');
+        const res      = await apiFetch('/products/admin');
         const products = res.ok ? await res.json() : [];
-        const total    = products.reduce((s, p) => s + p.price_cents, 0);
-        const avg      = products.length ? Math.round(total / products.length) : 0;
+
+        const total      = products.length;
+        const invValue   = products.reduce((s, p) => s + p.stock * p.price_cents, 0);
+        const avgPrice   = total ? Math.round(products.reduce((s, p) => s + p.price_cents, 0) / total) : 0;
+        const outOfStock = products.filter(p => p.stock_status === 'out_of_stock');
+        const lowStock   = products.filter(p => p.stock_status === 'low_stock');
 
         el.innerHTML = `
           <div class="stats">
             <div class="stat-card">
               <div class="stat-label">Productos</div>
-              <div class="stat-value accent">${products.length}</div>
+              <div class="stat-value accent">${total}</div>
               <div class="stat-sub">en catálogo</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Precio total</div>
-              <div class="stat-value">${fmtCents(total)}</div>
-              <div class="stat-sub">suma de precios</div>
+              <div class="stat-label">Valor de inventario</div>
+              <div class="stat-value">${fmtCents(invValue)}</div>
+              <div class="stat-sub">stock × precio de venta</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Precio promedio</div>
-              <div class="stat-value">${fmtCents(avg)}</div>
-              <div class="stat-sub">por producto</div>
+              <div class="stat-value">${fmtCents(avgPrice)}</div>
+              <div class="stat-sub">precio de venta</div>
             </div>
           </div>
 
-          <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
-            <h2>Productos recientes</h2>
-            <button class="btn btn-ghost" onclick="renderPage('products')">Ver todos</button>
-          </div>
-          <div class="table-wrap">${productsTable(products.slice(0, 5))}</div>`;
+          ${(outOfStock.length || lowStock.length) ? `
+          <div class="alert-panel">
+            ${outOfStock.length ? `
+              <div class="alert-block alert-block--error">
+                <div class="alert-title">⚠ Sin stock (${outOfStock.length})</div>
+                <ul class="alert-list">
+                  ${outOfStock.map(p => `<li>${p.name} <span class="text-muted">— ${p.unit_amount}</span></li>`).join('')}
+                </ul>
+              </div>` : ''}
+            ${lowStock.length ? `
+              <div class="alert-block alert-block--warning">
+                <div class="alert-title">⚡ Stock bajo (${lowStock.length})</div>
+                <ul class="alert-list">
+                  ${lowStock.map(p => `<li>${p.name} <span class="text-muted">— ${p.stock} uds.</span></li>`).join('')}
+                </ul>
+              </div>` : ''}
+          </div>` : ''}`;
       } catch {
         el.innerHTML = `<p style="color:var(--clr-text-muted)">Error al cargar el dashboard.</p>`;
       }
@@ -168,15 +187,27 @@
                 </select>
               </div>
               <div class="form-field">
-                <label>Precio (centavos) *</label>
+                <label>Precio de venta (centavos) *</label>
                 <input id="p-price" type="number" min="0" step="1" placeholder="ej. 420" required />
               </div>
               <div class="form-field">
+                <label>Costo (centavos)</label>
+                <input id="p-cost" type="number" min="0" step="1" placeholder="ej. 260" />
+              </div>
+              <div class="form-field">
+                <label>Stock inicial</label>
+                <input id="p-stock" type="number" min="0" step="1" placeholder="0" value="0" />
+              </div>
+              <div class="form-field">
+                <label>Alerta stock bajo</label>
+                <input id="p-threshold" type="number" min="0" step="1" placeholder="5" value="5" />
+              </div>
+              <div class="form-field">
                 <label>URL de imagen</label>
-                <input id="p-img" placeholder="/images/products/avena.webp" />
+                <input id="p-img" placeholder="/images/products/nombre.webp" />
               </div>
             </div>
-            <div style="margin-top:var(--sp-4)">
+            <div style="margin-top:var(--sp-5)">
               <button class="btn btn-primary" type="submit" id="add-btn">Agregar producto</button>
             </div>
           </form>
@@ -192,12 +223,15 @@
 
       document.getElementById('add-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name        = document.getElementById('p-name').value.trim();
-        const description = document.getElementById('p-desc').value.trim();
-        const unit_amount = document.getElementById('p-unit').value.trim();
-        const unit_type   = parseInt(document.getElementById('p-unit-type').value);
-        const price_cents = parseInt(document.getElementById('p-price').value);
-        const image_url   = document.getElementById('p-img').value.trim();
+        const name                = document.getElementById('p-name').value.trim();
+        const description         = document.getElementById('p-desc').value.trim();
+        const unit_amount         = document.getElementById('p-unit').value.trim();
+        const unit_type           = parseInt(document.getElementById('p-unit-type').value);
+        const price_cents         = parseInt(document.getElementById('p-price').value);
+        const cost_price_raw      = document.getElementById('p-cost').value.trim();
+        const stock               = parseInt(document.getElementById('p-stock').value) || 0;
+        const low_stock_threshold = parseInt(document.getElementById('p-threshold').value) || 5;
+        const image_url           = document.getElementById('p-img').value.trim();
 
         if (!name || !unit_amount || isNaN(price_cents)) return;
 
@@ -205,9 +239,10 @@
         btn.disabled = true; btn.textContent = '…';
 
         try {
-          const body = { name, unit_amount, unit_type, price_cents };
-          if (description) body.description = description;
-          if (image_url)   body.image_url   = image_url;
+          const body = { name, unit_amount, unit_type, price_cents, stock, low_stock_threshold };
+          if (description)    body.description = description;
+          if (cost_price_raw) body.cost_price  = parseInt(cost_price_raw);
+          if (image_url)      body.image_url   = image_url;
 
           const res = await apiFetch('/products', {
             method: 'POST',
@@ -215,8 +250,10 @@
           });
           if (!res.ok) { toast('Error al crear el producto', 'error'); return; }
 
-          ['p-name','p-desc','p-unit','p-price','p-img'].forEach(id => document.getElementById(id).value = '');
+          ['p-name','p-desc','p-unit','p-price','p-cost','p-img'].forEach(id => document.getElementById(id).value = '');
           document.getElementById('p-unit-type').value = '1';
+          document.getElementById('p-stock').value     = '0';
+          document.getElementById('p-threshold').value = '5';
           toast('Producto agregado');
           await loadProductsAdmin();
         } catch { toast('Error del servidor', 'error'); }
@@ -226,7 +263,7 @@
 
     async function loadProductsAdmin() {
       try {
-        const res      = await apiFetch('/products');
+        const res      = await apiFetch('/products/admin');
         const products = res.ok ? await res.json() : [];
         document.getElementById('prod-count').textContent = `${products.length} productos`;
         document.getElementById('prod-table-wrap').innerHTML = productsTable(products);
@@ -240,18 +277,20 @@
       return `<table>
         <thead><tr>
           <th>Nombre</th>
-          <th>Descripción</th>
           <th>Presentación</th>
-          <th>Precio</th>
+          <th>Precio venta</th>
+          <th>Costo</th>
+          <th>Stock</th>
           <th>Estado</th>
         </tr></thead>
         <tbody>
           ${products.map(p => `<tr>
-            <td style="font-weight:var(--fw-semibold)">${p.name}</td>
-            <td style="color:var(--clr-text-muted)">${p.description || '—'}</td>
+            <td style="font-weight:var(--fw-semibold)">${p.name}${p.description ? `<br><small style="font-weight:var(--fw-normal);color:var(--clr-text-muted)">${p.description}</small>` : ''}</td>
             <td style="color:var(--clr-text-muted)">${p.unit_amount}</td>
             <td>${fmtCents(p.price_cents)}</td>
-            <td><span class="badge badge-green">Activo</span></td>
+            <td style="color:var(--clr-text-muted)">${p.cost_price != null ? fmtCents(p.cost_price) : '—'}</td>
+            <td>${p.stock} uds.</td>
+            <td>${stockStatusBadge(p.stock_status)}</td>
           </tr>`).join('')}
         </tbody>
       </table>`;

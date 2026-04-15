@@ -58,36 +58,74 @@ impl UnitType {
     pub fn value(&self) -> i32 { self.0 }
 }
 
+// ── Stock status ──────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum StockStatus {
+    InStock,
+    LowStock,
+    OutOfStock,
+}
+
+impl StockStatus {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::InStock    => "in_stock",
+            Self::LowStock   => "low_stock",
+            Self::OutOfStock => "out_of_stock",
+        }
+    }
+}
+
 // ── Aggregate Root ────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone)]
 pub struct Product {
-    pub id:          ProductId,
-    pub name:        ProductName,
-    pub description: Option<String>,
-    pub price_cents: PriceCents,
-    pub unit_amount: UnitAmount,
-    pub unit_type:   UnitType,
-    pub image_url:   Option<String>,
+    pub id:                  ProductId,
+    pub name:                ProductName,
+    pub description:         Option<String>,
+    pub price_cents:         PriceCents,
+    pub cost_price:          Option<i32>,   // what the store paid; null = unknown
+    pub unit_amount:         UnitAmount,
+    pub unit_type:           UnitType,
+    pub stock:               i32,           // current on-hand quantity
+    pub low_stock_threshold: i32,           // warn when stock drops to/below this
+    pub image_url:           Option<String>,
 }
 
 impl Product {
     pub fn create(
-        name:        ProductName,
-        description: Option<String>,
-        price_cents: PriceCents,
-        unit_amount: UnitAmount,
-        unit_type:   UnitType,
-        image_url:   Option<String>,
+        name:                ProductName,
+        description:         Option<String>,
+        price_cents:         PriceCents,
+        cost_price:          Option<i32>,
+        unit_amount:         UnitAmount,
+        unit_type:           UnitType,
+        stock:               i32,
+        low_stock_threshold: i32,
+        image_url:           Option<String>,
     ) -> Self {
         Self {
             id: ProductId(Uuid::new_v4()),
             name,
             description,
             price_cents,
+            cost_price,
             unit_amount,
             unit_type,
+            stock,
+            low_stock_threshold,
             image_url,
+        }
+    }
+
+    pub fn stock_status(&self) -> StockStatus {
+        if self.stock == 0 {
+            StockStatus::OutOfStock
+        } else if self.stock <= self.low_stock_threshold {
+            StockStatus::LowStock
+        } else {
+            StockStatus::InStock
         }
     }
 }

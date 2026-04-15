@@ -10,20 +10,61 @@
 
   <nav class="topnav">
     <a href="/" class="nav-brand">Pichel</a>
+    <ul class="topnav-links">
+      <li><a href="#precios">Precios</a></li>
+      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
   </nav>
 
   <section class="hero">
-    <h1>Lista de <span>precios.</span></h1>
-    <p>Productos naturales · A granel · Frutos secos · Herbas</p>
+    <h1>Dietética <span>natural de barrio.</span></h1>
+    <p>Productos a granel · Frutos secos · Semillas · Herbas</p>
   </section>
 
-  <main>
-    <div class="price-list-wrap" id="list-wrap">
-      <div class="price-list-skeleton">
-        ${Array(8).fill('<div class="pl-skeleton-row"></div>').join('')}
+  <!-- ── Lista de precios ── -->
+  <section id="precios">
+    <div class="price-list-wrap">
+      <div class="section-header" style="padding:0;margin-bottom:var(--sp-5)">
+        <h2>Lista de precios</h2>
+        <span id="product-count" class="text-muted"></span>
+      </div>
+      <div id="list-wrap">
+        <div class="price-list-skeleton">
+          <div class="pl-skeleton-row"></div><div class="pl-skeleton-row"></div>
+          <div class="pl-skeleton-row"></div><div class="pl-skeleton-row"></div>
+          <div class="pl-skeleton-row"></div><div class="pl-skeleton-row"></div>
+        </div>
       </div>
     </div>
-  </main>
+  </section>
+
+  <!-- ── Quiénes somos ── -->
+  <section id="nosotros" class="info-section">
+    <div class="info-wrap">
+      <h2 class="info-title">Quiénes somos</h2>
+      <p class="info-text">
+        Somos un almacén de barrio especializado en productos naturales, orgánicos y a granel.
+        Creemos que comer bien no tiene que ser complicado ni caro.
+        Trabajamos directamente con productores locales para ofrecerte la mejor calidad al precio justo.
+      </p>
+      <p class="info-text">
+        Encontrá en Pichel lo que necesitás: cereales, legumbres, frutos secos, semillas,
+        aceites, endulzantes naturales y mucho más.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Contacto ── -->
+  <section id="contacto" class="info-section info-section--alt">
+    <div class="info-wrap">
+      <h2 class="info-title">Contacto</h2>
+      <p class="info-text">¿Consultas sobre productos, precios mayoristas o pedidos especiales?</p>
+      <a href="mailto:hola@pichel.com.ar" class="btn btn-primary contact-btn">
+        hola@pichel.com.ar
+      </a>
+    </div>
+  </section>
 
   <footer>
     &copy; <span id="yr"></span> Pichel · Dietética Natural de Barrio
@@ -38,6 +79,12 @@
       return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
     }
 
+    function stockBadge(status) {
+      if (status === 'out_of_stock') return `<span class="stock-badge stock-out">Sin stock</span>`;
+      if (status === 'low_stock')    return `<span class="stock-badge stock-low">Últimas unidades</span>`;
+      return '';
+    }
+
     async function loadPriceList() {
       const wrap = document.getElementById('list-wrap');
 
@@ -45,6 +92,10 @@
         const res = await fetch(`${API}/products`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const products = await res.json();
+
+        const available = products.filter(p => p.stock_status !== 'out_of_stock').length;
+        document.getElementById('product-count').textContent =
+          `${products.length} productos · ${available} disponibles`;
 
         if (!products.length) {
           wrap.innerHTML = `<p class="pl-empty">Sin productos por ahora.</p>`;
@@ -63,15 +114,19 @@
             </thead>
             <tbody>
               ${products.map(p => `
-                <tr>
+                <tr class="${p.stock_status === 'out_of_stock' ? 'pl-row-unavailable' : ''}">
                   <td class="pl-img-cell">
                     ${p.image_url
                       ? `<img src="${p.image_url}" alt="${p.name}" class="pl-thumb">`
                       : `<div class="pl-thumb pl-thumb-empty">🌿</div>`}
                   </td>
-                  <td class="pl-name">${p.name}${p.description ? `<span class="pl-desc">${p.description}</span>` : ''}</td>
+                  <td class="pl-name">
+                    ${p.name}
+                    ${p.description ? `<span class="pl-desc">${p.description}</span>` : ''}
+                    ${stockBadge(p.stock_status)}
+                  </td>
                   <td class="pl-unit">${p.unit_amount}</td>
-                  <td class="pl-price">${fmtCents(p.price_cents)}</td>
+                  <td class="pl-price">${p.stock_status === 'out_of_stock' ? '<span class="pl-unavailable">—</span>' : fmtCents(p.price_cents)}</td>
                 </tr>`).join('')}
             </tbody>
           </table>`;
