@@ -1,4 +1,4 @@
-.PHONY: dev-up dev-down db-seed db-exec clean logs
+.PHONY: dev-up dev-down db-migrate db-seed db-exec clean logs
 
 dev-up:
 	docker compose up -d db web
@@ -10,14 +10,17 @@ dev-up:
 dev-down:
 	docker compose down
 
+db-migrate:
+	@echo "Waiting for DB to be ready..."
+	@until docker compose exec -T db psql -U pichel -d pichel -c '\q' 2>/dev/null; do sleep 1; done
+	@echo "Running migrations..."
+	docker compose exec -T db psql -U pichel -d pichel < db/migrations/0001_init.sql
+	@echo "Migrations done."
+
 db-exec:
 	docker compose exec db psql -U pichel -d pichel
 
 db-seed:
-	@echo "Waiting for migrations..."
-	@until docker compose exec -T db psql -U pichel -d pichel -c '\dt' 2>/dev/null | grep -q users; do \
-		sleep 1; \
-	done
 	@echo "Running seed..."
 	docker compose exec -T db psql -U pichel -d pichel < db/seed.sql
 	@echo "Done. Login: admin@admin.com / admin"
