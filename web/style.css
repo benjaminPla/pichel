@@ -122,7 +122,9 @@ body.layout-auth {
 
 
 /* ── 5. Navigation ─────────────────────────────────────────────── */
-nav {
+/* .topnav = public store top bar only — intentionally NOT "nav" to
+   avoid bleeding into nav.sidebar-nav in the admin panel            */
+.topnav {
   position: sticky;
   top: 0;
   z-index: 100;
@@ -391,6 +393,14 @@ nav {
   margin-bottom: var(--sp-2);
 }
 
+.auth-subtitle {
+  text-align: center;
+  font-size: var(--text-base);
+  font-weight: var(--fw-medium);
+  color: var(--clr-text-muted);
+  margin-bottom: var(--sp-8);
+}
+
 .field { margin-bottom: var(--sp-5); }
 
 label {
@@ -554,7 +564,18 @@ input::placeholder { color: var(--clr-border); }
   letter-spacing: .04em;
 }
 
-nav.sidebar-nav { flex: 1; padding: var(--sp-4) 0; }
+nav.sidebar-nav {
+  /* reset any nav base styles that might bleed in */
+  position: static;
+  height: auto;
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: none;
+  display: block;
+  padding: var(--sp-4) 0;
+  gap: 0;
+  flex: 1;
+}
 
 .nav-section {
   font-size: var(--text-xs);
