@@ -12,22 +12,11 @@
   <aside class="sidebar" id="sidebar">
     <a href="/" class="sidebar-brand">Pichel <small>ADMIN</small></a>
     <nav class="sidebar-nav">
-      <div class="nav-section">Principal</div>
       <a class="nav-item active" data-page="dashboard">
         <span class="icon">📊</span> Dashboard
       </a>
       <a class="nav-item" data-page="products">
         <span class="icon">📦</span> Productos
-      </a>
-      <div class="nav-section">Próximamente</div>
-      <a class="nav-item" data-page="orders">
-        <span class="icon">🧾</span> Pedidos
-      </a>
-      <a class="nav-item" data-page="users">
-        <span class="icon">👥</span> Usuarios
-      </a>
-      <a class="nav-item" data-page="settings">
-        <span class="icon">⚙️</span> Configuración
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -42,43 +31,28 @@
         <span></span><span></span><span></span>
       </button>
       <span class="topbar-title" id="topbar-title">Dashboard</span>
-      <span class="topbar-user" id="topbar-user"></span>
     </div>
 
     <div class="content" id="content"></div>
   </div>
 
-  <!-- ── Toast ── -->
   <div class="toast" id="toast"></div>
 
   <script>
     const API = '';
 
-    // ── Auth guard ──
     const token = localStorage.getItem('token');
     if (!token) window.location.href = '/login.html';
 
-    // ── Decode user from JWT ──
-    function parseJwt(t) {
-      try {
-        return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
-      } catch { return {}; }
-    }
-    const payload = parseJwt(token);
-    document.getElementById('topbar-user').textContent = payload.sub || 'Admin';
-
-    // ── Sidebar toggle (mobile) ──
     document.getElementById('menu-toggle').addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('open');
     });
 
-    // ── Logout ──
     document.getElementById('logout-btn').addEventListener('click', () => {
       localStorage.removeItem('token');
       window.location.href = '/login.html';
     });
 
-    // ── Nav routing ──
     const navItems = document.querySelectorAll('.nav-item[data-page]');
     navItems.forEach(item => {
       item.addEventListener('click', () => {
@@ -90,7 +64,6 @@
       });
     });
 
-    // ── Toast helper ──
     function toast(msg, type = 'success') {
       const el = document.getElementById('toast');
       el.textContent = msg;
@@ -99,7 +72,6 @@
       el._t = setTimeout(() => el.classList.remove('show'), 3000);
     }
 
-    // ── API helpers ──
     async function apiFetch(path, opts = {}) {
       const res = await fetch(`${API}${path}`, {
         ...opts,
@@ -113,31 +85,28 @@
       return res;
     }
 
-    // ── Pages ──────────────────────────────────────────────────
-
-    async function renderPage(page) {
-      const content = document.getElementById('content');
-      switch (page) {
-        case 'dashboard': return renderDashboard(content);
-        case 'products':  return renderProducts(content);
-        default:
-          content.innerHTML = `<p style="color:var(--clr-text-muted);margin-top:var(--sp-12);text-align:center">
-            Esta sección está en desarrollo.
-          </p>`;
-      }
+    function fmtCents(cents) {
+      return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
     }
 
-    // ── Dashboard ──
+    // ── Pages ──────────────────────────────────────────────────────
+
+    function renderPage(page) {
+      const content = document.getElementById('content');
+      if (page === 'dashboard') return renderDashboard(content);
+      if (page === 'products')  return renderProducts(content);
+    }
+
+    // ── Dashboard ─────────────────────────────────────────────────
+
     async function renderDashboard(el) {
-      el.innerHTML = `<div class="stats">
-        ${statSkeleton()} ${statSkeleton()} ${statSkeleton()} ${statSkeleton()}
-      </div>`;
+      el.innerHTML = `<div class="stats">${statSkeleton()}${statSkeleton()}${statSkeleton()}</div>`;
 
       try {
         const res      = await apiFetch('/products');
         const products = res.ok ? await res.json() : [];
         const total    = products.reduce((s, p) => s + p.price_cents, 0);
-        const avg      = products.length ? total / products.length : 0;
+        const avg      = products.length ? Math.round(total / products.length) : 0;
 
         el.innerHTML = `
           <div class="stats">
@@ -147,7 +116,7 @@
               <div class="stat-sub">en catálogo</div>
             </div>
             <div class="stat-card">
-              <div class="stat-label">Valor total</div>
+              <div class="stat-label">Precio total</div>
               <div class="stat-value">${fmtCents(total)}</div>
               <div class="stat-sub">suma de precios</div>
             </div>
@@ -156,82 +125,102 @@
               <div class="stat-value">${fmtCents(avg)}</div>
               <div class="stat-sub">por producto</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-label">Pedidos</div>
-              <div class="stat-value" style="color:var(--clr-text-muted)">—</div>
-              <div class="stat-sub">próximamente</div>
-            </div>
           </div>
 
           <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
             <h2>Productos recientes</h2>
             <button class="btn btn-ghost" onclick="renderPage('products')">Ver todos</button>
           </div>
-          <div class="table-wrap">${productsTable(products.slice(0, 5))}</div>
-        `;
+          <div class="table-wrap">${productsTable(products.slice(0, 5))}</div>`;
       } catch {
         el.innerHTML = `<p style="color:var(--clr-text-muted)">Error al cargar el dashboard.</p>`;
       }
     }
 
-    // ── Products ──
+    // ── Products ──────────────────────────────────────────────────
+
     async function renderProducts(el) {
       el.innerHTML = `
         <div class="form-card">
-          <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
+          <div class="section-header" style="padding:0;margin-bottom:var(--sp-5)">
             <h2>Agregar producto</h2>
           </div>
           <form id="add-form">
-            <div class="form-row">
+            <div class="form-grid">
               <div class="form-field">
-                <label>Nombre</label>
+                <label>Nombre *</label>
                 <input id="p-name" placeholder="ej. Avena integral" required />
               </div>
               <div class="form-field">
-                <label>Unidad</label>
+                <label>Descripción</label>
+                <input id="p-desc" placeholder="ej. Sin gluten, orgánica" />
+              </div>
+              <div class="form-field">
+                <label>Presentación *</label>
                 <input id="p-unit" placeholder="ej. 500g" required />
               </div>
               <div class="form-field">
-                <label>Precio (centavos)</label>
-                <input id="p-price" type="number" min="0" step="1" placeholder="420" required />
+                <label>Tipo de unidad *</label>
+                <select id="p-unit-type" class="form-select">
+                  <option value="1">Peso</option>
+                  <option value="2">Volumen</option>
+                  <option value="3">Unidad</option>
+                </select>
               </div>
-              <button class="btn btn-primary" type="submit" id="add-btn">Agregar</button>
+              <div class="form-field">
+                <label>Precio (centavos) *</label>
+                <input id="p-price" type="number" min="0" step="1" placeholder="ej. 420" required />
+              </div>
+              <div class="form-field">
+                <label>URL de imagen</label>
+                <input id="p-img" placeholder="/images/products/avena.webp" />
+              </div>
+            </div>
+            <div style="margin-top:var(--sp-4)">
+              <button class="btn btn-primary" type="submit" id="add-btn">Agregar producto</button>
             </div>
           </form>
         </div>
 
         <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
           <h2>Todos los productos</h2>
-          <span id="prod-count" style="font-size:var(--text-sm);color:var(--clr-text-muted)"></span>
+          <span id="prod-count" class="text-muted"></span>
         </div>
-        <div class="table-wrap" id="prod-table-wrap">Cargando…</div>
-      `;
+        <div class="table-wrap" id="prod-table-wrap">Cargando…</div>`;
 
       await loadProductsAdmin();
 
       document.getElementById('add-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const name        = document.getElementById('p-name').value.trim();
+        const description = document.getElementById('p-desc').value.trim();
         const unit_amount = document.getElementById('p-unit').value.trim();
+        const unit_type   = parseInt(document.getElementById('p-unit-type').value);
         const price_cents = parseInt(document.getElementById('p-price').value);
+        const image_url   = document.getElementById('p-img').value.trim();
+
         if (!name || !unit_amount || isNaN(price_cents)) return;
 
         const btn = document.getElementById('add-btn');
         btn.disabled = true; btn.textContent = '…';
 
         try {
+          const body = { name, unit_amount, unit_type, price_cents };
+          if (description) body.description = description;
+          if (image_url)   body.image_url   = image_url;
+
           const res = await apiFetch('/products', {
             method: 'POST',
-            body: JSON.stringify({ name, unit_amount, price_cents, unit_type: 1 }),
+            body: JSON.stringify(body),
           });
           if (!res.ok) { toast('Error al crear el producto', 'error'); return; }
-          document.getElementById('p-name').value  = '';
-          document.getElementById('p-unit').value  = '';
-          document.getElementById('p-price').value = '';
+
+          ['p-name','p-desc','p-unit','p-price','p-img'].forEach(id => document.getElementById(id).value = '');
+          document.getElementById('p-unit-type').value = '1';
           toast('Producto agregado');
           await loadProductsAdmin();
         } catch { toast('Error del servidor', 'error'); }
-        finally { btn.disabled = false; btn.textContent = 'Agregar'; }
+        finally { btn.disabled = false; btn.textContent = 'Agregar producto'; }
       });
     }
 
@@ -246,41 +235,35 @@
       }
     }
 
-    // ── Shared table ──
     function productsTable(products) {
       if (!products.length) return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin productos todavía.</p>`;
       return `<table>
         <thead><tr>
           <th>Nombre</th>
-          <th>Unidad</th>
+          <th>Descripción</th>
+          <th>Presentación</th>
           <th>Precio</th>
           <th>Estado</th>
-          <th>ID</th>
         </tr></thead>
         <tbody>
           ${products.map(p => `<tr>
             <td style="font-weight:var(--fw-semibold)">${p.name}</td>
+            <td style="color:var(--clr-text-muted)">${p.description || '—'}</td>
             <td style="color:var(--clr-text-muted)">${p.unit_amount}</td>
             <td>${fmtCents(p.price_cents)}</td>
             <td><span class="badge badge-green">Activo</span></td>
-            <td style="color:var(--clr-text-muted);font-size:var(--text-xs);font-family:monospace">${p.id.slice(0,8)}…</td>
           </tr>`).join('')}
         </tbody>
       </table>`;
     }
 
-    // ── Helpers ──
-    function fmtCents(cents) {
-      return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
-    }
     function statSkeleton() {
       return `<div class="stat-card" style="opacity:.35">
-        <div class="stat-label" style="background:var(--clr-surface-2);height:10px;width:60%;border-radius:var(--radius-sm)"></div>
-        <div class="stat-value" style="background:var(--clr-surface-2);height:30px;width:50%;border-radius:var(--radius-sm);margin-top:var(--sp-2)"></div>
+        <div style="background:var(--clr-surface-2);height:10px;width:60%;border-radius:var(--radius-sm)"></div>
+        <div style="background:var(--clr-surface-2);height:30px;width:50%;border-radius:var(--radius-sm);margin-top:var(--sp-2)"></div>
       </div>`;
     }
 
-    // ── Init ──
     renderPage('dashboard');
   </script>
 </body>

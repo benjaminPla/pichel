@@ -8,33 +8,21 @@
 </head>
 <body>
 
-  <!-- ── Nav ── -->
   <nav class="topnav">
     <a href="/" class="nav-brand">Pichel</a>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="#">Productos</a></li>
-      <li><a href="#">Quiénes somos</a></li>
-      <li><a href="#">Contacto</a></li>
-    </ul>
-    <a href="/login.html" class="btn-login">Ingresar</a>
-    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-      <span></span><span></span><span></span>
-    </button>
   </nav>
 
-  <!-- ── Hero ── -->
   <section class="hero">
-    <h1>Lo natural, <span>de tu barrio.</span></h1>
-    <p>Productos a granel, frutos secos, semillas y mucho más.</p>
+    <h1>Lista de <span>precios.</span></h1>
+    <p>Productos naturales · A granel · Frutos secos · Herbas</p>
   </section>
 
-  <!-- ── Products ── -->
   <main>
-    <div class="section-header">
-      <h2>Todos los productos</h2>
-      <span id="product-count"></span>
+    <div class="price-list-wrap" id="list-wrap">
+      <div class="price-list-skeleton">
+        ${Array(8).fill('<div class="pl-skeleton-row"></div>').join('')}
+      </div>
     </div>
-    <div class="products-grid" id="grid"></div>
   </main>
 
   <footer>
@@ -44,81 +32,55 @@
   <script>
     const API = '';
 
-    // ── Hamburger ──
-    document.getElementById('hamburger').addEventListener('click', () => {
-      document.getElementById('nav-links').classList.toggle('open');
-    });
-
-    // ── Year ──
     document.getElementById('yr').textContent = new Date().getFullYear();
 
-    // ── Helpers ──
     function fmtCents(cents) {
       return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
     }
 
-    function skeletonCard() {
-      return `<div class="card skeleton">
-        <div class="card-img"></div>
-        <div class="card-body">
-          <div class="card-name"></div>
-          <div class="card-price"></div>
-        </div>
-        <button class="btn-add">Agregar</button>
-      </div>`;
-    }
-
-    function productCard(p) {
-      const img = p.image_url
-        ? `<img src="${p.image_url}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover">`
-        : `🌿`;
-      return `<div class="card" data-id="${p.id}">
-        <div class="card-img">${img}</div>
-        <div class="card-body">
-          <div class="card-name">${p.name}</div>
-          ${p.description ? `<div style="font-size:var(--text-xs);color:var(--clr-text-muted);margin-top:var(--sp-1)">${p.description}</div>` : ''}
-          <div style="font-size:var(--text-xs);color:var(--clr-text-muted);margin-top:var(--sp-1)">${p.unit_amount}</div>
-          <div class="card-price">${fmtCents(p.price_cents)}</div>
-        </div>
-        <button class="btn-add" onclick="addToCart('${p.id}', '${p.name}')">Agregar al carrito</button>
-      </div>`;
-    }
-
-    // ── Load products ──
-    async function loadProducts() {
-      const grid = document.getElementById('grid');
-
-      grid.innerHTML = Array(6).fill(skeletonCard()).join('');
+    async function loadPriceList() {
+      const wrap = document.getElementById('list-wrap');
 
       try {
         const res = await fetch(`${API}/products`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const products = await res.json();
 
-        if (products.length === 0) {
-          grid.innerHTML = `<div class="state-msg"><div class="icon">📦</div>Sin productos por ahora.</div>`;
+        if (!products.length) {
+          wrap.innerHTML = `<p class="pl-empty">Sin productos por ahora.</p>`;
           return;
         }
 
-        document.getElementById('product-count').textContent = `${products.length} productos`;
-        grid.innerHTML = products.map(productCard).join('');
+        wrap.innerHTML = `
+          <table class="price-list">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Producto</th>
+                <th>Presentación</th>
+                <th>Precio</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${products.map(p => `
+                <tr>
+                  <td class="pl-img-cell">
+                    ${p.image_url
+                      ? `<img src="${p.image_url}" alt="${p.name}" class="pl-thumb">`
+                      : `<div class="pl-thumb pl-thumb-empty">🌿</div>`}
+                  </td>
+                  <td class="pl-name">${p.name}${p.description ? `<span class="pl-desc">${p.description}</span>` : ''}</td>
+                  <td class="pl-unit">${p.unit_amount}</td>
+                  <td class="pl-price">${fmtCents(p.price_cents)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
       } catch (err) {
-        grid.innerHTML = `<div class="state-msg">
-          <div class="icon">⚠️</div>
-          No se pudo cargar el catálogo. ¿Está corriendo la API?<br>
-          <small style="margin-top:var(--sp-2);display:block">${err.message}</small>
-        </div>`;
+        wrap.innerHTML = `<p class="pl-empty">No se pudo cargar la lista. ¿Está corriendo la API?<br><small>${err.message}</small></p>`;
       }
     }
 
-    function addToCart(id, name) {
-      console.log('add to cart', id, name);
-      const btn = document.querySelector(`.card[data-id="${id}"] .btn-add`);
-      btn.textContent = 'Agregado ✓';
-      setTimeout(() => btn.textContent = 'Agregar al carrito', 1500);
-    }
-
-    loadProducts();
+    loadPriceList();
   </script>
 </body>
 </html>
