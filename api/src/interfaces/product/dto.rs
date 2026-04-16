@@ -1,6 +1,17 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+// ── Pagination ────────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+pub struct Paginated<T: Serialize> {
+    pub data:        Vec<T>,
+    pub total:       i64,
+    pub page:        i64,
+    pub per_page:    i64,
+    pub total_pages: i64,
+}
+
 use crate::domain::product::Product;
 
 // ── Create ────────────────────────────────────────────────────────────────────

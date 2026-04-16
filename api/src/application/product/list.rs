@@ -10,7 +10,7 @@ impl ListProductsUseCase {
         Self { product_repo }
     }
 
-    pub async fn execute(&self) -> Result<Vec<Product>, ProductDomainError> {
-        self.product_repo.find_all().await
+    pub async fn execute(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductDomainError> {
+        self.product_repo.find_all(page, per_page).await
     }
 }

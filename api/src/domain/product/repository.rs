@@ -5,5 +5,5 @@ use super::product::{Product, ProductDomainError, ProductId};
 pub trait ProductRepository: Send + Sync {
     async fn save(&self, product: &Product) -> Result<(), ProductDomainError>;
     async fn find_by_id(&self, id: &ProductId) -> Result<Option<Product>, ProductDomainError>;
-    async fn find_all(&self) -> Result<Vec<Product>, ProductDomainError>;
+    async fn find_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductDomainError>;
 }

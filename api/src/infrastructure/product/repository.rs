@@ -54,17 +54,28 @@ impl ProductRepository for PostgresProductRepository {
         row.map(|r| map_row(&r)).transpose()
     }
 
-    async fn find_all(&self) -> Result<Vec<Product>, ProductDomainError> {
+    async fn find_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductDomainError> {
+        let offset = (page - 1) * per_page;
+
+        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM products")
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|_| ProductDomainError::Internal)?;
+
         let rows = sqlx::query(
             "SELECT id, name, description, price_cents, cost_price,
                     unit_amount, unit_type, stock, low_stock_threshold, image_url
-             FROM products ORDER BY name",
+             FROM products ORDER BY name
+             LIMIT $1 OFFSET $2",
         )
+        .bind(per_page)
+        .bind(offset)
         .fetch_all(&self.pool)
         .await
         .map_err(|_| ProductDomainError::Internal)?;
 
-        rows.iter().map(|r| map_row(r)).collect()
+        let products = rows.iter().map(|r| map_row(r)).collect::<Result<Vec<_>, _>>()?;
+        Ok((products, total))
     }
 }
 

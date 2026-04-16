@@ -1,27 +1,59 @@
-use axum::{extract::State, Json};
+use axum::{extract::{Query, State}, Json};
+use serde::Deserialize;
 
 use crate::interfaces::{
     errors::AppError,
     middleware::AuthenticatedUser,
-    product::dto::{AdminProductResponse, CreateProductRequest, PublicProductResponse},
+    product::dto::{AdminProductResponse, CreateProductRequest, Paginated, PublicProductResponse},
     state::AppState,
 };
 
-/// Public — no auth required. Returns stock_status but never cost_price.
-pub async fn list_products(
-    State(state): State<AppState>,
-) -> Result<Json<Vec<PublicProductResponse>>, AppError> {
-    let products = state.list_products_uc.execute().await?;
-    Ok(Json(products.into_iter().map(PublicProductResponse::from).collect()))
+#[derive(Deserialize)]
+pub struct PaginationQuery {
+    #[serde(default = "default_page")]
+    page:     i64,
+    #[serde(default = "default_per_page")]
+    per_page: i64,
 }
 
-/// Admin — auth required. Returns all fields including cost_price and raw stock.
+fn default_page()     -> i64 { 1 }
+fn default_per_page() -> i64 { 20 }
+
+/// Public — no auth required.
+pub async fn list_products(
+    State(state): State<AppState>,
+    Query(q): Query<PaginationQuery>,
+) -> Result<Json<Paginated<PublicProductResponse>>, AppError> {
+    let page     = q.page.max(1);
+    let per_page = q.per_page.clamp(1, 50);
+    let (products, total) = state.list_products_uc.execute(page, per_page).await?;
+    let total_pages = (total + per_page - 1) / per_page;
+    Ok(Json(Paginated {
+        data: products.into_iter().map(PublicProductResponse::from).collect(),
+        total,
+        page,
+        per_page,
+        total_pages,
+    }))
+}
+
+/// Admin — auth required.
 pub async fn list_products_admin(
     State(state): State<AppState>,
     _user: AuthenticatedUser,
-) -> Result<Json<Vec<AdminProductResponse>>, AppError> {
-    let products = state.list_products_uc.execute().await?;
-    Ok(Json(products.into_iter().map(AdminProductResponse::from).collect()))
+    Query(q): Query<PaginationQuery>,
+) -> Result<Json<Paginated<AdminProductResponse>>, AppError> {
+    let page     = q.page.max(1);
+    let per_page = q.per_page.clamp(1, 500);
+    let (products, total) = state.list_products_uc.execute(page, per_page).await?;
+    let total_pages = (total + per_page - 1) / per_page;
+    Ok(Json(Paginated {
+        data: products.into_iter().map(AdminProductResponse::from).collect(),
+        total,
+        page,
+        per_page,
+        total_pages,
+    }))
 }
 
 /// Create — auth required.
