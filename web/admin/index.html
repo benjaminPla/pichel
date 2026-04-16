@@ -106,8 +106,8 @@
       el.innerHTML = `<div class="stats">${statSkeleton()}${statSkeleton()}${statSkeleton()}</div>`;
 
       try {
-        const res      = await apiFetch('/products/admin');
-        const products = res.ok ? await res.json() : [];
+        const res      = await apiFetch('/products/admin?per_page=500');
+        const { data: products } = res.ok ? await res.json() : { data: [] };
 
         const total      = products.length;
         const invValue   = products.reduce((s, p) => s + p.stock * p.price_cents, 0);
@@ -261,12 +261,15 @@
       });
     }
 
-    async function loadProductsAdmin() {
+    const ADMIN_PER_PAGE = 20;
+
+    async function loadProductsAdmin(page = 1) {
       try {
-        const res      = await apiFetch('/products/admin');
-        const products = res.ok ? await res.json() : [];
-        document.getElementById('prod-count').textContent = `${products.length} productos`;
-        document.getElementById('prod-table-wrap').innerHTML = productsTable(products);
+        const res  = await apiFetch(`/products/admin?page=${page}&per_page=${ADMIN_PER_PAGE}`);
+        const { data: products, total, total_pages } = res.ok ? await res.json() : { data: [], total: 0, total_pages: 1 };
+        document.getElementById('prod-count').textContent = `${total} productos`;
+        document.getElementById('prod-table-wrap').innerHTML =
+          productsTable(products) + adminPaginationBar(page, total_pages);
       } catch {
         document.getElementById('prod-table-wrap').textContent = 'Error al cargar.';
       }
@@ -294,6 +297,16 @@
           </tr>`).join('')}
         </tbody>
       </table>`;
+    }
+
+    function adminPaginationBar(page, totalPages) {
+      if (totalPages <= 1) return '';
+      return `
+        <div class="pagination">
+          <button class="pagination-btn" onclick="loadProductsAdmin(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
+          <span class="pagination-info">Página ${page} de ${totalPages}</span>
+          <button class="pagination-btn" onclick="loadProductsAdmin(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
+        </div>`;
     }
 
     function statSkeleton() {

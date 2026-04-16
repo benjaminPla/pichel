@@ -647,13 +647,19 @@ nav.sidebar-nav {
 .content { padding: var(--sp-7); flex: 1; }
 
 
-/* ── 19. Stat cards ────────────────────────────────────────────── */
-.stats {
+/* ── 19. Dashboard grids + stat cards ──────────────────────────── */
+/* Both .stats and .alert-panel reference the same custom property,
+   so they always share identical column widths.                   */
+:root { --dashboard-cols: repeat(3, 1fr); }
+
+.stats,
+.alert-panel {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: var(--dashboard-cols);
   gap: var(--sp-4);
-  margin-bottom: var(--sp-8);
 }
+.stats       { margin-bottom: var(--sp-4); }
+.alert-panel { margin-bottom: var(--sp-8); }
 .stat-card {
   background: var(--clr-surface);
   border: var(--border);
@@ -761,12 +767,6 @@ tr:hover td { background: var(--clr-surface-2); }
 .stock-low { background: rgba(139, 105, 20, .10); color: var(--clr-warning); }
 
 /* ── 22c. Dashboard alert panel ────────────────────────────────── */
-.alert-panel {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--sp-4);
-  margin-top: var(--sp-6);
-}
 .alert-block {
   border-radius: var(--radius-md);
   padding: var(--sp-4) var(--sp-5);
@@ -817,7 +817,7 @@ tr:hover td { background: var(--clr-surface-2); }
   border-bottom: var(--border);
   transition: background var(--ease);
 }
-.price-list tbody tr:hover { background: var(--clr-surface); }
+.price-list tbody tr:hover td { background: var(--clr-surface); }
 .price-list td { padding: var(--sp-3) var(--sp-4); vertical-align: middle; }
 
 .pl-img-cell { width: 52px; padding-right: 0; }
@@ -838,9 +838,12 @@ tr:hover td { background: var(--clr-surface-2); }
 }
 .pl-name {
   font-weight: var(--fw-semibold);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
+  vertical-align: middle;
+}
+.pl-name .pl-desc,
+.pl-name .stock-badge {
+  display: block;
+  margin-top: var(--sp-1);
 }
 .pl-desc {
   font-size: var(--text-xs);
@@ -932,7 +935,31 @@ tr:hover td { background: var(--clr-surface-2); }
 .text-muted { font-size: var(--text-sm); color: var(--clr-text-muted); }
 
 
-/* ── 24. Footer ────────────────────────────────────────────────── */
+/* ── 24. Pagination ────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  justify-content: center;
+  padding: var(--sp-5) var(--sp-4);
+}
+.pagination-btn {
+  padding: var(--sp-2) var(--sp-4);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--clr-text);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background var(--ease), border-color var(--ease);
+}
+.pagination-btn:disabled { opacity: .4; cursor: not-allowed; }
+.pagination-btn:not(:disabled):hover { background: var(--clr-surface-2); border-color: var(--clr-accent); }
+.pagination-info { font-size: var(--text-sm); color: var(--clr-text-muted); }
+
+
+/* ── 25. Footer ────────────────────────────────────────────────── */
 footer {
   border-top: var(--border);
   padding: var(--sp-6);
@@ -943,7 +970,7 @@ footer {
 }
 
 
-/* ── 24. Responsive ────────────────────────────────────────────── */
+/* ── 26. Responsive ────────────────────────────────────────────── */
 
 /* Store / price list */
 @media (max-width: 640px) {
@@ -960,10 +987,10 @@ footer {
   .main { margin-left: 0; }
   .menu-toggle { display: flex; }
   .form-row { grid-template-columns: 1fr; }
-  .stats { grid-template-columns: repeat(2, 1fr); }
+  :root { --dashboard-cols: repeat(2, 1fr); }
 }
 
 @media (max-width: 480px) {
-  .stats { grid-column: 1fr 1fr; }
+  :root { --dashboard-cols: 1fr; }
   .content { padding: var(--sp-4); }
 }

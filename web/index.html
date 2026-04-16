@@ -19,7 +19,7 @@
 
   <section class="hero">
     <h1>Dietética <span>natural de barrio.</span></h1>
-    <p>Productos a granel · Frutos secos · Semillas · Herbas</p>
+    <p>Productos a granel · Frutos secos · Semillas · Hierbas</p>
   </section>
 
   <!-- ── Lista de precios ── -->
@@ -85,51 +85,69 @@
       return '';
     }
 
-    async function loadPriceList() {
-      const wrap = document.getElementById('list-wrap');
+    let currentPage = 1;
+    const PER_PAGE  = 20;
+
+    function priceTable(products) {
+      return `
+        <table class="price-list">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Producto</th>
+              <th>Presentación</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${products.map(p => `
+              <tr class="${p.stock_status === 'out_of_stock' ? 'pl-row-unavailable' : ''}">
+                <td class="pl-img-cell">
+                  ${p.image_url
+                    ? `<img src="${p.image_url}" alt="${p.name}" class="pl-thumb">`
+                    : `<div class="pl-thumb pl-thumb-empty">🌿</div>`}
+                </td>
+                <td class="pl-name">
+                  <span>${p.name}</span>
+                  ${p.description ? `<span class="pl-desc">${p.description}</span>` : ''}
+                  ${stockBadge(p.stock_status)}
+                </td>
+                <td class="pl-unit">${p.unit_amount}</td>
+                <td class="pl-price">${p.stock_status === 'out_of_stock' ? '<span class="pl-unavailable">—</span>' : fmtCents(p.price_cents)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function paginationBar(page, totalPages) {
+      if (totalPages <= 1) return '';
+      return `
+        <div class="pagination">
+          <button class="pagination-btn" onclick="loadPriceList(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
+          <span class="pagination-info">Página ${page} de ${totalPages}</span>
+          <button class="pagination-btn" onclick="loadPriceList(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
+        </div>`;
+    }
+
+    async function loadPriceList(page = 1) {
+      currentPage = page;
+      const wrap  = document.getElementById('list-wrap');
 
       try {
-        const res = await fetch(`${API}/products`);
+        const res = await fetch(`${API}/products?page=${page}&per_page=${PER_PAGE}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const products = await res.json();
+        const { data: products, total, total_pages } = await res.json();
 
         const available = products.filter(p => p.stock_status !== 'out_of_stock').length;
         document.getElementById('product-count').textContent =
-          `${products.length} productos · ${available} disponibles`;
+          `${total} productos · ${available} disponibles en esta página`;
 
         if (!products.length) {
           wrap.innerHTML = `<p class="pl-empty">Sin productos por ahora.</p>`;
           return;
         }
 
-        wrap.innerHTML = `
-          <table class="price-list">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Producto</th>
-                <th>Presentación</th>
-                <th>Precio</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${products.map(p => `
-                <tr class="${p.stock_status === 'out_of_stock' ? 'pl-row-unavailable' : ''}">
-                  <td class="pl-img-cell">
-                    ${p.image_url
-                      ? `<img src="${p.image_url}" alt="${p.name}" class="pl-thumb">`
-                      : `<div class="pl-thumb pl-thumb-empty">🌿</div>`}
-                  </td>
-                  <td class="pl-name">
-                    ${p.name}
-                    ${p.description ? `<span class="pl-desc">${p.description}</span>` : ''}
-                    ${stockBadge(p.stock_status)}
-                  </td>
-                  <td class="pl-unit">${p.unit_amount}</td>
-                  <td class="pl-price">${p.stock_status === 'out_of_stock' ? '<span class="pl-unavailable">—</span>' : fmtCents(p.price_cents)}</td>
-                </tr>`).join('')}
-            </tbody>
-          </table>`;
+        wrap.innerHTML = priceTable(products) + paginationBar(page, total_pages);
       } catch (err) {
         wrap.innerHTML = `<p class="pl-empty">No se pudo cargar la lista. ¿Está corriendo la API?<br><small>${err.message}</small></p>`;
       }
