@@ -1,5 +1,4 @@
-pub mod product;
+pub mod aggregate_root;
+pub mod derived_values;
 pub mod repository;
-
-pub use product::{PriceCents, Product, ProductDomainError, ProductId, ProductName, UnitAmount, UnitType};
-pub use repository::ProductRepository;
+pub mod value_objects;

@@ -868,17 +868,20 @@ tr:hover td { background: var(--clr-surface-2); }
   color: var(--clr-text-muted);
 }
 
-/* ── Info sections (Quiénes somos / Contacto) ──────────────────── */
+/* ── Info sections ─────────────────────────────────────────────── */
 .info-section {
   padding: var(--sp-16) var(--sp-6);
   border-top: var(--border);
 }
 .info-section--alt { background: var(--clr-surface); }
+
 .info-wrap {
   max-width: 680px;
   margin: 0 auto;
   text-align: center;
 }
+.info-wrap--wide { max-width: 960px; }
+
 .info-title {
   font-family: var(--font-display);
   font-size: var(--text-hero);
@@ -892,10 +895,168 @@ tr:hover td { background: var(--clr-surface-2); }
   line-height: var(--lh-normal);
   margin-bottom: var(--sp-4);
 }
-.contact-btn {
-  margin-top: var(--sp-4);
-  padding: var(--sp-3) var(--sp-8);
+
+/* ── Policy cards (Cómo compramos) ─────────────────────────────── */
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--sp-4);
+  text-align: left;
+  margin-bottom: var(--sp-6);
+}
+.policy-card {
+  background: var(--clr-surface);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-5);
+}
+.policy-icon {
+  font-size: 1.6rem;
+  margin-bottom: var(--sp-3);
+  line-height: 1;
+}
+.policy-title {
   font-size: var(--text-base);
+  font-weight: var(--fw-semibold);
+  margin-bottom: var(--sp-2);
+}
+.policy-text {
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  line-height: var(--lh-normal);
+}
+.policy-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  background: var(--clr-accent);
+  color: var(--clr-text-on-accent);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-6);
+  font-size: var(--text-sm);
+}
+.policy-note-label {
+  font-weight: var(--fw-bold);
+  letter-spacing: .03em;
+}
+
+/* ── Symbol reference cards (#simbolos) ───────────────────────── */
+.symbols-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--sp-4);
+  text-align: left;
+}
+.symbol-card {
+  background: var(--clr-bg);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.symbol-icon-lg {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.symbol-card strong {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+}
+.symbol-card p {
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  line-height: var(--lh-normal);
+  margin: 0;
+}
+
+/* ── Product symbol pills (price list) ─────────────────────────── */
+.pl-symbols {
+  display: block;
+  margin-top: var(--sp-1);
+}
+.pl-sym {
+  display: inline-block;
+  font-size: .95rem;
+  cursor: default;
+  position: relative;
+  line-height: 1;
+}
+.pl-sym::after {
+  content: attr(data-name);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--clr-text);
+  color: var(--clr-bg);
+  padding: 3px var(--sp-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ease);
+  z-index: 10;
+}
+.pl-sym:hover::after { opacity: 1; }
+
+/* ── Contact buttons & social links ───────────────────────────── */
+.contact-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  justify-content: center;
+  margin-top: var(--sp-6);
+  margin-bottom: var(--sp-6);
+}
+.contact-btn {
+  padding: var(--sp-3) var(--sp-6);
+  font-size: var(--text-base);
+}
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  background: #25D366;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--ease);
+}
+.btn-whatsapp:hover { background: #1da851; }
+
+.social-links {
+  display: flex;
+  gap: var(--sp-4);
+  justify-content: center;
+  margin-top: var(--sp-2);
+}
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  border: var(--border);
+  color: var(--clr-text-muted);
+  text-decoration: none;
+  transition: color var(--ease), border-color var(--ease), background var(--ease);
+}
+.social-link:hover {
+  color: var(--clr-accent);
+  border-color: var(--clr-accent);
+  background: var(--clr-accent-muted);
 }
 .pl-skeleton-row {
   height: 52px;

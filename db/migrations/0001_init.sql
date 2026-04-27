@@ -9,14 +9,14 @@ CREATE TABLE users (
 
 CREATE TABLE products (
     id                  UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name                VARCHAR(255) NOT NULL,
-    description         VARCHAR(500),
+    name                VARCHAR(100) NOT NULL,
+    description         VARCHAR(255),
     price_cents         INTEGER      NOT NULL CHECK (price_cents >= 0),
-    cost_price          INTEGER               CHECK (cost_price >= 0),   -- what the store paid; null = unknown
     unit_amount         VARCHAR(40)  NOT NULL,
     unit_type           INTEGER      NOT NULL,                            -- 1=weight 2=volume 3=unit
     stock               INTEGER      NOT NULL DEFAULT 0 CHECK (stock >= 0),
     low_stock_threshold INTEGER      NOT NULL DEFAULT 5 CHECK (low_stock_threshold >= 0),
     image_url           VARCHAR(255),
+    symbols             TEXT[]       NOT NULL DEFAULT ARRAY[]::TEXT[],
     created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );

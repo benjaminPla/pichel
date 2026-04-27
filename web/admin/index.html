@@ -86,6 +86,28 @@
       return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
     }
 
+    const SYMBOL_DEFS = {
+      vegan:         { icon: '🌱', name: 'Vegano'                },
+      vegetarian:    { icon: '🥕', name: 'Vegetariano'           },
+      sin_tacc:      { icon: '🌾', name: 'Sin TACC'              },
+      organico:      { icon: '🌿', name: 'Orgánico'              },
+      sin_lactosa:   { icon: '🥛', name: 'Sin lactosa'           },
+      sin_azucar:    { icon: '🍃', name: 'Sin azúcar agregada'   },
+      frutos_secos:  { icon: '🥜', name: 'Contiene frutos secos' },
+      alto_proteina: { icon: '💪', name: 'Alto en proteína'      },
+      sin_sal:       { icon: '🧂', name: 'Sin sal agregada'      },
+    };
+
+    function symbolPills(symbols) {
+      if (!symbols || !symbols.length) return '<span style="color:var(--clr-text-muted)">—</span>';
+      return symbols.map(s => {
+        const def = SYMBOL_DEFS[s];
+        return def
+          ? `<span class="pl-sym" data-name="${def.name}" style="font-size:1rem">${def.icon}</span>`
+          : `<span style="font-size:var(--text-xs);color:var(--clr-text-muted)">${s}</span>`;
+      }).join(' ');
+    }
+
     function stockStatusBadge(status) {
       if (status === 'out_of_stock') return `<span class="badge badge-out">Sin stock</span>`;
       if (status === 'low_stock')    return `<span class="badge badge-low">Stock bajo</span>`;
@@ -206,6 +228,10 @@
                 <label>URL de imagen</label>
                 <input id="p-img" placeholder="/images/products/nombre.webp" />
               </div>
+              <div class="form-field" style="grid-column:1/-1">
+                <label>Símbolos (separados por coma)</label>
+                <input id="p-symbols" placeholder="vegan, sin_tacc, organico, sin_lactosa, sin_azucar, frutos_secos, alto_proteina, sin_sal" />
+              </div>
             </div>
             <div style="margin-top:var(--sp-5)">
               <button class="btn btn-primary" type="submit" id="add-btn">Agregar producto</button>
@@ -232,6 +258,8 @@
         const stock               = parseInt(document.getElementById('p-stock').value) || 0;
         const low_stock_threshold = parseInt(document.getElementById('p-threshold').value) || 5;
         const image_url           = document.getElementById('p-img').value.trim();
+        const symbols_raw         = document.getElementById('p-symbols').value.trim();
+        const symbols             = symbols_raw ? symbols_raw.split(',').map(s => s.trim()).filter(Boolean) : [];
 
         if (!name || !unit_amount || isNaN(price_cents)) return;
 
@@ -243,6 +271,7 @@
           if (description)    body.description = description;
           if (cost_price_raw) body.cost_price  = parseInt(cost_price_raw);
           if (image_url)      body.image_url   = image_url;
+          if (symbols.length) body.symbols     = symbols;
 
           const res = await apiFetch('/products', {
             method: 'POST',
@@ -250,7 +279,7 @@
           });
           if (!res.ok) { toast('Error al crear el producto', 'error'); return; }
 
-          ['p-name','p-desc','p-unit','p-price','p-cost','p-img'].forEach(id => document.getElementById(id).value = '');
+          ['p-name','p-desc','p-unit','p-price','p-cost','p-img','p-symbols'].forEach(id => document.getElementById(id).value = '');
           document.getElementById('p-unit-type').value = '1';
           document.getElementById('p-stock').value     = '0';
           document.getElementById('p-threshold').value = '5';
@@ -285,6 +314,7 @@
           <th>Costo</th>
           <th>Stock</th>
           <th>Estado</th>
+          <th>Símbolos</th>
         </tr></thead>
         <tbody>
           ${products.map(p => `<tr>
@@ -294,6 +324,7 @@
             <td style="color:var(--clr-text-muted)">${p.cost_price != null ? fmtCents(p.cost_price) : '—'}</td>
             <td>${p.stock} uds.</td>
             <td>${stockStatusBadge(p.stock_status)}</td>
+            <td>${symbolPills(p.symbols)}</td>
           </tr>`).join('')}
         </tbody>
       </table>`;

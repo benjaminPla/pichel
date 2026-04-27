@@ -12,6 +12,8 @@
     <a href="/" class="nav-brand">Pichel</a>
     <ul class="topnav-links">
       <li><a href="#precios">Precios</a></li>
+      <li><a href="#info">Cómo compramos</a></li>
+      <li><a href="#simbolos">Referencias</a></li>
       <li><a href="#nosotros">Nosotros</a></li>
       <li><a href="#contacto">Contacto</a></li>
     </ul>
@@ -27,13 +29,107 @@
     <div class="price-list-wrap">
       <div class="section-header" style="padding:0;margin-bottom:var(--sp-5)">
         <h2>Lista de precios</h2>
-        <span id="product-count" class="text-muted"></span>
+        <div style="text-align:right">
+          <div id="product-count" class="text-muted"></div>
+          <div id="list-updated" style="font-size:var(--text-xs);color:var(--clr-text-muted);margin-top:2px"></div>
+        </div>
       </div>
       <div id="list-wrap">
         <div class="price-list-skeleton">
           <div class="pl-skeleton-row"></div><div class="pl-skeleton-row"></div>
           <div class="pl-skeleton-row"></div><div class="pl-skeleton-row"></div>
           <div class="pl-skeleton-row"></div><div class="pl-skeleton-row"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Cómo compramos ── -->
+  <section id="info" class="info-section">
+    <div class="info-wrap info-wrap--wide">
+      <h2 class="info-title">Cómo compramos</h2>
+      <div class="policy-grid">
+        <div class="policy-card">
+          <div class="policy-icon">🚚</div>
+          <h3 class="policy-title">Envíos</h3>
+          <p class="policy-text">Hacemos envíos dentro de Bahía Blanca y zona. El costo es desde <strong>$[COSTO_ENVIO]</strong> y es <strong>sin cargo</strong> en pedidos mayores a <strong>$[PEDIDO_GRATIS]</strong>. No hay monto mínimo de compra.</p>
+        </div>
+        <div class="policy-card">
+          <div class="policy-icon">⚖️</div>
+          <h3 class="policy-title">Fracciones</h3>
+          <p class="policy-text">Si el precio de un producto está definido por kilo, podés pedir la cantidad que necesitás — 100 g, 250 g, lo que sea. Hacemos la división exacta del precio.</p>
+        </div>
+        <div class="policy-card">
+          <div class="policy-icon">🛍️</div>
+          <h3 class="policy-title">Envasado</h3>
+          <p class="policy-text">Todos los alimentos se entregan en bolsas selladas al calor para garantizar higiene, frescura y trazabilidad de cada producto.</p>
+        </div>
+        <div class="policy-card">
+          <div class="policy-icon">📋</div>
+          <h3 class="policy-title">Precios</h3>
+          <p class="policy-text">Los precios pueden modificarse sin previo aviso según variaciones del mercado. La lista siempre refleja el valor vigente al momento de la consulta.</p>
+        </div>
+      </div>
+      <!-- TODO: actualizar descuento -->
+      <div class="policy-note">
+        <span class="policy-note-label">Pago en efectivo</span>
+        <span>[DESC]% de descuento sobre el precio de lista.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Referencias / Símbolos ── -->
+  <section id="simbolos" class="info-section info-section--alt">
+    <div class="info-wrap info-wrap--wide">
+      <h2 class="info-title">Referencias</h2>
+      <p class="info-text" style="margin-bottom:var(--sp-8)">
+        Estos íconos aparecen junto a los productos para indicar características relevantes para tu dieta o estilo de vida. Pasá el cursor sobre un ícono en la lista de precios para ver su nombre.
+      </p>
+      <div class="symbols-grid">
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">🌱</span>
+          <strong>Vegano</strong>
+          <p>No contiene ingredientes de origen animal.</p>
+        </div>
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">🥕</span>
+          <strong>Vegetariano</strong>
+          <p>Sin carne ni pescado, puede contener lácteos o huevo.</p>
+        </div>
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">🌾</span>
+          <strong>Sin TACC</strong>
+          <p>Apto para personas con celiaquía o sensibilidad al gluten.</p>
+        </div>
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">🥛</span>
+          <strong>Sin lactosa</strong>
+          <p>No contiene lactosa, apto para personas con intolerancia.</p>
+        </div>
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">🌿</span>
+          <strong>Orgánico</strong>
+          <p>Producido sin pesticidas sintéticos ni organismos modificados genéticamente.</p>
+        </div>
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">🍃</span>
+          <strong>Sin azúcar</strong>
+          <p>Sin azúcares agregados en su formulación.</p>
+        </div>
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">🥜</span>
+          <strong>Contiene frutos secos</strong>
+          <p>Alérgeno. Contiene maní, almendras, nueces u otros frutos secos.</p>
+        </div>
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">💪</span>
+          <strong>Alto en proteína</strong>
+          <p>Fuente significativa de proteínas por porción.</p>
+        </div>
+        <div class="symbol-card">
+          <span class="symbol-icon-lg">🧂</span>
+          <strong>Sin sal agregada</strong>
+          <p>No se añade sodio durante el procesado.</p>
         </div>
       </div>
     </div>
@@ -59,10 +155,34 @@
   <section id="contacto" class="info-section info-section--alt">
     <div class="info-wrap">
       <h2 class="info-title">Contacto</h2>
-      <p class="info-text">¿Consultas sobre productos, precios mayoristas o pedidos especiales?</p>
-      <a href="mailto:hola@pichel.com.ar" class="btn btn-primary contact-btn">
-        hola@pichel.com.ar
-      </a>
+      <p class="info-text">¿Consultas sobre productos, precios mayoristas o pedidos especiales? Escribinos por cualquiera de estos medios.</p>
+
+      <div class="contact-buttons">
+        <a href="mailto:hola@pichel.com.ar" class="btn btn-primary contact-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          hola@pichel.com.ar
+        </a>
+        <a href="tel:+542910000000" class="btn btn-ghost contact-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.06 6.06l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          +54 291 000-0000
+        </a>
+        <a href="https://wa.me/5492910000000" target="_blank" rel="noopener" class="btn btn-whatsapp contact-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+      </div>
+
+      <div class="social-links">
+        <a href="#" class="social-link" title="Instagram @pichel.ba" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+        </a>
+        <a href="#" class="social-link" title="Facebook /pichelba" aria-label="Facebook">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="#" class="social-link" title="TikTok @pichel.ba" aria-label="TikTok">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/></svg>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -75,8 +195,26 @@
 
     document.getElementById('yr').textContent = new Date().getFullYear();
 
+    // ── Symbol definitions ─────────────────────────────────────────
+    const SYMBOL_DEFS = {
+      vegan:         { icon: '🌱', name: 'Vegano'                   },
+      vegetarian:    { icon: '🥕', name: 'Vegetariano'              },
+      sin_tacc:      { icon: '🌾', name: 'Sin TACC'                 },
+      organico:      { icon: '🌿', name: 'Orgánico'                 },
+      sin_lactosa:   { icon: '🥛', name: 'Sin lactosa'              },
+      sin_azucar:    { icon: '🍃', name: 'Sin azúcar agregada'      },
+      frutos_secos:  { icon: '🥜', name: 'Contiene frutos secos'    },
+      alto_proteina: { icon: '💪', name: 'Alto en proteína'         },
+      sin_sal:       { icon: '🧂', name: 'Sin sal agregada'         },
+    };
+
     function fmtCents(cents) {
       return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
+    }
+
+    function fmtDate(d) {
+      return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
     }
 
     function stockBadge(status) {
@@ -84,6 +222,18 @@
       if (status === 'low_stock')    return `<span class="stock-badge stock-low">Últimas unidades</span>`;
       return '';
     }
+
+    function symbolPills(symbols) {
+      if (!symbols || !symbols.length) return '';
+      const pills = symbols.map(s => {
+        const def = SYMBOL_DEFS[s];
+        if (!def) return '';
+        return `<span class="pl-sym" data-name="${def.name}">${def.icon}</span>`;
+      }).filter(Boolean).join('');
+      return pills ? `<span class="pl-symbols">${pills}</span>` : '';
+    }
+
+    // ── Price list ─────────────────────────────────────────────────
 
     let currentPage = 1;
     const PER_PAGE  = 20;
@@ -110,6 +260,7 @@
                 <td class="pl-name">
                   <span>${p.name}</span>
                   ${p.description ? `<span class="pl-desc">${p.description}</span>` : ''}
+                  ${symbolPills(p.symbols)}
                   ${stockBadge(p.stock_status)}
                 </td>
                 <td class="pl-unit">${p.unit_amount}</td>
@@ -140,7 +291,9 @@
 
         const available = products.filter(p => p.stock_status !== 'out_of_stock').length;
         document.getElementById('product-count').textContent =
-          `${total} productos · ${available} disponibles en esta página`;
+          `${total} productos · ${available} disponibles`;
+        document.getElementById('list-updated').textContent =
+          `Actualizada el ${fmtDate(new Date())}`;
 
         if (!products.length) {
           wrap.innerHTML = `<p class="pl-empty">Sin productos por ahora.</p>`;
