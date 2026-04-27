@@ -38,7 +38,7 @@ impl ProductCreateHandler {
         Self { product_repo }
     }
 
-    pub async fn execute(&self, cmd: ProductCreateCommand) -> Result<(), ProductAppError> {
+    pub async fn execute(&self, cmd: ProductCreateCommand) -> Result<Product, ProductAppError> {
         let description     = cmd.description.map(Description::new).transpose()?;
         let name            = Name::new(cmd.name)?;
         let symbols         = cmd.symbols.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?;
@@ -53,7 +53,7 @@ impl ProductCreateHandler {
             symbols,
             unit_of_measure,
         );
-        self.product_repo.save(&product).await?;
-        Ok(())
+        let product = self.product_repo.save(&product).await?;
+        Ok(product)
     }
 }
