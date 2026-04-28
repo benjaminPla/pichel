@@ -1,4 +1,4 @@
-.PHONY: dev-up dev-down db-migrate db-seed db-exec clean logs
+.PHONY: dev-up dev-down db-migrate db-seed db-exec logs
 
 dev-up:
 	docker compose up -d db web
@@ -25,11 +25,6 @@ db-seed:
 	@echo "Running seed..."
 	docker compose exec -T db psql -U pichel -d pichel < db/seed.sql
 	@echo "Done. Login: admin@admin.com / admin"
-
-clean:
-	docker compose down
-	rm -rf /tmp/pichel-pg
-	@echo "Wiped."
 
 logs:
 	docker compose logs -f

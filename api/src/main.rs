@@ -10,7 +10,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use config::Config;
 use infrastructure::product::postgres::pg_product::PgProductRepo;
-use interfaces::{app_state::AppState, products::router::products_router};
+use interfaces::{app_state::AppState, product::router::products_router};
 
 #[tokio::main]
 async fn main() {
