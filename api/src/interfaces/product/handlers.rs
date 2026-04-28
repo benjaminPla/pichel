@@ -14,7 +14,10 @@ use crate::{
 };
 
 use super::{
-    dto::{ProductCreateRequestBody, ProductCreateResponse, ProductGetAllItem, ProductGetAllQueryParams, ProductGetAllResponse, MAX_PER_PAGE},
+    dto::{
+        ProductCreateRequestBody, ProductCreateResponse, ProductGetAllItem,
+        ProductGetAllQueryParams, ProductGetAllResponse, MAX_PER_PAGE,
+    },
     errors::ProductInterError,
 };
 
@@ -34,10 +37,7 @@ pub async fn product_create(
             unit_of_measure: body.unit_of_measure,
         })
         .await?;
-    Ok((
-        StatusCode::CREATED,
-        Json(ProductCreateResponse::from(product)),
-    ))
+    Ok((StatusCode::CREATED, Json(ProductCreateResponse::from(product))))
 }
 
 pub async fn product_get_all(

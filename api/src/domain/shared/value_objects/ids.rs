@@ -9,17 +9,11 @@ pub struct EntityId<T> {
 
 impl<T> EntityId<T> {
     pub fn new() -> Self {
-        Self {
-            value: Uuid::new_v4(),
-            _marker: PhantomData,
-        }
+        Self { value: Uuid::new_v4(), _marker: PhantomData }
     }
 
     pub fn reconstitute(value: Uuid) -> Self {
-        Self {
-            value,
-            _marker: PhantomData,
-        }
+        Self { value, _marker: PhantomData }
     }
 
     pub fn value(&self) -> Uuid { self.value }
