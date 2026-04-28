@@ -21,7 +21,7 @@ pub struct ProductCreateCommand {
     pub image_url:           Option<String>,
     pub low_stock_threshold: u32,
     pub name:                String,
-    pub price_cents:         u64,
+    pub price_cents:         u32,
     pub stock:               u32,
     pub symbols:             Vec<String>,
     pub unit_of_measure:     String,

@@ -14,7 +14,7 @@ use crate::{
 };
 
 use super::{
-    dto::{ProductCreateRequestBody, ProductCreateResponse, ProductGetAllItem, ProductGetAllQueryParams, ProductGetAllResponse},
+    dto::{ProductCreateRequestBody, ProductCreateResponse, ProductGetAllItem, ProductGetAllQueryParams, ProductGetAllResponse, MAX_PER_PAGE},
     errors::ProductInterError,
 };
 
@@ -46,8 +46,8 @@ pub async fn product_get_all(
 ) -> Result<impl IntoResponse, ProductInterError> {
     let (products, total) = ProductGetAllHandler::new(app_state.product_repo)
         .execute(ProductGetAllQuery {
-            page: query.page,
-            per_page: query.per_page,
+            page:     query.page.max(1),
+            per_page: query.per_page.clamp(1, MAX_PER_PAGE),
         })
         .await?;
     let products = products.into_iter().map(ProductGetAllItem::from).collect::<Vec<_>>();

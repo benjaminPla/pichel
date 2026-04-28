@@ -16,7 +16,7 @@ pub struct ProductRow {
     image_url: Option<String>,
     low_stock_threshold: i32,
     name: String,
-    price_cents: i64,
+    price_cents: i32,
     stock: i32,
     symbols: Vec<String>,
     unit_of_measure: String,
@@ -30,7 +30,7 @@ impl TryFrom<ProductRow> for Product {
         let id                  = ProductId::reconstitute(r.id);
         let low_stock_threshold = u32::try_from(r.low_stock_threshold).map_err(|e| ProductRepoError::Mapping(e.to_string()))?;
         let name                = Name::new(r.name).map_err(|e| ProductRepoError::Mapping(e.to_string()))?;
-        let price_cents         = u64::try_from(r.price_cents).map_err(|e| ProductRepoError::Mapping(e.to_string()))?;
+        let price_cents         = u32::try_from(r.price_cents).map_err(|e| ProductRepoError::Mapping(e.to_string()))?;
         let stock               = u32::try_from(r.stock).map_err(|e| ProductRepoError::Mapping(e.to_string()))?;
         let symbols             = r.symbols.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>().map_err(|e| ProductRepoError::Mapping(e.to_string()))?;
         let unit_of_measure     = r.unit_of_measure.parse::<UnitOfMeasure>().map_err(|e| ProductRepoError::Mapping(e.to_string()))?;

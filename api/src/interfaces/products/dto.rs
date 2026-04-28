@@ -11,7 +11,7 @@ pub struct ProductCreateRequestBody {
     pub image_url:           Option<String>,
     pub low_stock_threshold: u32,
     pub name:                String,
-    pub price_cents:         u64,
+    pub price_cents:         u32,
     pub stock:               u32,
     pub symbols:             Vec<String>,
     pub unit_of_measure:     String,
@@ -24,7 +24,7 @@ pub struct ProductCreateResponse {
     image_url:           Option<String>,
     low_stock_threshold: u32,
     name:                String,
-    price_cents:         u64,
+    price_cents:         u32,
     stock:               u32,
     symbols:             Vec<String>,
     unit_of_measure:     String,
@@ -48,6 +48,8 @@ impl From<Product> for ProductCreateResponse {
 
 // ── ProductGetAll ────────────────────────────────────────────────────────
 
+pub const MAX_PER_PAGE: i64 = 50;
+
 #[derive(Deserialize)]
 pub struct ProductGetAllQueryParams {
     pub page:     i64,
@@ -61,7 +63,7 @@ pub struct ProductGetAllItem {
     image_url:           Option<String>,
     low_stock_threshold: u32,
     name:                String,
-    price_cents:         u64,
+    price_cents:         u32,
     stock:               u32,
     symbols:             Vec<String>,
     unit_of_measure:     String,
