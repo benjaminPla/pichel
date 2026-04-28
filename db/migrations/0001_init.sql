@@ -12,8 +12,7 @@ CREATE TABLE products (
     name                VARCHAR(100) NOT NULL,
     description         VARCHAR(255),
     price_cents         INTEGER      NOT NULL CHECK (price_cents >= 0),
-    unit_amount         VARCHAR(40)  NOT NULL,
-    unit_type           INTEGER      NOT NULL,                            -- 1=weight 2=volume 3=unit
+    unit_of_measure     VARCHAR(20)  NOT NULL,
     stock               INTEGER      NOT NULL DEFAULT 0 CHECK (stock >= 0),
     low_stock_threshold INTEGER      NOT NULL DEFAULT 5 CHECK (low_stock_threshold >= 0),
     image_url           VARCHAR(255),
