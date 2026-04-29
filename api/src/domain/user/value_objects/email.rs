@@ -4,8 +4,8 @@ impl Email {
     const MAX_LEN: usize = 40;
     const MIN_LEN: usize = 10;
 
-    pub fn new(email: impl Into<String>) -> Result<Self, EmailError> {
-        let s: String = email.into();
+    pub fn new(value: impl Into<String>) -> Result<Self, EmailError> {
+        let s: String = value.into();
         if s.trim().is_empty()                { return Err(EmailError::Blank) }
         if s.chars().any(char::is_whitespace) { return Err(EmailError::Invalid) }
         if s.len() > Self::MAX_LEN            { return Err(EmailError::TooLong(Self::MAX_LEN)) }

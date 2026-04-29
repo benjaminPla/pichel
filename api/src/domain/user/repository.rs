@@ -12,5 +12,7 @@ pub trait UserRepo: Send + Sync {
 #[derive(Debug, thiserror::Error)]
 pub enum UserRepoError {
     #[error("internal server error")]
-    Database
+    Database,
+    #[error("{0}")]
+    Mapping(String),
 }
