@@ -65,9 +65,9 @@ impl ProductRepo for PgProductRepo {
                 name                = EXCLUDED.name,
                 price_cents         = EXCLUDED.price_cents,
                 stock               = EXCLUDED.stock,
-                symbol              = EXCLUDED.symbol,
+                symbols             = EXCLUDED.symbols,
                 unit_of_measure     = EXCLUDED.unit_of_measure
-            RETURNING description, id, image_url, low_stock_threshold, name, price_cents, stock, symbol, unit_of_measure
+            RETURNING description, id, image_url, low_stock_threshold, name, price_cents, stock, symbols, unit_of_measure
             ",
 
         )

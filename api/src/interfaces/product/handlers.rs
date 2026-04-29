@@ -23,18 +23,18 @@ use super::{
 
 pub async fn product_create(
     State(app_state): State<AppState>,
-    Json(body): Json<ProductCreateRequestBody>,
+    Json(body):       Json<ProductCreateRequestBody>,
 ) -> Result<impl IntoResponse, ProductInterError> {
     let product = ProductCreateHandler::new(app_state.product_repo)
         .execute(ProductCreateCommand {
-            description: body.description,
-            image_url: body.image_url,
+            description:         body.description,
+            image_url:           body.image_url,
             low_stock_threshold: body.low_stock_threshold,
-            name: body.name,
-            price_cents: body.price_cents,
-            stock: body.stock,
-            symbols: body.symbols,
-            unit_of_measure: body.unit_of_measure,
+            name:                body.name,
+            price_cents:         body.price_cents,
+            stock:               body.stock,
+            symbols:             body.symbols,
+            unit_of_measure:     body.unit_of_measure,
         })
         .await?;
     Ok((StatusCode::CREATED, Json(ProductCreateResponse::from(product))))
@@ -42,7 +42,7 @@ pub async fn product_create(
 
 pub async fn product_get_all(
     State(app_state): State<AppState>,
-    Query(query): Query<ProductGetAllQueryParams>,
+    Query(query):     Query<ProductGetAllQueryParams>,
 ) -> Result<impl IntoResponse, ProductInterError> {
     let (products, total) = ProductGetAllHandler::new(app_state.product_repo)
         .execute(ProductGetAllQuery {

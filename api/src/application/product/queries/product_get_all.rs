@@ -8,7 +8,7 @@ use crate::{
 // ── Query ────────────────────────────────────────────────────────────────
 
 pub struct ProductGetAllQuery {
-    pub page: i64,
+    pub page:     i64,
     pub per_page: i64,
 }
 

@@ -15,13 +15,12 @@ pub struct ProductInterError(StatusCode, String);
 impl From<ProductAppError> for ProductInterError {
     fn from(err: ProductAppError) -> Self {
         match err {
-            ProductAppError::Name(e)                            => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
             ProductAppError::Description(e)                     => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
+            ProductAppError::Name(e)                            => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
+            ProductAppError::Repo(ProductRepoError::Database)   => Self(StatusCode::INTERNAL_SERVER_ERROR, "internal server error".into()),
+            ProductAppError::Repo(ProductRepoError::Mapping(m)) => Self(StatusCode::INTERNAL_SERVER_ERROR, m),
             ProductAppError::Symbol(e)                          => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
             ProductAppError::UnitOfMeasure(e)                   => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
-
-            ProductAppError::Repo(ProductRepoError::Database)   => Self(StatusCode::INTERNAL_SERVER_ERROR, "internal server error".into()),
-            ProductAppError::Repo(ProductRepoError::Mapping(m)) => Self(StatusCode::INTERNAL_SERVER_ERROR, m)
         }
     }
 }
