@@ -1,0 +1,24 @@
+@base = http://localhost:3000
+
+### get_all
+GET {{base}}/products?page=1&per_page=50
+
+@id = 837a30ae-ce75-4dcb-bc31-ae45fa454582
+
+### get_by_id
+GET {{base}}/products/{{id}}
+
+### create
+POST {{base}}/products
+Content-Type: application/json
+
+{
+    "description":         "Option<Description>",
+    "image_url":           "Option<String>",
+    "low_stock_threshold": 69,
+    "name":                "Name",
+    "price_cents":         420,
+    "stock":               69,
+    "symbols":             ["vegan"],
+    "unit_of_measure":     "kg"
+}
