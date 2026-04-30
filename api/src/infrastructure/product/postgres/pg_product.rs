@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use sqlx::PgPool;
 
 use crate::domain::product::{
-    aggregate_root::Product, repository::ProductRepo, repository::ProductRepoError,
+    aggregate_root::Product, ports::repository::ProductRepo, ports::repository::ProductRepoError,
     value_objects::id::ProductId,
 };
 

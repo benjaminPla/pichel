@@ -6,7 +6,7 @@ use axum::{
 use serde_json::json;
 
 use crate::{
-    application::product::errors::ProductAppError, domain::product::repository::ProductRepoError,
+    application::product::errors::ProductAppError, domain::product::ports::repository::ProductRepoError,
 };
 
 #[derive(Debug)]

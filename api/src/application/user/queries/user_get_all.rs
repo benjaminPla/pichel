@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     application::user::errors::UserAppError,
-    domain::user::{aggregate_root::User, repository::UserRepo},
+    domain::user::{aggregate_root::User, ports::repository::UserRepo},
 };
 
 // ── Query ────────────────────────────────────────────────────────────────

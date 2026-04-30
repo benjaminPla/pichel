@@ -1,5 +1,5 @@
 use crate::domain::product::{
-    repository::ProductRepoError,
+    ports::repository::ProductRepoError,
     value_objects::{
         description::DescriptionError, name::NameError, symbol::SymbolError,
         unit_of_measure::UnitOfMeasureError,

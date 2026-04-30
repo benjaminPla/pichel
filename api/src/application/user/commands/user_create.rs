@@ -4,8 +4,8 @@ use crate::{
     application::user::errors::UserAppError,
     domain::user::{
         aggregate_root::User,
-        ports::user_hasher::UserHasher,
-        repository::UserRepo,
+        ports::hasher::Hasher,
+        ports::repository::UserRepo,
         value_objects::{email::Email, password_raw::PasswordRaw},
     },
 };
@@ -16,12 +16,12 @@ pub struct UserCreateCommand {
 }
 
 pub struct UserCreateHandler {
-    hasher:    Arc<dyn UserHasher>,
+    hasher:    Arc<dyn Hasher>,
     user_repo: Arc<dyn UserRepo>,
 }
 
 impl UserCreateHandler {
-    pub fn new(hasher: Arc<dyn UserHasher>, user_repo: Arc<dyn UserRepo>) -> Self {
+    pub fn new(hasher: Arc<dyn Hasher>, user_repo: Arc<dyn UserRepo>) -> Self {
         Self { hasher, user_repo }
     }
 

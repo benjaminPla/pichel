@@ -1,6 +1,6 @@
 use crate::domain::user::{
-    ports::user_hasher::UserHasherError,
-    repository::UserRepoError,
+    ports::hasher::HasherError,
+    ports::repository::UserRepoError,
     value_objects::{email::EmailError, password_raw::PasswordRawError},
 };
 
@@ -13,5 +13,5 @@ pub enum UserAppError {
     #[error(transparent)]
     Repo(#[from] UserRepoError),
     #[error(transparent)]
-    UserHasherError(#[from] UserHasherError),
+    Hasher(#[from] HasherError),
 }

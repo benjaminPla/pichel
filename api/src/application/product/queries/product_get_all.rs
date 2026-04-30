@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     application::product::errors::ProductAppError,
-    domain::product::{aggregate_root::Product, repository::ProductRepo},
+    domain::product::{aggregate_root::Product, ports::repository::ProductRepo},
 };
 
 // ── Query ────────────────────────────────────────────────────────────────

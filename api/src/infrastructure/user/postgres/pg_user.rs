@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use sqlx::PgPool;
 
 use crate::domain::user::{
-    aggregate_root::User, repository::UserRepo, repository::UserRepoError,
+    aggregate_root::User, ports::repository::UserRepo, ports::repository::UserRepoError,
     value_objects::id::UserId,
 };
 

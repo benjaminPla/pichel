@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use tokio::task;
 
 use crate::domain::user::{
-    ports::user_hasher::{UserHasher, UserHasherError},
+    ports::hasher::{Hasher, HasherError},
     value_objects::{password_hash::PasswordHash, password_raw::PasswordRaw},
 };
 
@@ -30,31 +30,31 @@ impl Argon2UserHasher {
 }
 
 #[async_trait]
-impl UserHasher for Argon2UserHasher {
-    async fn hash(&self, raw: &PasswordRaw) -> Result<PasswordHash, UserHasherError> {
+impl Hasher for Argon2UserHasher {
+    async fn hash(&self, raw: &PasswordRaw) -> Result<PasswordHash, HasherError> {
         let argon2 = self.argon2.clone();
         let bytes  = raw.value().as_bytes().to_vec();
         task::spawn_blocking(move || {
             let salt = SaltString::generate(&mut OsRng);
             let hash = argon2
                 .hash_password(&bytes, &salt)
-                .map_err(|_| UserHasherError::Hash)?
+                .map_err(|_| HasherError::Hash)?
                 .to_string();
             Ok(PasswordHash::new(hash))
         })
         .await
-        .map_err(|_| UserHasherError::Hash)?
+        .map_err(|_| HasherError::Hash)?
     }
 
-    async fn verify(&self, raw: &PasswordRaw, hash: &PasswordHash) -> Result<bool, UserHasherError> {
+    async fn verify(&self, raw: &PasswordRaw, hash: &PasswordHash) -> Result<bool, HasherError> {
         let argon2   = self.argon2.clone();
         let bytes    = raw.value().as_bytes().to_vec();
         let hash_str = hash.value().to_string();
         task::spawn_blocking(move || {
-            let parsed = Argon2PasswordHash::new(&hash_str).map_err(|_| UserHasherError::Verify)?;
+            let parsed = Argon2PasswordHash::new(&hash_str).map_err(|_| HasherError::Verify)?;
             Ok(argon2.verify_password(&bytes, &parsed).is_ok())
         })
         .await
-        .map_err(|_| UserHasherError::Verify)?
+        .map_err(|_| HasherError::Verify)?
     }
 }

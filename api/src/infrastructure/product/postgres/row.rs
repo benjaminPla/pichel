@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::domain::product::{
     aggregate_root::Product,
-    repository::ProductRepoError,
+    ports::repository::ProductRepoError,
     value_objects::{
         description::Description, id::ProductId, name::Name, symbol::Symbol,
         unit_of_measure::UnitOfMeasure,

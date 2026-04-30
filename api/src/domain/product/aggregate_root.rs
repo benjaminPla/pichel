@@ -23,6 +23,8 @@ pub struct Product {
 }
 
 impl Product {
+    pub fn compute_stock_status(&self) -> StockStatus { StockStatus::from(self) }
+
     pub fn new(
         description:         Option<Description>,
         image_url:           Option<String>,
@@ -44,16 +46,6 @@ impl Product {
             stock,
             symbols,
             unit_of_measure,
-        }
-    }
-
-    pub fn stock_status(&self) -> StockStatus {
-        if self.stock == 0 {
-            StockStatus::OutOfStock
-        } else if self.stock <= self.low_stock_threshold {
-            StockStatus::LowStock
-        } else {
-            StockStatus::InStock
         }
     }
 
