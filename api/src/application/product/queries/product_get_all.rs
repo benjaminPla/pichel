@@ -27,7 +27,7 @@ impl ProductGetAllHandler {
         &self,
         query: ProductGetAllQuery,
     ) -> Result<(Vec<Product>, i64), ProductAppError> {
-        let products = self.product_repo.get_all(query.page, query.per_page).await?;
-        Ok(products)
+        let (products, total) = self.product_repo.get_all(query.page, query.per_page).await?;
+        Ok((products, total))
     }
 }

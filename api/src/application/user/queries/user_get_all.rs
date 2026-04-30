@@ -27,7 +27,7 @@ impl UserGetAllHandler {
         &self,
         query: UserGetAllQuery,
     ) -> Result<(Vec<User>, i64), UserAppError> {
-        let users = self.user_repo.get_all(query.page, query.per_page).await?;
-        Ok(users)
+        let (users, total) = self.user_repo.get_all(query.page, query.per_page).await?;
+        Ok((users, total))
     }
 }

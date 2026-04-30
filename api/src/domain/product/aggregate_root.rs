@@ -1,8 +1,8 @@
 use super::{
-    derived_values::product_stock_status::StockStatus,
+    derived_values::stock_status::StockStatus,
     value_objects::{
-        id::ProductId,
         description::Description,
+        id::ProductId,
         name::Name,
         symbol::Symbol,
         unit_of_measure::{UnitOfMeasure, UnitOfMeasureError},

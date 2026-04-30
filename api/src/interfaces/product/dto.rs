@@ -25,6 +25,7 @@ pub struct ProductCreateResponse {
     low_stock_threshold: u32,
     name:                String,
     price_cents:         u32,
+    stock_status:        String,
     stock:               u32,
     symbols:             Vec<String>,
     unit_of_measure:     String,
@@ -40,6 +41,7 @@ impl From<Product> for ProductCreateResponse {
             name:                p.get_name().value().to_string(),
             price_cents:         p.get_price_cents(),
             stock:               p.get_stock(),
+            stock_status:        p.compute_stock_status().as_str().to_string(),
             symbols:             p.get_symbols().into_iter().map(|s| s.to_string()).collect(),
             unit_of_measure:     p.get_unit_of_measure().as_str().to_string(),
         }
@@ -65,6 +67,7 @@ pub struct ProductGetAllItem {
     name:                String,
     price_cents:         u32,
     stock:               u32,
+    stock_status:        String,
     symbols:             Vec<String>,
     unit_of_measure:     String,
 }
@@ -79,6 +82,7 @@ impl From<Product> for ProductGetAllItem {
             name:                p.get_name().value().to_string(),
             price_cents:         p.get_price_cents(),
             stock:               p.get_stock(),
+            stock_status:        p.compute_stock_status().as_str().to_string(),
             symbols:             p.get_symbols().into_iter().map(|s| s.to_string()).collect(),
             unit_of_measure:     p.get_unit_of_measure().as_str().to_string(),
         }

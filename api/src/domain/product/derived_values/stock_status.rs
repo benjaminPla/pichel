@@ -7,6 +7,16 @@ pub enum StockStatus {
     OutOfStock,
 }
 
+impl StockStatus {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::InStock    => "in_stock",
+            Self::LowStock   => "low_stock",
+            Self::OutOfStock => "out_of_stock",
+        }
+    }
+}
+
 impl From<&Product> for StockStatus {
     fn from(p: &Product) -> Self {
         let stock               = p.get_stock();

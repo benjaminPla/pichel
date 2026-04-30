@@ -21,6 +21,8 @@ use super::{
     errors::ProductInterError,
 };
 
+// ── Create ───────────────────────────────────────────────────────────────
+
 pub async fn product_create(
     State(app_state): State<AppState>,
     Json(body):       Json<ProductCreateRequestBody>,
@@ -37,8 +39,12 @@ pub async fn product_create(
             unit_of_measure:     body.unit_of_measure,
         })
         .await?;
-    Ok((StatusCode::CREATED, Json(ProductCreateResponse::from(product))))
+    let product = ProductCreateResponse::from(product);
+    Ok((StatusCode::CREATED, Json(product)))
 }
+
+
+// ── GetAll ───────────────────────────────────────────────────────────────
 
 pub async fn product_get_all(
     State(app_state): State<AppState>,
@@ -51,5 +57,6 @@ pub async fn product_get_all(
         })
         .await?;
     let products = products.into_iter().map(ProductGetAllItem::from).collect::<Vec<_>>();
-    Ok((StatusCode::OK, Json(ProductGetAllResponse { products, total })))
+    let products = ProductGetAllResponse { products, total };
+    Ok((StatusCode::OK, Json(products)))
 }

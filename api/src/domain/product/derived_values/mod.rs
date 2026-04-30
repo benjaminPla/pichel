@@ -1,1 +1,1 @@
-pub mod product_stock_status;
+pub mod stock_status;
