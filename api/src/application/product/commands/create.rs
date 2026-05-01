@@ -2,14 +2,12 @@ use std::sync::Arc;
 
 use crate::{
     application::product::errors::ProductAppError,
-    domain::{
-        product::{
-            aggregate_root::Product,
-            ports::repository::ProductRepo,
-            value_objects::{
-                description::Description, name::Name, symbol::Symbol,
-                unit_of_measure::UnitOfMeasure,
-            },
+    domain::product::{
+        aggregate_root::Product,
+        ports::repository::ProductRepo,
+        value_objects::{
+            description::Description, name::Name, symbol::Symbol,
+            unit_of_measure::UnitOfMeasure,
         },
     },
 };

@@ -1,1 +1,2 @@
-pub mod product_get_all;
+pub mod get_all;
+pub mod get_by_id;

@@ -23,10 +23,7 @@ impl ProductGetAllHandler {
         Self { product_repo }
     }
 
-    pub async fn execute(
-        &self,
-        query: ProductGetAllQuery,
-    ) -> Result<(Vec<Product>, i64), ProductAppError> {
+    pub async fn execute(&self, query: ProductGetAllQuery) -> Result<(Vec<Product>, i64), ProductAppError> {
         let (products, total) = self.product_repo.get_all(query.page, query.per_page).await?;
         Ok((products, total))
     }

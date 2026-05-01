@@ -1,1 +1,1 @@
-pub mod user_get_all;
+pub mod get_all;
