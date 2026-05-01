@@ -1,2 +1,2 @@
-pub mod argon2_user_hasher;
+pub mod argon2;
 pub mod postgres;

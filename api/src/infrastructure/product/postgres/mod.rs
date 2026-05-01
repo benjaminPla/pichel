@@ -1,2 +1,2 @@
-pub mod pg_product;
+pub mod repository;
 pub mod row;

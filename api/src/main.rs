@@ -4,14 +4,14 @@ mod domain;
 mod infrastructure;
 mod interfaces;
 
-use axum::Router;
-
 use std::{net::SocketAddr, sync::Arc};
+
+use axum::Router;
 
 use config::Config;
 use infrastructure::{
-    product::postgres::pg_product::PgProductRepo,
-    user::{argon2_user_hasher::Argon2UserHasher, postgres::pg_user::PgUserRepo},
+    product::postgres::repository::PgProductRepo,
+    user::{argon2::Argon2Hasher, postgres::repository::PgUserRepo},
 };
 use interfaces::{
     app_state::AppState, product::router::products_router, user::router::users_router,
@@ -23,7 +23,7 @@ async fn main() {
     let pool = sqlx::PgPool::connect(&config.database_url).await.expect("Failed to connect to Postgres");
     let app_state = AppState {
         product_repo: Arc::new(PgProductRepo::new(pool.clone())),
-        user_hasher:  Arc::new(Argon2UserHasher::new()),
+        user_hasher:  Arc::new(Argon2Hasher::new()),
         user_repo:    Arc::new(PgUserRepo::new(pool.clone())),
     };
     let app = Router::new()

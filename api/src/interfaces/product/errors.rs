@@ -5,22 +5,17 @@ use axum::{
 };
 use serde_json::json;
 
-use crate::{
-    application::product::errors::ProductAppError, domain::product::ports::repository::ProductRepoError,
-};
+use crate::application::product::errors::ProductAppError;
 
 #[derive(Debug)]
 pub struct ProductInterError(StatusCode, String);
 
 impl From<ProductAppError> for ProductInterError {
-    fn from(err: ProductAppError) -> Self {
-        match err {
-            ProductAppError::Description(e)                     => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
-            ProductAppError::Name(e)                            => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
-            ProductAppError::Repo(ProductRepoError::Database)   => Self(StatusCode::INTERNAL_SERVER_ERROR, "internal server error".into()),
-            ProductAppError::Repo(ProductRepoError::Mapping(m)) => Self(StatusCode::INTERNAL_SERVER_ERROR, m),
-            ProductAppError::Symbol(e)                          => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
-            ProductAppError::UnitOfMeasure(e)                   => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
+    fn from(e: ProductAppError) -> Self {
+        match e {
+            ProductAppError::Internal        => Self(StatusCode::INTERNAL_SERVER_ERROR, "internal server error".to_string()),
+            ProductAppError::NotFound        => Self(StatusCode::NOT_FOUND, "not found".to_string()),
+            ProductAppError::Validation(msg) => Self(StatusCode::BAD_REQUEST, msg.to_string()),
         }
     }
 }

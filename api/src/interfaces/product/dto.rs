@@ -50,14 +50,6 @@ impl From<Product> for ProductCreateResponse {
 
 // ── ProductGetAll ────────────────────────────────────────────────────────
 
-pub const MAX_PER_PAGE: i64 = 50;
-
-#[derive(Deserialize)]
-pub struct ProductGetAllQueryParams {
-    pub page:     i64,
-    pub per_page: i64,
-}
-
 #[derive(Serialize)]
 pub struct ProductGetAllItem {
     description:         Option<String>,

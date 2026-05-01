@@ -5,7 +5,6 @@ use crate::domain::user::{
     aggregate_root::User, ports::repository::UserRepo, ports::repository::UserRepoError,
     value_objects::id::UserId,
 };
-
 use super::row::UserRow;
 
 pub struct PgUserRepo {
@@ -22,7 +21,7 @@ impl PgUserRepo {
 impl UserRepo for PgUserRepo {
     async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<User>, i64), UserRepoError> {
         let offset     = (page - 1) * per_page;
-        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users").fetch_one(&self.pool).await.map_err(|_| UserRepoError::Database)?;
+        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users").fetch_one(&self.pool).await?;
         let rows       = sqlx::query_as::<_, UserRow>(
             "SELECT email, id, password_hash
              FROM users
@@ -32,10 +31,8 @@ impl UserRepo for PgUserRepo {
         .bind(per_page)
         .bind(offset)
         .fetch_all(&self.pool)
-        .await
-        .map_err(|_| UserRepoError::Database)?;
-        let users = rows.into_iter().map(User::try_from).collect::<Result<Vec<_>, _>>();
-        let users = users.map_err(|e| UserRepoError::Mapping(e.to_string()))?;
+        .await?;
+        let users = rows.into_iter().map(User::try_from).collect::<Result<Vec<_>, _>>()?;
         Ok((users, total))
     }
 
@@ -47,8 +44,7 @@ impl UserRepo for PgUserRepo {
         )
         .bind(user_id.value())
         .fetch_one(&self.pool)
-        .await
-        .map_err(|_| UserRepoError::Database)?;
+        .await?;
         let user = User::try_from(row)?;
         Ok(user)
     }
@@ -69,10 +65,8 @@ impl UserRepo for PgUserRepo {
         .bind(&user.get_id().value())
         .bind(&user.get_password_hash().value())
         .fetch_one(&self.pool)
-        .await
-        .map_err(|_| UserRepoError::Database)?;
+        .await?;
         let user = User::try_from(row)?;
         Ok(user)
     }
 }
-

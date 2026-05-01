@@ -7,16 +7,17 @@ use axum::{
 
 use crate::{
     application::product::{
-        commands::product_create::{ProductCreateCommand, ProductCreateHandler},
-        queries::product_get_all::{ProductGetAllHandler, ProductGetAllQuery},
+        commands::create::{ProductCreateCommand, ProductCreateHandler},
+        queries::get_all::{ProductGetAllHandler, ProductGetAllQuery},
     },
-    interfaces::app_state::AppState,
+    interfaces::{
+        app_state::AppState,
+        pagination::{GetAllQueryParams, MAX_PER_PAGE},
+    },
 };
-
 use super::{
     dto::{
-        ProductCreateRequestBody, ProductCreateResponse, ProductGetAllItem,
-        ProductGetAllQueryParams, ProductGetAllResponse, MAX_PER_PAGE,
+        ProductCreateRequestBody, ProductCreateResponse, ProductGetAllItem, ProductGetAllResponse,
     },
     errors::ProductInterError,
 };
@@ -48,7 +49,7 @@ pub async fn product_create(
 
 pub async fn product_get_all(
     State(app_state): State<AppState>,
-    Query(query):     Query<ProductGetAllQueryParams>,
+    Query(query):     Query<GetAllQueryParams>,
 ) -> Result<impl IntoResponse, ProductInterError> {
     let (products, total) = ProductGetAllHandler::new(app_state.product_repo)
         .execute(ProductGetAllQuery {

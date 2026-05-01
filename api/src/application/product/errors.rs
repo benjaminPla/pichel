@@ -8,14 +8,36 @@ use crate::domain::product::{
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProductAppError {
-    #[error(transparent)]
-    Description(#[from] DescriptionError),
-    #[error(transparent)]
-    Name(#[from] NameError),
-    #[error(transparent)]
-    Repo(#[from] ProductRepoError),
-    #[error(transparent)]
-    Symbol(#[from] SymbolError),
-    #[error(transparent)]
-    UnitOfMeasure(#[from] UnitOfMeasureError),
+    #[error("internal server error")]
+    Internal,
+    #[error("not found")]
+    NotFound,
+    #[error("{0}")]
+    Validation(String),
+}
+
+impl From<DescriptionError> for ProductAppError {
+    fn from(e: DescriptionError) -> Self { Self::Validation(e.to_string()) }
+}
+
+impl From<NameError> for ProductAppError {
+    fn from(e: NameError) -> Self { Self::Validation(e.to_string()) }
+}
+
+impl From<SymbolError> for ProductAppError {
+    fn from(e: SymbolError) -> Self { Self::Validation(e.to_string()) }
+}
+
+impl From<UnitOfMeasureError> for ProductAppError {
+    fn from(e: UnitOfMeasureError) -> Self { Self::Validation(e.to_string()) }
+}
+
+impl From<ProductRepoError> for ProductAppError {
+    fn from(e: ProductRepoError) -> Self {
+        match e {
+            ProductRepoError::Database   => Self::Internal,
+            ProductRepoError::Mapping(_) => Self::Internal,
+            ProductRepoError::NotFound   => Self::NotFound,
+        }
+    }
 }

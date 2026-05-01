@@ -17,7 +17,7 @@ impl TryFrom<UserRow> for User {
     type Error = UserRepoError;
 
     fn try_from(r: UserRow) -> Result<User, UserRepoError> {
-        let email         = Email::new(r.email).map_err(|e| UserRepoError::Mapping(e.to_string()))?;
+        let email         = Email::new(r.email)?;
         let id            = UserId::reconstitute(r.id);
         let password_hash = PasswordHash::new(r.password_hash);
         let user          = User::reconstitute(email, id, password_hash);

@@ -13,24 +13,24 @@ use crate::domain::user::{
     value_objects::{password_hash::PasswordHash, password_raw::PasswordRaw},
 };
 
-pub struct Argon2UserHasher {
+pub struct Argon2Hasher {
     argon2: Argon2<'static>,
 }
 
-impl Argon2UserHasher {
+impl Argon2Hasher {
     const M_COST: u32 = 12_288;
     const T_COST: u32 = 3;
     const P_COST: u32 = 1;
 
     pub fn new() -> Self {
-        let params = Params::new(Self::M_COST, Self::T_COST, Self::P_COST, None).expect("unvalid argon2 params");
+        let params = Params::new(Self::M_COST, Self::T_COST, Self::P_COST, None).expect("invalid argon2 params");
         let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
         Self { argon2 }
     }
 }
 
 #[async_trait]
-impl Hasher for Argon2UserHasher {
+impl Hasher for Argon2Hasher {
     async fn hash(&self, raw: &PasswordRaw) -> Result<PasswordHash, HasherError> {
         let argon2 = self.argon2.clone();
         let bytes  = raw.value().as_bytes().to_vec();

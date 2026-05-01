@@ -28,14 +28,6 @@ impl From<User> for UserCreateResponse {
 
 // ── UserGetAll ───────────────────────────────────────────────────────────
 
-pub const MAX_PER_PAGE: i64 = 50;
-
-#[derive(Deserialize)]
-pub struct UserGetAllQueryParams {
-    pub page:     i64,
-    pub per_page: i64,
-}
-
 #[derive(Serialize)]
 pub struct UserGetAllItem {
     email: String,
@@ -52,7 +44,7 @@ impl From<User> for UserGetAllItem {
 }
 
 #[derive(Serialize)]
-pub struct UserGetAllQueryResponse {
-    pub total: i64,
+pub struct UserGetAllResponse {
     pub users: Vec<UserGetAllItem>,
+    pub total: i64,
 }

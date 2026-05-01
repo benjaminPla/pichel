@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

@@ -18,10 +18,10 @@ impl Name {
 
 #[derive(Debug, thiserror::Error)]
 pub enum NameError {
-    #[error("product name cannot be empty")]
+    #[error("name cannot be empty")]
     Empty,
-    #[error("product name cannot be longer than {0} characters")]
+    #[error("name cannot be longer than {0} characters")]
     TooLong(usize),
-    #[error("product name cannot be shorter than {0} characters")]
+    #[error("name cannot be shorter than {0} characters")]
     TooShort(usize),
 }

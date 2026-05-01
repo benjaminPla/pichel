@@ -1,2 +1,2 @@
-pub mod pg_user;
+pub mod repository;
 pub mod row;

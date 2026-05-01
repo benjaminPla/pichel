@@ -5,19 +5,17 @@ use axum::{
 };
 use serde_json::json;
 
-use crate::{application::user::errors::UserAppError, domain::user::ports::repository::UserRepoError};
+use crate::application::user::errors::UserAppError;
 
 #[derive(Debug)]
 pub struct UserInterError(StatusCode, String);
 
 impl From<UserAppError> for UserInterError {
-    fn from(err: UserAppError) -> Self {
-        match err {
-            UserAppError::Email(e)                        => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
-            UserAppError::PasswordRaw(e)                  => Self(StatusCode::UNPROCESSABLE_ENTITY, e.to_string()),
-            UserAppError::Repo(UserRepoError::Database)   => Self(StatusCode::INTERNAL_SERVER_ERROR, "internal server error".into()),
-            UserAppError::Repo(UserRepoError::Mapping(m)) => { Self(StatusCode::INTERNAL_SERVER_ERROR, m) }
-            UserAppError::Hasher(e)                       => { Self(StatusCode::INTERNAL_SERVER_ERROR, e.to_string()) }
+    fn from(e: UserAppError) -> Self {
+        match e {
+            UserAppError::Internal        => Self(StatusCode::INTERNAL_SERVER_ERROR, "internal server error".to_string()),
+            UserAppError::NotFound        => Self(StatusCode::NOT_FOUND, "not found".to_string()),
+            UserAppError::Validation(msg) => Self(StatusCode::BAD_REQUEST, msg.to_string()),
         }
     }
 }

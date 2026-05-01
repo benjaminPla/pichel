@@ -5,7 +5,6 @@ use crate::domain::product::{
     aggregate_root::Product, ports::repository::ProductRepo, ports::repository::ProductRepoError,
     value_objects::id::ProductId,
 };
-
 use super::row::ProductRow;
 
 pub struct PgProductRepo {
@@ -32,10 +31,8 @@ impl ProductRepo for PgProductRepo {
         .bind(per_page)
         .bind(offset)
         .fetch_all(&self.pool)
-        .await
-        .map_err(|_| ProductRepoError::Database)?;
-        let products = rows.into_iter().map(Product::try_from).collect::<Result<Vec<_>, _>>();
-        let products = products.map_err(|e| ProductRepoError::Mapping(e.to_string()))?;
+        .await?;
+        let products = rows.into_iter().map(Product::try_from).collect::<Result<Vec<_>, _>>()?;
         Ok((products, total))
     }
 
@@ -47,8 +44,7 @@ impl ProductRepo for PgProductRepo {
         )
         .bind(product_id.value())
         .fetch_one(&self.pool)
-        .await
-        .map_err(|_| ProductRepoError::Database)?;
+        .await?;
         let product = Product::try_from(row)?;
         Ok(product)
     }
@@ -81,8 +77,7 @@ impl ProductRepo for PgProductRepo {
         .bind(&product.get_symbols().iter().map(|symbol| symbol.to_string()).collect::<Vec<String>>())
         .bind(&product.get_unit_of_measure().as_str())
         .fetch_one(&self.pool)
-        .await
-        .map_err(|_| ProductRepoError::Database)?;
+        .await?;
         let product = Product::try_from(row)?;
         Ok(product)
     }

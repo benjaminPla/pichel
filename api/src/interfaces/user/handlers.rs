@@ -7,19 +7,20 @@ use axum::{
 
 use crate::{
     application::user::{
-        commands::user_create::{UserCreateCommand, UserCreateHandler},
-        queries::user_get_all::{UserGetAllHandler, UserGetAllQuery},
+        commands::create::{UserCreateCommand, UserCreateHandler},
+        queries::get_all::{UserGetAllHandler, UserGetAllQuery},
     },
-    interfaces::app_state::AppState,
+    interfaces::{
+        app_state::AppState,
+        pagination::{GetAllQueryParams, MAX_PER_PAGE},
+    },
 };
-
 use super::{
-    dto::{
-        UserCreateRequestBody, UserCreateResponse, UserGetAllItem, UserGetAllQueryParams,
-        UserGetAllQueryResponse, MAX_PER_PAGE,
-    },
+    dto::{UserCreateRequestBody, UserCreateResponse, UserGetAllItem, UserGetAllResponse},
     errors::UserInterError,
 };
+
+// ── Create ───────────────────────────────────────────────────────────────
 
 pub async fn user_create(
     State(app_state): State<AppState>,
@@ -34,9 +35,11 @@ pub async fn user_create(
     Ok((StatusCode::CREATED, Json(UserCreateResponse::from(user))))
 }
 
+// ── GetAll ───────────────────────────────────────────────────────────────
+
 pub async fn user_get_all(
     State(app_state): State<AppState>,
-    Query(query):     Query<UserGetAllQueryParams>,
+    Query(query):     Query<GetAllQueryParams>,
 ) -> Result<impl IntoResponse, UserInterError> {
     let (users, total) = UserGetAllHandler::new(app_state.user_repo)
         .execute(UserGetAllQuery {
@@ -45,5 +48,5 @@ pub async fn user_get_all(
         })
         .await?;
     let users = users.into_iter().map(UserGetAllItem::from).collect::<Vec<_>>();
-    Ok((StatusCode::OK, Json(UserGetAllQueryResponse { users, total })))
+    Ok((StatusCode::OK, Json(UserGetAllResponse { users, total })))
 }

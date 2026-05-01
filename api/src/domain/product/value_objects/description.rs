@@ -18,10 +18,10 @@ impl Description {
 
 #[derive(Debug, thiserror::Error)]
 pub enum DescriptionError {
-    #[error("product description cannot be empty")]
+    #[error("description cannot be empty")]
     Empty,
-    #[error("product description cannot be longer than {0} characters")]
+    #[error("description cannot be longer than {0} characters")]
     TooLong(usize),
-    #[error("product description cannot be shorter than {0} characters")]
+    #[error("description cannot be shorter than {0} characters")]
     TooShort(usize),
 }
