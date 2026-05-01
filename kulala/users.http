@@ -1,0 +1,18 @@
+### create
+POST {{base}}/users
+Content-Type: application/json
+
+{
+    "email":    "test_0@example.com",
+    "password": "secret123456789"
+}
+
+### get_all
+@page = 1
+@per_page = 10
+GET {{base}}/users?page={{page}}&per_page={{per_page}}
+
+### get_by_id
+@user_id = 2f6c6e06-2665-4d69-8086-b78d4d5f714e
+GET {{base}}/users/{{user_id}}
+

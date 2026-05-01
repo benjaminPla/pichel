@@ -1,0 +1,23 @@
+### create
+POST {{base}}/products
+Content-Type: application/json
+
+{
+    "description":         "A test product",
+    "image_url":           null,
+    "low_stock_threshold": 5,
+    "name":                "Test Product",
+    "price_cents":         1999,
+    "stock":               20,
+    "symbols":             ["vegan"],
+    "unit_of_measure":     "kg"
+}
+
+### get_all
+@page = 1
+@per_page = 10
+GET {{base}}/products?page={{page}}&per_page={{per_page}}
+
+### get_by_id
+@product_id =0929f4f2-c312-4b0e-bb7a-638ffe12085d
+GET {{base}}/products/{{product_id}}
