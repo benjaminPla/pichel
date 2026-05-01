@@ -19,6 +19,9 @@ use interfaces::{
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
     let config = envy::from_env::<Config>().expect("Failed to load env vars");
     let pool = sqlx::PgPool::connect(&config.database_url).await.expect("Failed to connect to Postgres");
     let app_state = AppState {
@@ -32,7 +35,7 @@ async fn main() {
         .with_state(app_state);
     let address = SocketAddr::from(([0, 0, 0, 0], config.port));
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();
-    println!("listening on {}", address.to_string());
+    tracing::info!("listening on {address}");
     axum::serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),

@@ -9,7 +9,7 @@ use crate::domain::product::{
 #[derive(Debug, thiserror::Error)]
 pub enum ProductAppError {
     #[error("internal server error")]
-    Internal,
+    Internal(String),
     #[error("not found")]
     NotFound,
     #[error("{0}")]
@@ -35,9 +35,9 @@ impl From<UnitOfMeasureError> for ProductAppError {
 impl From<ProductRepoError> for ProductAppError {
     fn from(e: ProductRepoError) -> Self {
         match e {
-            ProductRepoError::Database   => Self::Internal,
-            ProductRepoError::Mapping(_) => Self::Internal,
-            ProductRepoError::NotFound   => Self::NotFound,
+            ProductRepoError::Database(msg) => Self::Internal(msg),
+            ProductRepoError::Mapping(msg)  => Self::Internal(msg),
+            ProductRepoError::NotFound      => Self::NotFound,
         }
     }
 }

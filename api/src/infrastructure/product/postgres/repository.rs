@@ -21,7 +21,7 @@ impl PgProductRepo {
 impl ProductRepo for PgProductRepo {
     async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductRepoError> {
         let offset     = (page - 1) * per_page;
-        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM products").fetch_one(&self.pool).await.map_err(|_| ProductRepoError::Database)?;
+        let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM products").fetch_one(&self.pool).await.map_err(|e| ProductRepoError::Database(e.to_string()))?;
         let rows       = sqlx::query_as::<_, ProductRow>(
             "SELECT description, id, image_url, low_stock_threshold, name, price_cents, stock, symbols, unit_of_measure
              FROM products

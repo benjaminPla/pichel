@@ -15,7 +15,7 @@ pub trait UserRepo: Send + Sync {
 #[derive(Debug, thiserror::Error)]
 pub enum UserRepoError {
     #[error("internal server error")]
-    Database,
+    Database(String),
     #[error("not found")]
     NotFound,
     #[error("{0}")]
@@ -30,7 +30,7 @@ impl From<sqlx::Error> for UserRepoError {
     fn from(e: sqlx::Error) -> Self {
         match e {
             sqlx::Error::RowNotFound => UserRepoError::NotFound,
-            _                        => UserRepoError::Database,
+            _                        => UserRepoError::Database(e.to_string()),
         }
     }
 }

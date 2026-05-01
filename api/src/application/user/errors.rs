@@ -7,7 +7,7 @@ use crate::domain::user::{
 #[derive(Debug, thiserror::Error)]
 pub enum UserAppError {
     #[error("internal server error")]
-    Internal,
+    Internal(String),
     #[error("not found")]
     NotFound,
     #[error("{0}")]
@@ -19,7 +19,7 @@ impl From<EmailError> for UserAppError {
 }
 
 impl From<HasherError> for UserAppError {
-    fn from(_: HasherError) -> Self { Self::Internal }
+    fn from(e: HasherError) -> Self { Self::Internal(e.to_string()) }
 }
 
 impl From<PasswordRawError> for UserAppError {
@@ -29,9 +29,9 @@ impl From<PasswordRawError> for UserAppError {
 impl From<UserRepoError> for UserAppError {
     fn from(e: UserRepoError) -> Self {
         match e {
-            UserRepoError::Database   => Self::Internal,
-            UserRepoError::Mapping(_) => Self::Internal,
-            UserRepoError::NotFound   => Self::NotFound,
+            UserRepoError::Database(msg) => Self::Internal(msg),
+            UserRepoError::Mapping(msg)  => Self::Internal(msg),
+            UserRepoError::NotFound      => Self::NotFound,
         }
     }
 }

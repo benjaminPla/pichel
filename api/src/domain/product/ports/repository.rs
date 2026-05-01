@@ -20,7 +20,7 @@ pub trait ProductRepo: Send + Sync {
 #[derive(Debug, thiserror::Error)]
 pub enum ProductRepoError {
     #[error("internal server error")]
-    Database,
+    Database(String),
     #[error("not found")]
     NotFound,
     #[error("{0}")]
@@ -51,7 +51,7 @@ impl From<sqlx::Error> for ProductRepoError {
     fn from(e: sqlx::Error) -> Self {
         match e {
             sqlx::Error::RowNotFound => ProductRepoError::NotFound,
-            _                        => ProductRepoError::Database,
+            _                        => ProductRepoError::Database(e.to_string()),
         }
     }
 }

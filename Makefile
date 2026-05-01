@@ -5,6 +5,7 @@ dev-up:
 	cd api && \
 	DATABASE_URL=postgres://pichel:pichel@localhost:5432/pichel \
 	PORT=3000 \
+	RUST_LOG=info \
 	JWT_SECRET=dev-secret-change-in-prod \
 	cargo watch -x run
 
