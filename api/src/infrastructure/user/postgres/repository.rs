@@ -25,7 +25,7 @@ impl UserRepo for PgUserRepo {
         let rows       = sqlx::query_as::<_, UserRow>(
             "SELECT email, id, password_hash
              FROM users
-             ORDER BY name ASC
+             ORDER BY email ASC
              LIMIT $1 OFFSET $2"
         )
         .bind(per_page)

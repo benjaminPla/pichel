@@ -1,28 +1,35 @@
 use axum::{
-    extract::{Query, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
 };
+use uuid::Uuid;
 
+use super::{
+    dto::{
+        UserCreateRequestBody, UserCreateResponse, UserGetAllItem, UserGetAllResponse,
+        UserGetByIdResponse,
+    },
+    errors::UserInterError,
+};
 use crate::{
     application::user::{
         commands::create::{UserCreateCommand, UserCreateHandler},
-        queries::get_all::{UserGetAllHandler, UserGetAllQuery},
+        queries::{
+            get_all::{UserGetAllHandler, UserGetAllQuery},
+            get_by_id::{UserGetByIdHandler, UserGetByIdQuery},
+        },
     },
     interfaces::{
         app_state::AppState,
         pagination::{GetAllQueryParams, MAX_PER_PAGE},
     },
 };
-use super::{
-    dto::{UserCreateRequestBody, UserCreateResponse, UserGetAllItem, UserGetAllResponse},
-    errors::UserInterError,
-};
 
 // ── Create ───────────────────────────────────────────────────────────────
 
-pub async fn user_create(
+pub async fn create(
     State(app_state): State<AppState>,
     Json(body):       Json<UserCreateRequestBody>,
 ) -> Result<impl IntoResponse, UserInterError> {
@@ -37,7 +44,7 @@ pub async fn user_create(
 
 // ── GetAll ───────────────────────────────────────────────────────────────
 
-pub async fn user_get_all(
+pub async fn get_all(
     State(app_state): State<AppState>,
     Query(query):     Query<GetAllQueryParams>,
 ) -> Result<impl IntoResponse, UserInterError> {
@@ -49,4 +56,16 @@ pub async fn user_get_all(
         .await?;
     let users = users.into_iter().map(UserGetAllItem::from).collect::<Vec<_>>();
     Ok((StatusCode::OK, Json(UserGetAllResponse { users, total })))
+}
+
+// ── GetById ──────────────────────────────────────────────────────────────
+
+pub async fn get_by_id(
+    State(app_state): State<AppState>,
+    Path(id):         Path<Uuid>,
+) -> Result<impl IntoResponse, UserInterError> {
+    let user = UserGetByIdHandler::new(app_state.user_repo)
+        .execute(UserGetByIdQuery { id })
+        .await?;
+    Ok((StatusCode::OK, Json(UserGetByIdResponse::from(user))))
 }
