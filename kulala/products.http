@@ -15,9 +15,9 @@ Content-Type: application/json
 
 ### get_all
 @page = 1
-@per_page = 10
+@per_page = 50
 GET {{base}}/products?page={{page}}&per_page={{per_page}}
 
 ### get_by_id
-@product_id =0929f4f2-c312-4b0e-bb7a-638ffe12085d
+@product_id = df412cc0-10cb-4bc5-84ab-016602851a6c
 GET {{base}}/products/{{product_id}}

@@ -9,7 +9,7 @@ use axum::Router;
 use config::Config;
 use infrastructure::{
     product::postgres::repository::PgProductRepo,
-    user::{argon2::Argon2Hasher, postgres::repository::PgUserRepo},
+    user::{argon2_hasher::Argon2Hasher, postgres::repository::PgUserRepo},
 };
 use interfaces::{
     app_state::AppState,

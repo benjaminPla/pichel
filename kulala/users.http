@@ -13,6 +13,6 @@ Content-Type: application/json
 GET {{base}}/users?page={{page}}&per_page={{per_page}}
 
 ### get_by_id
-@user_id = 2f6c6e06-2665-4d69-8086-b78d4d5f714e
+@user_id = 11ade42e-951b-4c8d-bc70-2d70700374bc
 GET {{base}}/users/{{user_id}}
 

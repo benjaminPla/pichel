@@ -1,0 +1,32 @@
+pub mod dto;
+
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use crate::{
+    application::product::commands::create::{ProductCreateCommand, ProductCreateHandler},
+    interfaces::{
+        app_state::AppState,
+        product::{
+            errors::ProductInterError,
+            handlers::create::dto::{ProductCreateRequestBody, ProductCreateResponse},
+        },
+    },
+};
+
+pub async fn create(
+    State(app_state): State<AppState>,
+    Json(body):       Json<ProductCreateRequestBody>,
+) -> Result<impl IntoResponse, ProductInterError> {
+    let product = ProductCreateHandler::new(app_state.product_repo)
+        .execute(ProductCreateCommand {
+            description:         body.description,
+            image_url:           body.image_url,
+            low_stock_threshold: body.low_stock_threshold,
+            name:                body.name,
+            price_cents:         body.price_cents,
+            stock:               body.stock,
+            symbols:             body.symbols,
+            unit_of_measure:     body.unit_of_measure,
+        })
+        .await?;
+    Ok((StatusCode::CREATED, Json(ProductCreateResponse::from(product))))
+}
