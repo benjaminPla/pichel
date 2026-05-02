@@ -1,13 +1,13 @@
 use uuid::Uuid;
-
 use crate::domain::product::{
-    aggregate_root::Product,
     ports::repository::ProductRepoError,
     value_objects::{
         description::Description, id::ProductId, name::Name, symbol::Symbol,
         unit_of_measure::UnitOfMeasure,
     },
+    Product,
 };
+
 
 #[derive(sqlx::FromRow)]
 pub struct ProductRow {

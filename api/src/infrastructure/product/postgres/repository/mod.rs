@@ -5,14 +5,10 @@ mod update;
 
 use async_trait::async_trait;
 use sqlx::PgPool;
-use create::create;
-use get_all::get_all;
-use get_by_id::get_by_id;
-use update::update;
 use crate::domain::product::{
-    aggregate_root::Product,
     ports::repository::{ProductRepo, ProductRepoError},
     value_objects::id::ProductId,
+    Product,
 };
 
 pub struct PgProductRepo {
@@ -28,18 +24,18 @@ impl PgProductRepo {
 #[async_trait]
 impl ProductRepo for PgProductRepo {
     async fn create(&self, product: &Product) -> Result<Product, ProductRepoError> {
-        create(&self.pool, product).await
+        create::create(&self.pool, product).await
     }
 
     async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductRepoError> {
-        get_all(&self.pool, page, per_page).await
+        get_all::get_all(&self.pool, page, per_page).await
     }
 
     async fn get_by_id(&self, product_id: &ProductId) -> Result<Product, ProductRepoError> {
-        get_by_id(&self.pool, product_id).await
+        get_by_id::get_by_id(&self.pool, product_id).await
     }
 
     async fn update(&self, product: &Product) -> Result<Product, ProductRepoError> {
-        update(&self.pool, product).await
+        update::update(&self.pool, product).await
     }
 }

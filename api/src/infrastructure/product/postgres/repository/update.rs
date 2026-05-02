@@ -1,6 +1,6 @@
-use sqlx::PgPool;
-use crate::domain::product::{aggregate_root::Product, ports::repository::ProductRepoError};
 use super::super::row::ProductRow;
+use crate::domain::product::{ports::repository::ProductRepoError, Product};
+use sqlx::PgPool;
 
 pub(super) async fn update(pool: &PgPool, product: &Product) -> Result<Product, ProductRepoError> {
     let row = sqlx::query_as::<_, ProductRow>(

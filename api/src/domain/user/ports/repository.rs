@@ -1,8 +1,8 @@
-use async_trait::async_trait;
 use crate::domain::user::{
-    aggregate_root::User,
     value_objects::{email::EmailError, id::UserId, password_hash::PasswordHash},
+    User,
 };
+use async_trait::async_trait;
 
 #[async_trait]
 pub trait UserRepo: Send + Sync {

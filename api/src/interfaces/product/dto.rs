@@ -1,7 +1,6 @@
+use crate::domain::product::Product;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-
-use crate::domain::product::aggregate_root::Product;
 
 // ── ProductCreate ────────────────────────────────────────────────────────
 

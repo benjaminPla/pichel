@@ -1,13 +1,13 @@
-use std::sync::Arc;
-use uuid::Uuid;
 use crate::{
     application::user::errors::UserAppError,
     domain::user::{
-        aggregate_root::User,
         ports::repository::UserRepo,
         value_objects::{email::Email, id::UserId},
+        User,
     },
 };
+use std::sync::Arc;
+use uuid::Uuid;
 
 // ── Command ──────────────────────────────────────────────────────────────
 

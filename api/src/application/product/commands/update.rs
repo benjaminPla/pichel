@@ -1,16 +1,16 @@
-use std::sync::Arc;
-use uuid::Uuid;
 use crate::{
     application::product::errors::ProductAppError,
     domain::product::{
-        aggregate_root::Product,
         ports::repository::ProductRepo,
         value_objects::{
             description::Description, id::ProductId, name::Name, symbol::Symbol,
             unit_of_measure::UnitOfMeasure,
         },
+        Product,
     },
 };
+use std::sync::Arc;
+use uuid::Uuid;
 
 // ── Command ──────────────────────────────────────────────────────────────
 

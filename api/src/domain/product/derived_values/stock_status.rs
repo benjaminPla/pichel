@@ -1,4 +1,4 @@
-use crate::domain::product::aggregate_root::Product;
+use crate::domain::product::Product;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum StockStatus {

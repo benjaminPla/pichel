@@ -4,18 +4,18 @@ mod get_by_id;
 mod update;
 mod update_password;
 
+use crate::domain::user::{
+    ports::repository::{UserRepo, UserRepoError},
+    value_objects::{id::UserId, password_hash::PasswordHash},
+    User,
+};
 use async_trait::async_trait;
-use sqlx::PgPool;
 use create::create;
 use get_all::get_all;
 use get_by_id::get_by_id;
+use sqlx::PgPool;
 use update::update;
 use update_password::update_password;
-use crate::domain::user::{
-    aggregate_root::User,
-    ports::repository::{UserRepo, UserRepoError},
-    value_objects::{id::UserId, password_hash::PasswordHash},
-};
 
 pub struct PgUserRepo {
     pool: PgPool,
@@ -45,7 +45,11 @@ impl UserRepo for PgUserRepo {
         update(&self.pool, user).await
     }
 
-    async fn update_password(&self, user_id: &UserId, password_hash: &PasswordHash) -> Result<User, UserRepoError> {
+    async fn update_password(
+        &self,
+        user_id: &UserId,
+        password_hash: &PasswordHash,
+    ) -> Result<User, UserRepoError> {
         update_password(&self.pool, user_id, password_hash).await
     }
 }

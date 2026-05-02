@@ -1,6 +1,6 @@
-use sqlx::PgPool;
-use crate::domain::product::{aggregate_root::Product, ports::repository::ProductRepoError};
 use super::super::row::ProductRow;
+use crate::domain::product::{ports::repository::ProductRepoError, Product};
+use sqlx::PgPool;
 
 pub(super) async fn get_all(pool: &PgPool, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductRepoError> {
     let offset     = (page - 1) * per_page;

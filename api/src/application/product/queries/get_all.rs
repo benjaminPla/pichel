@@ -1,8 +1,8 @@
-use std::sync::Arc;
 use crate::{
     application::product::errors::ProductAppError,
-    domain::product::{aggregate_root::Product, ports::repository::ProductRepo},
+    domain::product::{ports::repository::ProductRepo, Product},
 };
+use std::sync::Arc;
 
 // ── Query ────────────────────────────────────────────────────────────────
 

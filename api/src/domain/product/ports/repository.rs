@@ -1,11 +1,11 @@
-use async_trait::async_trait;
 use crate::domain::product::{
-    aggregate_root::Product,
     value_objects::{
         description::DescriptionError, id::ProductId, name::NameError, symbol::SymbolError,
         unit_of_measure::UnitOfMeasureError,
     },
+    Product,
 };
+use async_trait::async_trait;
 
 #[async_trait]
 pub trait ProductRepo: Send + Sync {

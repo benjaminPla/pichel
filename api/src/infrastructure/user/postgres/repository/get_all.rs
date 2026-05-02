@@ -1,6 +1,6 @@
-use sqlx::PgPool;
-use crate::domain::user::{aggregate_root::User, ports::repository::UserRepoError};
 use super::super::row::UserRow;
+use crate::domain::user::{ports::repository::UserRepoError, User};
+use sqlx::PgPool;
 
 pub(super) async fn get_all(pool: &PgPool, page: i64, per_page: i64) -> Result<(Vec<User>, i64), UserRepoError> {
     let offset     = (page - 1) * per_page;

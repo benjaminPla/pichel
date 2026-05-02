@@ -1,6 +1,6 @@
 use uuid::Uuid;
 use crate::domain::user::{
-    aggregate_root::User,
+    User,
     ports::repository::UserRepoError,
     value_objects::{email::Email, id::UserId, password_hash::PasswordHash},
 };

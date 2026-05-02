@@ -1,13 +1,9 @@
-use std::sync::Arc;
-use uuid::Uuid;
 use crate::{
     application::product::errors::ProductAppError,
-    domain::product::{
-        aggregate_root::Product,
-        ports::repository::ProductRepo,
-        value_objects::id::ProductId,
-    },
+    domain::product::{ports::repository::ProductRepo, value_objects::id::ProductId, Product},
 };
+use std::sync::Arc;
+use uuid::Uuid;
 
 // ── Query ────────────────────────────────────────────────────────────────
 

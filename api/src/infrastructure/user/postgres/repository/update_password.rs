@@ -1,10 +1,10 @@
-use sqlx::PgPool;
+use super::super::row::UserRow;
 use crate::domain::user::{
-    aggregate_root::User,
     ports::repository::UserRepoError,
     value_objects::{id::UserId, password_hash::PasswordHash},
+    User,
 };
-use super::super::row::UserRow;
+use sqlx::PgPool;
 
 pub(super) async fn update_password(pool: &PgPool, user_id: &UserId, password_hash: &PasswordHash) -> Result<User, UserRepoError> {
     let row = sqlx::query_as::<_, UserRow>(

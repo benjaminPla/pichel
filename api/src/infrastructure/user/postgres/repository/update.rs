@@ -1,6 +1,6 @@
-use sqlx::PgPool;
-use crate::domain::user::{aggregate_root::User, ports::repository::UserRepoError};
 use super::super::row::UserRow;
+use crate::domain::user::{ports::repository::UserRepoError, User};
+use sqlx::PgPool;
 
 pub(super) async fn update(pool: &PgPool, user: &User) -> Result<User, UserRepoError> {
     let row = sqlx::query_as::<_, UserRow>(

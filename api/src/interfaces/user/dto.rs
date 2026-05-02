@@ -1,6 +1,6 @@
+use crate::domain::user::User;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use crate::domain::user::aggregate_root::User;
 
 // ── UserCreate ───────────────────────────────────────────────────────────
 
