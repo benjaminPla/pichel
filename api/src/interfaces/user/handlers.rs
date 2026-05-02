@@ -5,26 +5,28 @@ use axum::{
     Json,
 };
 use uuid::Uuid;
-
-use super::{
-    dto::{
-        UserCreateRequestBody, UserCreateResponse, UserGetAllItem, UserGetAllResponse,
-        UserGetByIdResponse,
-    },
-    errors::UserInterError,
+use super::dto::{
+    UserCreateRequestBody, UserCreateResponse,
+    UserGetAllItem, UserGetAllResponse,
+    UserGetByIdResponse,
+    UserUpdatePasswordRequestBody, UserUpdatePasswordResponse,
+    UserUpdateRequestBody, UserUpdateResponse,
 };
-use crate::{
-    application::user::{
-        commands::create::{UserCreateCommand, UserCreateHandler},
-        queries::{
-            get_all::{UserGetAllHandler, UserGetAllQuery},
-            get_by_id::{UserGetByIdHandler, UserGetByIdQuery},
-        },
+use super::errors::UserInterError;
+use crate::application::user::{
+    commands::{
+        create::{UserCreateCommand, UserCreateHandler},
+        update::{UserUpdateCommand, UserUpdateHandler},
+        update_password::{UserUpdatePasswordCommand, UserUpdatePasswordHandler},
     },
-    interfaces::{
-        app_state::AppState,
-        pagination::{GetAllQueryParams, MAX_PER_PAGE},
+    queries::{
+        get_all::{UserGetAllHandler, UserGetAllQuery},
+        get_by_id::{UserGetByIdHandler, UserGetByIdQuery},
     },
+};
+use crate::interfaces::{
+    app_state::AppState,
+    pagination::{GetAllQueryParams, MAX_PER_PAGE},
 };
 
 // ── Create ───────────────────────────────────────────────────────────────
@@ -34,12 +36,35 @@ pub async fn create(
     Json(body):       Json<UserCreateRequestBody>,
 ) -> Result<impl IntoResponse, UserInterError> {
     let user = UserCreateHandler::new(app_state.user_hasher, app_state.user_repo)
-        .execute(UserCreateCommand {
-            email:    body.email,
-            password: body.password,
-        })
+        .execute(UserCreateCommand { email: body.email, password: body.password })
         .await?;
     Ok((StatusCode::CREATED, Json(UserCreateResponse::from(user))))
+}
+
+// ── Update ───────────────────────────────────────────────────────────────
+
+pub async fn update(
+    State(app_state): State<AppState>,
+    Path(id):         Path<Uuid>,
+    Json(body):       Json<UserUpdateRequestBody>,
+) -> Result<impl IntoResponse, UserInterError> {
+    let user = UserUpdateHandler::new(app_state.user_repo)
+        .execute(UserUpdateCommand { email: body.email, id })
+        .await?;
+    Ok((StatusCode::OK, Json(UserUpdateResponse::from(user))))
+}
+
+// ── UpdatePassword ────────────────────────────────────────────────────────
+
+pub async fn update_password(
+    State(app_state): State<AppState>,
+    Path(id):         Path<Uuid>,
+    Json(body):       Json<UserUpdatePasswordRequestBody>,
+) -> Result<impl IntoResponse, UserInterError> {
+    let user = UserUpdatePasswordHandler::new(app_state.user_hasher, app_state.user_repo)
+        .execute(UserUpdatePasswordCommand { id, password: body.password })
+        .await?;
+    Ok((StatusCode::OK, Json(UserUpdatePasswordResponse::from(user))))
 }
 
 // ── GetAll ───────────────────────────────────────────────────────────────
@@ -55,7 +80,7 @@ pub async fn get_all(
         })
         .await?;
     let users = users.into_iter().map(UserGetAllItem::from).collect::<Vec<_>>();
-    Ok((StatusCode::OK, Json(UserGetAllResponse { users, total })))
+    Ok((StatusCode::OK, Json(UserGetAllResponse { total, users })))
 }
 
 // ── GetById ──────────────────────────────────────────────────────────────

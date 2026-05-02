@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct PasswordHash(String);
 
 impl PasswordHash {

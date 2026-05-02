@@ -1,5 +1,4 @@
 use std::sync::Arc;
-
 use crate::{
     application::product::errors::ProductAppError,
     domain::product::{
@@ -51,7 +50,7 @@ impl ProductCreateHandler {
             symbols,
             unit_of_measure,
         );
-        let product = self.product_repo.save(&product).await?;
+        let product = self.product_repo.create(&product).await?;
         Ok(product)
     }
 }

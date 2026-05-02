@@ -1,5 +1,4 @@
 use std::sync::Arc;
-
 use crate::{
     application::user::errors::UserAppError,
     domain::user::{aggregate_root::User, ports::repository::UserRepo},
@@ -23,10 +22,7 @@ impl UserGetAllHandler {
         Self { user_repo }
     }
 
-    pub async fn execute(
-        &self,
-        query: UserGetAllQuery,
-    ) -> Result<(Vec<User>, i64), UserAppError> {
+    pub async fn execute(&self, query: UserGetAllQuery) -> Result<(Vec<User>, i64), UserAppError> {
         let (users, total) = self.user_repo.get_all(query.page, query.per_page).await?;
         Ok((users, total))
     }

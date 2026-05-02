@@ -4,7 +4,6 @@ use axum::{
     Json,
 };
 use serde_json::json;
-
 use crate::application::user::errors::UserAppError;
 
 #[derive(Debug)]
@@ -17,7 +16,7 @@ impl From<UserAppError> for UserInterError {
                 tracing::error!(error = %msg);
                 Self(StatusCode::INTERNAL_SERVER_ERROR, "internal server error".to_string())
             }
-            UserAppError::NotFound => Self(StatusCode::NOT_FOUND, "not found".to_string()),
+            UserAppError::NotFound        => Self(StatusCode::NOT_FOUND, "not found".to_string()),
             UserAppError::Validation(msg) => Self(StatusCode::BAD_REQUEST, msg),
         }
     }

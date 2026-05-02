@@ -1,15 +1,16 @@
 use async_trait::async_trait;
-
 use crate::domain::user::{
     aggregate_root::User,
-    value_objects::{email::EmailError, id::UserId},
+    value_objects::{email::EmailError, id::UserId, password_hash::PasswordHash},
 };
 
 #[async_trait]
 pub trait UserRepo: Send + Sync {
-    async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<User>, i64), UserRepoError>;
-    async fn get_by_id(&self, user_id: &UserId)       -> Result<User, UserRepoError>;
-    async fn save(&self, user: &User)                 -> Result<User, UserRepoError>;
+    async fn create(&self, user: &User)                                              -> Result<User, UserRepoError>;
+    async fn get_all(&self, page: i64, per_page: i64)                               -> Result<(Vec<User>, i64), UserRepoError>;
+    async fn get_by_id(&self, user_id: &UserId)                                     -> Result<User, UserRepoError>;
+    async fn update(&self, user: &User)                                              -> Result<User, UserRepoError>;
+    async fn update_password(&self, user_id: &UserId, password_hash: &PasswordHash) -> Result<User, UserRepoError>;
 }
 
 #[derive(Debug, thiserror::Error)]

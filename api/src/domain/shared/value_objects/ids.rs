@@ -1,10 +1,9 @@
 use std::marker::PhantomData;
-
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct EntityId<T> {
-    value: Uuid,
+    value:   Uuid,
     _marker: PhantomData<T>,
 }
 

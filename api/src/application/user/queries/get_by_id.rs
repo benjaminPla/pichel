@@ -1,10 +1,12 @@
 use std::sync::Arc;
-
 use uuid::Uuid;
-
 use crate::{
     application::user::errors::UserAppError,
-    domain::user::{aggregate_root::User, ports::repository::UserRepo, value_objects::id::UserId},
+    domain::user::{
+        aggregate_root::User,
+        ports::repository::UserRepo,
+        value_objects::id::UserId,
+    },
 };
 
 // ── Query ────────────────────────────────────────────────────────────────
@@ -25,9 +27,8 @@ impl UserGetByIdHandler {
     }
 
     pub async fn execute(&self, query: UserGetByIdQuery) -> Result<User, UserAppError> {
-        let id = UserId::reconstitute(query.id);
+        let id   = UserId::reconstitute(query.id);
         let user = self.user_repo.get_by_id(&id).await?;
         Ok(user)
     }
 }
-

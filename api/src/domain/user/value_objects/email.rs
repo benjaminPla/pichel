@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Email(String);
 
 impl Email {

@@ -1,5 +1,4 @@
 use std::sync::Arc;
-
 use crate::domain::{
     product::ports::repository::ProductRepo,
     user::ports::{hasher::Hasher, repository::UserRepo},

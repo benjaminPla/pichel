@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-
 use crate::domain::product::{
     aggregate_root::Product,
     value_objects::{
@@ -10,9 +9,10 @@ use crate::domain::product::{
 
 #[async_trait]
 pub trait ProductRepo: Send + Sync {
-    async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductRepoError>;
-    async fn get_by_id(&self, product_id: &ProductId) -> Result<Product, ProductRepoError>;
-    async fn save(&self, product: &Product)           -> Result<Product, ProductRepoError>;
+    async fn create(&self, product: &Product)          -> Result<Product, ProductRepoError>;
+    async fn get_all(&self, page: i64, per_page: i64)  -> Result<(Vec<Product>, i64), ProductRepoError>;
+    async fn get_by_id(&self, product_id: &ProductId)  -> Result<Product, ProductRepoError>;
+    async fn update(&self, product: &Product)           -> Result<Product, ProductRepoError>;
 }
 
 // ── Errors ───────────────────────────────────────────────────────────────
