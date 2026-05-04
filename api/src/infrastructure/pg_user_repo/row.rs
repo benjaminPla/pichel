@@ -1,9 +1,9 @@
-use uuid::Uuid;
 use crate::domain::user::{
-    User,
-    ports::repository::UserRepoError,
+    ports::UserRepoError,
     value_objects::{email::Email, id::UserId, password_hash::PasswordHash},
+    User,
 };
+use uuid::Uuid;
 
 #[derive(sqlx::FromRow)]
 pub struct UserRow {

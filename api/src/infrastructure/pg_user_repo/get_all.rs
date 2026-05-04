@@ -1,8 +1,8 @@
-use super::super::row::UserRow;
-use crate::domain::user::{ports::repository::UserRepoError, User};
+use crate::domain::user::{ports::UserRepoError, User};
+use crate::infrastructure::pg_user_repo::row::UserRow;
 use sqlx::PgPool;
 
-pub(super) async fn get_all(pool: &PgPool, page: i64, per_page: i64) -> Result<(Vec<User>, i64), UserRepoError> {
+pub async fn get_all(pool: &PgPool, page: i64, per_page: i64) -> Result<(Vec<User>, i64), UserRepoError> {
     let offset     = (page - 1) * per_page;
     let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users")
         .fetch_one(pool)

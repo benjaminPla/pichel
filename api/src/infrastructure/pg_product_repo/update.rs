@@ -1,16 +1,25 @@
-use super::super::row::ProductRow;
-use crate::domain::product::{ports::repository::ProductRepoError, Product};
+use crate::{
+    domain::product::{ports::repository::ProductRepoError, Product},
+    infrastructure::pg_product_repo::row::ProductRow,
+};
 use sqlx::PgPool;
 
-pub(super) async fn create(pool: &PgPool, product: &Product) -> Result<Product, ProductRepoError> {
+pub async fn update(pool: &PgPool, product: &Product) -> Result<Product, ProductRepoError> {
     let row = sqlx::query_as::<_, ProductRow>(
-        "INSERT INTO products
-           (description, id, image_url, low_stock_threshold, name, price_cents, stock, symbols, unit_of_measure)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+        "UPDATE products SET
+           description         = $2,
+           image_url           = $3,
+           low_stock_threshold = $4,
+           name                = $5,
+           price_cents         = $6,
+           stock               = $7,
+           symbols             = $8,
+           unit_of_measure     = $9
+         WHERE id = $1
          RETURNING description, id, image_url, low_stock_threshold, name, price_cents, stock, symbols, unit_of_measure",
     )
-    .bind(&product.get_description().map(|d| d.value()))
     .bind(&product.get_id().value())
+    .bind(&product.get_description().map(|d| d.value()))
     .bind(&product.get_image_url())
     .bind(product.get_low_stock_threshold() as i32)
     .bind(&product.get_name().value())

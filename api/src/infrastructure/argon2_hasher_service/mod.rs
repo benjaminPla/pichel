@@ -1,22 +1,24 @@
+mod errors;
+
 use argon2::{
     password_hash::{
-        rand_core::OsRng, PasswordHash as Argon2PasswordHash, PasswordHasher, PasswordVerifier,
-        SaltString,
+        rand_core::OsRng, PasswordHash as Argon2PasswordHash, PasswordHasher,
+        PasswordVerifier, SaltString,
     },
     Algorithm, Argon2, Params, Version,
 };
 use async_trait::async_trait;
-use crate::domain::user::{
-    ports::hasher::{Hasher, HasherError},
-    value_objects::{password_hash::PasswordHash, password_raw::PasswordRaw},
+use crate::domain::{
+    hasher::{HasherService, HasherServiceError},
+    user::value_objects::{password_hash::PasswordHash, password_raw::PasswordRaw},
 };
 use tokio::task;
 
-pub struct Argon2Hasher {
+pub struct Argon2HasherService {
     argon2: Argon2<'static>,
 }
 
-impl Argon2Hasher {
+impl Argon2HasherService {
     const M_COST: u32 = 12_288;
     const T_COST: u32 = 3;
     const P_COST: u32 = 1;
@@ -29,8 +31,8 @@ impl Argon2Hasher {
 }
 
 #[async_trait]
-impl Hasher for Argon2Hasher {
-    async fn hash(&self, raw: &PasswordRaw) -> Result<PasswordHash, HasherError> {
+impl HasherService for Argon2HasherService {
+    async fn hash(&self, raw: &PasswordRaw) -> Result<PasswordHash, HasherServiceError> {
         let argon2 = self.argon2.clone();
         let bytes  = raw.value().as_bytes().to_vec();
         task::spawn_blocking(move || {
@@ -43,11 +45,11 @@ impl Hasher for Argon2Hasher {
         .await?
     }
 
-    async fn verify(&self, raw: &PasswordRaw, hash: &PasswordHash) -> Result<bool, HasherError> {
+    async fn verify(&self, raw: &PasswordRaw, hash: &PasswordHash) -> Result<bool, HasherServiceError> {
         let argon2   = self.argon2.clone();
         let bytes    = raw.value().as_bytes().to_vec();
         let hash_str = hash.value().to_string();
-        task::spawn_blocking(move || -> Result<bool, HasherError> {
+        task::spawn_blocking(move || -> Result<bool, HasherServiceError> {
             let parsed = Argon2PasswordHash::new(&hash_str)?;
             argon2.verify_password(&bytes, &parsed)?;
             Ok(true)

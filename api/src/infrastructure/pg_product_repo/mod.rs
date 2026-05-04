@@ -1,6 +1,8 @@
 mod create;
+mod errors;
 mod get_all;
 mod get_by_id;
+mod row;
 mod update;
 
 use async_trait::async_trait;
