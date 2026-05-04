@@ -1,6 +1,6 @@
 use crate::{
     application::user::errors::UserAppError,
-    domain::user::{ports::repository::UserRepo, value_objects::id::UserId, User},
+    domain::user::{ports::UserRepo, value_objects::id::UserId, User},
 };
 use std::sync::Arc;
 use uuid::Uuid;

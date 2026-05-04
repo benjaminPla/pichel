@@ -1,6 +1,6 @@
 use crate::{
     application::user::errors::UserAppError,
-    domain::user::{ports::repository::UserRepo, User},
+    domain::user::{ports::UserRepo, User},
 };
 use std::sync::Arc;
 

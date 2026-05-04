@@ -4,18 +4,16 @@ mod domain;
 mod infrastructure;
 mod interfaces;
 
-use std::{net::SocketAddr, sync::Arc};
 use axum::Router;
 use config::Config;
 use infrastructure::{
-    product::postgres::repository::PgProductRepo,
-    user::{argon2_hasher::Argon2Hasher, postgres::repository::PgUserRepo},
+    argon2_hasher_service::Argon2HasherService, jwt_token_service::JwtTokenService,
+    pg_product_repo::PgProductRepo, pg_user_repo::PgUserRepo,
 };
 use interfaces::{
-    app_state::AppState,
-    product::router::products_router,
-    user::router::users_router,
+    app_state::AppState, product::router::products_router, user::router::users_router,
 };
+use std::{net::SocketAddr, sync::Arc};
 
 #[tokio::main]
 async fn main() {
@@ -25,13 +23,14 @@ async fn main() {
     let config = envy::from_env::<Config>().expect("Failed to load env vars");
     let pool   = sqlx::PgPool::connect(&config.database_url).await.expect("Failed to connect to Postgres");
     let app_state = AppState {
-        product_repo: Arc::new(PgProductRepo::new(pool.clone())),
-        user_hasher:  Arc::new(Argon2Hasher::new()),
-        user_repo:    Arc::new(PgUserRepo::new(pool.clone())),
+        hasher_service: Arc::new(Argon2HasherService::new()),
+        token_service:  Arc::new(JwtTokenService::new(config.jwt_secret)),
+        product_repo:   Arc::new(PgProductRepo::new(pool.clone())),
+        user_repo:      Arc::new(PgUserRepo::new(pool.clone())),
     };
     let app = Router::new()
         .nest("/products", products_router())
-        .nest("/users", users_router())
+        .nest("/users",    users_router())
         .with_state(app_state);
     let address  = SocketAddr::from(([0, 0, 0, 0], config.port));
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();

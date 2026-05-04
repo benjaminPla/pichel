@@ -1,10 +1,12 @@
 use crate::{
     application::user::errors::UserAppError,
-    domain::user::{
-        ports::hasher::Hasher,
-        ports::repository::UserRepo,
-        value_objects::{email::Email, password_raw::PasswordRaw},
-        User,
+    domain::{
+        hasher::HasherService,
+        user::{
+            ports::UserRepo,
+            value_objects::{email::Email, password_raw::PasswordRaw},
+            User,
+        },
     },
 };
 use std::sync::Arc;
@@ -19,19 +21,19 @@ pub struct UserCreateCommand {
 // ── Handler ──────────────────────────────────────────────────────────────
 
 pub struct UserCreateHandler {
-    hasher:    Arc<dyn Hasher>,
-    user_repo: Arc<dyn UserRepo>,
+    hasher_service: Arc<dyn HasherService>,
+    user_repo:      Arc<dyn UserRepo>,
 }
 
 impl UserCreateHandler {
-    pub fn new(hasher: Arc<dyn Hasher>, user_repo: Arc<dyn UserRepo>) -> Self {
-        Self { hasher, user_repo }
+    pub fn new(hasher_service: Arc<dyn HasherService>, user_repo: Arc<dyn UserRepo>) -> Self {
+        Self { hasher_service, user_repo }
     }
 
     pub async fn execute(&self, cmd: UserCreateCommand) -> Result<User, UserAppError> {
         let email         = Email::new(cmd.email)?;
         let password      = PasswordRaw::new(cmd.password)?;
-        let password_hash = self.hasher.hash(&password).await?;
+        let password_hash = self.hasher_service.hash(&password).await?;
         let user          = User::new(email, password_hash);
         let user          = self.user_repo.create(&user).await?;
         Ok(user)

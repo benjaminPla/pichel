@@ -1,7 +1,9 @@
-use crate::domain::user::{
-    ports::hasher::HasherError,
-    ports::repository::UserRepoError,
-    value_objects::{email::EmailError, password_raw::PasswordRawError},
+use crate::domain::{
+    hasher::HasherServiceError,
+    user::{
+        ports::UserRepoError,
+        value_objects::{email::EmailError, password_raw::PasswordRawError},
+    },
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -18,8 +20,8 @@ impl From<EmailError> for UserAppError {
     fn from(e: EmailError) -> Self { Self::Validation(e.to_string()) }
 }
 
-impl From<HasherError> for UserAppError {
-    fn from(e: HasherError) -> Self { Self::Internal(e.to_string()) }
+impl From<HasherServiceError> for UserAppError {
+    fn from(e: HasherServiceError) -> Self { Self::Internal(e.to_string()) }
 }
 
 impl From<PasswordRawError> for UserAppError {

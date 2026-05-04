@@ -1,7 +1,7 @@
 use crate::{
     application::user::errors::UserAppError,
     domain::user::{
-        ports::repository::UserRepo,
+        ports::UserRepo,
         value_objects::{email::Email, id::UserId},
         User,
     },

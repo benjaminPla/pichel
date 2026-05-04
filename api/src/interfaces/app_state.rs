@@ -1,12 +1,13 @@
-use std::sync::Arc;
 use crate::domain::{
-    product::ports::repository::ProductRepo,
-    user::ports::{hasher::Hasher, repository::UserRepo},
+    auth::ports::TokenService, hasher::HasherService, product::ports::repository::ProductRepo,
+    user::ports::UserRepo,
 };
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub product_repo: Arc<dyn ProductRepo>,
-    pub user_hasher:  Arc<dyn Hasher>,
-    pub user_repo:    Arc<dyn UserRepo>,
+    pub hasher_service: Arc<dyn HasherService>,
+    pub product_repo:   Arc<dyn ProductRepo>,
+    pub token_service:  Arc<dyn TokenService>,
+    pub user_repo:      Arc<dyn UserRepo>,
 }

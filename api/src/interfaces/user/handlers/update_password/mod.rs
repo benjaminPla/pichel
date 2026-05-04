@@ -23,7 +23,7 @@ pub async fn update_password(
     Path(id):         Path<Uuid>,
     Json(body):       Json<UserUpdatePasswordRequestBody>,
 ) -> Result<impl IntoResponse, UserInterError> {
-    let user = UserUpdatePasswordHandler::new(app_state.user_hasher, app_state.user_repo)
+    let user = UserUpdatePasswordHandler::new(app_state.hasher_service, app_state.user_repo)
         .execute(UserUpdatePasswordCommand { id, password: body.password })
         .await?;
     Ok((StatusCode::OK, Json(UserUpdatePasswordResponse::from(user))))
