@@ -1,0 +1,8 @@
+### authenticate
+POST {{base}}/auth/authenticate
+Content-Type: application/json
+
+{
+    "email": "admin@admin.com",
+    "password": "admin12345!"
+}

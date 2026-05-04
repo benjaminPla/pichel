@@ -4,8 +4,6 @@ impl PasswordRaw {
     const MAX_LEN: usize = 30;
     const MIN_LEN: usize = 10;
 
-    pub fn value(&self) -> &str { &self.0 }
-
     pub fn new(value: impl Into<String>) -> Result<Self, PasswordRawError> {
         let s: String = value.into();
         if s.trim().is_empty()     { return Err(PasswordRawError::Blank) }
@@ -13,6 +11,8 @@ impl PasswordRaw {
         if s.len() < Self::MIN_LEN { return Err(PasswordRawError::TooShort(Self::MIN_LEN)) }
         Ok(Self(s))
     }
+
+    pub fn value(&self) -> &str { &self.0 }
 }
 
 impl std::fmt::Debug for PasswordRaw {

@@ -15,7 +15,11 @@ impl User {
         Self { email, id, password_hash }
     }
 
-    pub fn reconstitute(email: Email, id: UserId, password_hash: PasswordHash) -> Self {
+    pub fn reconstitute(email: Email, id: UserId) -> Self {
+        Self { email, id, password_hash: PasswordHash::new("") }
+    }
+
+    pub fn reconstitute_with_password_hash(email: Email, id: UserId, password_hash: PasswordHash) -> Self {
         Self { email, id, password_hash }
     }
 

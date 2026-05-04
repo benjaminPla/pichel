@@ -1,5 +1,9 @@
-use axum::{middleware, routing::{get, patch, post}, Router};
-use crate::interfaces::{app_state::AppState, auth::auth_middleware, product::handlers};
+use crate::interfaces::{app_state::AppState, middleware::auth_middleware, product::handlers};
+use axum::{
+    middleware,
+    routing::{get, patch, post},
+    Router,
+};
 
 pub fn products_router(app_state: AppState) -> Router<AppState> {
     let admin = Router::new()

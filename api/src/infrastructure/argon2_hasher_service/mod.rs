@@ -15,7 +15,7 @@ use crate::domain::{
 use tokio::task;
 
 pub struct Argon2HasherService {
-    argon2: Argon2<'static>,
+    argon2_hasher_service: Argon2<'static>,
 }
 
 impl Argon2HasherService {
@@ -26,14 +26,14 @@ impl Argon2HasherService {
     pub fn new() -> Self {
         let params = Params::new(Self::M_COST, Self::T_COST, Self::P_COST, None).expect("invalid argon2 params");
         let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
-        Self { argon2 }
+        Self { argon2_hasher_service: argon2 }
     }
 }
 
 #[async_trait]
 impl HasherService for Argon2HasherService {
     async fn hash(&self, raw: &PasswordRaw) -> Result<PasswordHash, HasherServiceError> {
-        let argon2 = self.argon2.clone();
+        let argon2 = self.argon2_hasher_service.clone();
         let bytes  = raw.value().as_bytes().to_vec();
         task::spawn_blocking(move || {
             let salt = SaltString::generate(&mut OsRng);
@@ -46,7 +46,7 @@ impl HasherService for Argon2HasherService {
     }
 
     async fn verify(&self, raw: &PasswordRaw, hash: &PasswordHash) -> Result<bool, HasherServiceError> {
-        let argon2   = self.argon2.clone();
+        let argon2   = self.argon2_hasher_service.clone();
         let bytes    = raw.value().as_bytes().to_vec();
         let hash_str = hash.value().to_string();
         task::spawn_blocking(move || -> Result<bool, HasherServiceError> {

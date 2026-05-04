@@ -9,9 +9,6 @@ pub trait TokenService: Send + Sync {
 
 #[derive(Debug, thiserror::Error)]
 pub enum TokenServiceError {
-    #[error("token issue error: {0}")]
-    Issue(String),
-    #[error("token validation error: {0}")]
-    Validate(String),
+    #[error("token error: {0}")]
+    Internal(String),
 }
-

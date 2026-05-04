@@ -34,7 +34,7 @@ impl UserUpdateHandler {
             Some(e) => Email::new(e)?,
             None    => current.get_email().clone(),
         };
-        let updated = User::reconstitute(email, current.get_id().clone(), current.get_password_hash().clone());
+        let updated = User::reconstitute(email, current.get_id().clone());
         let user    = self.user_repo.update(&updated).await?;
         Ok(user)
     }

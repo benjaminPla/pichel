@@ -10,7 +10,9 @@ Content-Type: application/json
 ### get_all
 @page = 1
 @per_page = 10
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiNjQ5YzkyYS0zYTM3LTQ3ODUtYmUwMi03NzQyOWYzM2YyMmIiLCJleHAiOjE3NzgwMTc5ODV9.GXnA54gnRulXLO8ATcmOrAN_f4LI90exphUQ5VC0VYI
 GET {{base}}/users?page={{page}}&per_page={{per_page}}
+Authorization: Bearer {{token}}
 
 ### get_by_id
 @user_id = 11ade42e-951b-4c8d-bc70-2d70700374bc

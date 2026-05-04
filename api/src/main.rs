@@ -11,7 +11,10 @@ use infrastructure::{
     pg_product_repo::PgProductRepo, pg_user_repo::PgUserRepo,
 };
 use interfaces::{
-    app_state::AppState, product::router::products_router, user::router::users_router,
+    app_state::AppState,
+    auth::router::auth_router,
+    product::router::products_router,
+    user::router::users_router,
 };
 use std::{net::SocketAddr, sync::Arc};
 
@@ -29,6 +32,7 @@ async fn main() {
         user_repo:      Arc::new(PgUserRepo::new(pool.clone())),
     };
     let app = Router::new()
+        .nest("/auth",     auth_router())
         .nest("/products", products_router(app_state.clone()))
         .nest("/users",    users_router(app_state.clone()))
         .with_state(app_state);
