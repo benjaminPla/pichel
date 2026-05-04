@@ -6,19 +6,18 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use uuid::Uuid;
 use crate::{
     application::user::queries::get_by_id::{UserGetByIdHandler, UserGetByIdQuery},
     interfaces::{
         app_state::AppState,
-        user::{
-            errors::UserInterError,
-            handlers::get_by_id::dto::UserGetByIdResponse,
-        },
+        auth::AuthUser,
+        user::{errors::UserInterError, handlers::get_by_id::dto::UserGetByIdResponse},
     },
 };
+use uuid::Uuid;
 
 pub async fn get_by_id(
+    _user: AuthUser,
     State(app_state): State<AppState>,
     Path(id):         Path<Uuid>,
 ) -> Result<impl IntoResponse, UserInterError> {

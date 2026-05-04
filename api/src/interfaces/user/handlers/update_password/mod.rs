@@ -6,19 +6,25 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use uuid::Uuid;
 use crate::{
-    application::user::commands::update_password::{UserUpdatePasswordCommand, UserUpdatePasswordHandler},
+    application::user::commands::update_password::{
+        UserUpdatePasswordCommand, UserUpdatePasswordHandler,
+    },
     interfaces::{
         app_state::AppState,
+        auth::AuthUser,
         user::{
             errors::UserInterError,
-            handlers::update_password::dto::{UserUpdatePasswordRequestBody, UserUpdatePasswordResponse},
+            handlers::update_password::dto::{
+                UserUpdatePasswordRequestBody, UserUpdatePasswordResponse,
+            },
         },
     },
 };
+use uuid::Uuid;
 
 pub async fn update_password(
+    _user: AuthUser,
     State(app_state): State<AppState>,
     Path(id):         Path<Uuid>,
     Json(body):       Json<UserUpdatePasswordRequestBody>,

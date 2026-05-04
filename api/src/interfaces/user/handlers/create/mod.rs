@@ -5,6 +5,7 @@ use crate::{
     application::user::commands::create::{UserCreateCommand, UserCreateHandler},
     interfaces::{
         app_state::AppState,
+        auth::AuthUser,
         user::{
             errors::UserInterError,
             handlers::create::dto::{UserCreateRequestBody, UserCreateResponse},
@@ -13,6 +14,7 @@ use crate::{
 };
 
 pub async fn create(
+    _user: AuthUser,
     State(app_state): State<AppState>,
     Json(body):       Json<UserCreateRequestBody>,
 ) -> Result<impl IntoResponse, UserInterError> {

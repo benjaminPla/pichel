@@ -16,3 +16,20 @@ GET {{base}}/users?page={{page}}&per_page={{per_page}}
 @user_id = 11ade42e-951b-4c8d-bc70-2d70700374bc
 GET {{base}}/users/{{user_id}}
 
+### update
+@user_id = 11ade42e-951b-4c8d-bc70-2d70700374bc
+PATCH {{base}}/users/{{user_id}}
+Content-Type: application/json
+
+{
+    "email": "test_update@example.com"
+}
+
+### update_password
+@user_id = 11ade42e-951b-4c8d-bc70-2d70700374bc
+PATCH {{base}}/users/{{user_id}}
+Content-Type: application/json
+
+{
+    "password": "new_password"
+}

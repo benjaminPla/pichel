@@ -1,5 +1,11 @@
 pub mod dto;
 
+use axum::{
+    extract::{Query, State},
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
 use crate::{
     application::user::queries::get_all::{UserGetAllHandler, UserGetAllQuery},
     interfaces::{
@@ -10,12 +16,6 @@ use crate::{
             handlers::get_all::dto::{GetAllQueryParams, UserGetAllItem, UserGetAllResponse},
         },
     },
-};
-use axum::{
-    extract::{Query, State},
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
 };
 
 pub async fn get_all(
