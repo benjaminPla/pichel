@@ -2,13 +2,13 @@
 -- Seed data for local development
 -- Run with: make seed   (after: make dev)
 --
--- Credentials:  admin@admin.com / admin
+-- Credentials:  admin@admin.com / admin12345!
 -- ──────────────────────────────────────────────────────────────
 
 INSERT INTO users (email, password_hash) VALUES (
   'admin@admin.com',
-  '$argon2id$v=19$m=65536,t=3,p=4$gG+j/TbNvG5Yns0UbtpPYQ$WCPpCLbe3AjG+9ZZFzV1S5lptovXbyiJ3xZzrIO8RQ0'
-) ON CONFLICT (email) DO NOTHING;
+  '$argon2id$v=19$m=12288,t=3,p=1$b3iAk6wn8u8ga1qdiRNuAg$LkAdkLI3JmHiw64v4r/KKFk+Yl8CnRlRNcfw8SrbVtM'
+) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;
 
 -- unit_of_measure: g | kg | ml | l | unit
 -- stock: current on-hand units
