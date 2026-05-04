@@ -10,7 +10,6 @@ use crate::{
     application::user::queries::get_all::{UserGetAllHandler, UserGetAllQuery},
     interfaces::{
         app_state::AppState,
-        auth::AuthUser,
         user::{
             errors::UserInterError,
             handlers::get_all::dto::{GetAllQueryParams, UserGetAllItem, UserGetAllResponse},
@@ -19,7 +18,6 @@ use crate::{
 };
 
 pub async fn get_all(
-    _user: AuthUser,
     State(app_state): State<AppState>,
     Query(query):     Query<GetAllQueryParams>,
 ) -> Result<impl IntoResponse, UserInterError> {

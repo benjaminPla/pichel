@@ -6,7 +6,6 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use uuid::Uuid;
 use crate::{
     application::product::commands::update::{ProductUpdateCommand, ProductUpdateHandler},
     interfaces::{
@@ -17,6 +16,7 @@ use crate::{
         },
     },
 };
+use uuid::Uuid;
 
 pub async fn update(
     State(app_state): State<AppState>,

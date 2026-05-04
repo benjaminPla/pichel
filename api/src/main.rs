@@ -29,8 +29,8 @@ async fn main() {
         user_repo:      Arc::new(PgUserRepo::new(pool.clone())),
     };
     let app = Router::new()
-        .nest("/products", products_router())
-        .nest("/users",    users_router())
+        .nest("/products", products_router(app_state.clone()))
+        .nest("/users",    users_router(app_state.clone()))
         .with_state(app_state);
     let address  = SocketAddr::from(([0, 0, 0, 0], config.port));
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();

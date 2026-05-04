@@ -10,7 +10,6 @@ use crate::{
     application::user::commands::update::{UserUpdateCommand, UserUpdateHandler},
     interfaces::{
         app_state::AppState,
-        auth::AuthUser,
         user::{
             errors::UserInterError,
             handlers::update::dto::{UserUpdateRequestBody, UserUpdateResponse},
@@ -20,7 +19,6 @@ use crate::{
 use uuid::Uuid;
 
 pub async fn update(
-    _user: AuthUser,
     State(app_state): State<AppState>,
     Path(id):         Path<Uuid>,
     Json(body):       Json<UserUpdateRequestBody>,
