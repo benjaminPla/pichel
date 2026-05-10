@@ -1,6 +1,10 @@
+@product_id = 679986fa-0758-4696-af14-738f0191ae01
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxZGI5MGI0YS1iZDA4LTRhZWQtYTQxNS1lMmJjMmU2OGM5MDMiLCJleHAiOjE3Nzg1MDg3NzV9.8K0N0QGZkLj6cFqP4Xvo92Lv_6DZcWl0_LhMI7JQ4vI
+
 ### create
 POST {{base}}/products
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "description":         "A test product",
@@ -19,13 +23,12 @@ Content-Type: application/json
 GET {{base}}/products?page={{page}}&per_page={{per_page}}
 
 ### get_by_id
-@product_id = 57cf4887-d2cd-4cc0-96a3-92ff73a10b4a
 GET {{base}}/products/{{product_id}}
 
 ### update
-@product_id = df412cc0-10cb-4bc5-84ab-016602851a6c
 PATCH {{base}}/products/{{product_id}}
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "description":         "new description",

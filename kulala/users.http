@@ -1,6 +1,10 @@
+@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyYjVmMmI4MS04OTg3LTQzNDktOThiMS05ZDkzMGVmNTlkYzgiLCJleHAiOjE3NzgxNTc5NDJ9.Gi5cBfv6Shwds2EiaIlPw8w7ESK-DrSaR-BIm7dppgA
+@user_id = 2b5f2b81-8987-4349-98b1-9d930ef59dc8
+
 ### create
 POST {{base}}/users
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "email":    "test_0@example.com",
@@ -10,28 +14,27 @@ Content-Type: application/json
 ### get_all
 @page = 1
 @per_page = 10
-@token = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiNjQ5YzkyYS0zYTM3LTQ3ODUtYmUwMi03NzQyOWYzM2YyMmIiLCJleHAiOjE3NzgwMTc5ODV9.GXnA54gnRulXLO8ATcmOrAN_f4LI90exphUQ5VC0VYI
 GET {{base}}/users?page={{page}}&per_page={{per_page}}
 Authorization: Bearer {{token}}
 
 ### get_by_id
-@user_id = 11ade42e-951b-4c8d-bc70-2d70700374bc
 GET {{base}}/users/{{user_id}}
+Authorization: Bearer {{token}}
 
 ### update
-@user_id = 11ade42e-951b-4c8d-bc70-2d70700374bc
 PATCH {{base}}/users/{{user_id}}
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "email": "test_update@example.com"
 }
 
 ### update_password
-@user_id = 11ade42e-951b-4c8d-bc70-2d70700374bc
-PATCH {{base}}/users/{{user_id}}
+PATCH {{base}}/users/{{user_id}}/password
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-    "password": "new_password"
+    "password": "new_password12345"
 }

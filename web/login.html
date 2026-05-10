@@ -33,9 +33,10 @@
   <script>
     const API = '';
 
-    if (localStorage.getItem('token')) {
-      window.location.href = '/admin/';
-    }
+    // If already authenticated, skip the login page
+    fetch(`${API}/users?page=1&per_page=1`)
+      .then(r => { if (r.ok) window.location.href = '/admin/'; })
+      .catch(() => {});
 
     const form      = document.getElementById('login-form');
     const submitBtn = document.getElementById('submit-btn');
@@ -65,7 +66,7 @@
       submitBtn.innerHTML = '<span class="spinner"></span>Ingresando…';
 
       try {
-        const res = await fetch(`${API}/auth/login`, {
+        const res = await fetch(`${API}/auth/authenticate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
@@ -74,8 +75,7 @@
         if (res.status === 401) { showError('Email o contraseña incorrectos.'); return; }
         if (!res.ok)             { showError(`Error del servidor (${res.status}). Intentá de nuevo.`); return; }
 
-        const { token } = await res.json();
-        localStorage.setItem('token', token);
+        // Server sets the httpOnly cookie — nothing to store in JS
         window.location.href = '/admin/';
 
       } catch {

@@ -1,4 +1,6 @@
 ### authenticate
+# Server sets httpOnly cookie in response (Set-Cookie header).
+# The token is also returned in the body for API client testing.
 POST {{base}}/auth/authenticate
 Content-Type: application/json
 
@@ -6,3 +8,10 @@ Content-Type: application/json
     "email": "admin@admin.com",
     "password": "admin12345!"
 }
+
+### logout
+# Clears the httpOnly cookie (Max-Age=0).
+# In Kulala: copy the token from the authenticate response and pass it
+# as Cookie header below, or keep using Authorization: Bearer on other requests.
+POST {{base}}/auth/logout
+Cookie: token={{token}}

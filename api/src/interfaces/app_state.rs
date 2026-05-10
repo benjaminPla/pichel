@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppState {
+    pub cookie_secure:  bool,
     pub hasher_service: Arc<dyn HasherService>,
     pub product_repo:   Arc<dyn ProductRepo>,
     pub token_service:  Arc<dyn TokenService>,
