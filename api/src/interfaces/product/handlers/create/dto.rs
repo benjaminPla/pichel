@@ -4,13 +4,12 @@ use crate::domain::product::Product;
 
 #[derive(Deserialize)]
 pub struct ProductCreateRequestBody {
-    pub description:     Option<String>,
-    pub image_url:       Option<String>,
-    pub name:            String,
-    pub price_cents:     u32,
-    pub sale_mode:       String,
-    pub symbols:         Vec<String>,
-    pub unit_of_measure: String,
+    pub description: Option<String>,
+    pub image_url:   Option<String>,
+    pub name:        String,
+    pub price_cents: u32,
+    pub sale_mode:   String,
+    pub symbols:     Vec<String>,
 }
 
 #[derive(Serialize)]

@@ -110,7 +110,7 @@
 
     function saleModeBadge(mode) {
       if (mode === 'bulk')    return `<span class="badge badge-bulk">A granel</span>`;
-      if (mode === 'package') return `<span class="badge badge-pkg">Envasado</span>`;
+      if (mode === 'unit') return `<span class="badge badge-pkg">Unidad</span>`;
       return `<span class="badge">${mode}</span>`;
     }
 
@@ -122,6 +122,12 @@
           <span class="pagination-info">Página ${page} de ${totalPages}</span>
           <button class="pagination-btn" onclick="${loadFn}(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
         </div>`;
+    }
+
+    function onSaleModeChange() {
+      const mode = document.getElementById('p-salemode').value;
+      const note = document.getElementById('p-price-note');
+      if (note) note.style.display = mode === 'bulk' ? '' : 'none';
     }
 
     // ── Pages ──────────────────────────────────────────────────────
@@ -145,109 +151,50 @@
             <h2 id="prod-form-title">Agregar producto</h2>
           </div>
 
-          <form id="prod-form">
-            <div class="form-2col">
+          <form id="prod-form" style="display:flex;flex-direction:column;gap:var(--sp-4);max-width:420px">
 
-              <div class="form-2col-row">
-                <div class="form-2col-field">
-                  <label for="p-name">Nombre *</label>
-                  <input id="p-name" type="text" maxlength="100" required placeholder="ej. Avena integral" />
-                </div>
-                <div class="form-2col-hint">
-                  <strong>Nombre del producto.</strong>
-                  Máximo 100 caracteres. Sé específico: incluí el tipo o variedad si corresponde.
-                </div>
-              </div>
+            <div>
+              <label for="p-name">Nombre *</label>
+              <input id="p-name" type="text" maxlength="100" required />
+            </div>
 
-              <div class="form-2col-row">
-                <div class="form-2col-field">
-                  <label for="p-desc">Descripción</label>
-                  <textarea id="p-desc" maxlength="255" rows="3" placeholder="ej. Producida en San Luis, sin aditivos"></textarea>
-                </div>
-                <div class="form-2col-hint">
-                  <strong>Descripción breve.</strong>
-                  Opcional. Máximo 255 caracteres. Aparece debajo del nombre en la lista de precios.
-                </div>
-              </div>
+            <div>
+              <label for="p-desc">Descripción</label>
+              <textarea id="p-desc" maxlength="255" rows="3"></textarea>
+            </div>
 
-              <div class="form-2col-row">
-                <div class="form-2col-field">
-                  <label for="p-salemode">Modalidad de venta *</label>
-                  <select id="p-salemode" class="form-select" required>
-                    <option value="">— Seleccionar —</option>
-                    <option value="bulk">A granel</option>
-                    <option value="package">Envasado</option>
-                  </select>
-                </div>
-                <div class="form-2col-hint">
-                  <strong>¿Cómo se vende?</strong>
-                  <em>A granel:</em> el cliente pide la cantidad que necesita y se pesa en el momento.<br>
-                  <em>Envasado:</em> unidades cerradas — paquete, bolsa, caja, botella.
-                </div>
-              </div>
+            <div>
+              <label for="p-salemode">Modalidad *</label>
+              <select id="p-salemode" class="form-select" required>
+                <option value="">— Seleccionar —</option>
+                <option value="bulk">A granel</option>
+                <option value="unit">Unidad</option>
+              </select>
+            </div>
 
-              <div class="form-2col-row">
-                <div class="form-2col-field">
-                  <label for="p-price">Precio (centavos) *</label>
-                  <input id="p-price" type="number" min="1" step="1" required placeholder="ej. 420" />
-                </div>
-                <div class="form-2col-hint">
-                  <strong>Precio de venta en centavos.</strong>
-                  $4,20 → escribir <strong>420</strong>. Para a granel, es el precio por la unidad de medida elegida.
-                </div>
-              </div>
+            <div>
+              <label for="p-price">Precio * <small id="p-price-note" style="display:none;font-weight:normal;color:var(--clr-text-muted)">(por kg)</small></label>
+              <input id="p-price" type="number" min="0.01" step="0.01" required />
+            </div>
 
-              <div class="form-2col-row">
-                <div class="form-2col-field">
-                  <label for="p-unit">Unidad de medida *</label>
-                  <select id="p-unit" class="form-select" required>
-                    <option value="">— Seleccionar —</option>
-                    <option value="g">g — gramos</option>
-                    <option value="kg">kg — kilogramos</option>
-                    <option value="ml">ml — mililitros</option>
-                    <option value="l">l — litros</option>
-                    <option value="unit">unidad</option>
-                  </select>
-                </div>
-                <div class="form-2col-hint">
-                  <strong>Unidad de referencia para el precio.</strong>
-                  Para a granel: el peso o volumen en que se expresa el precio.<br>
-                  Para envasados: usar <em>unidad</em>.
-                </div>
-              </div>
+            <div>
+              <label for="p-symbols">Símbolos</label>
+              <select id="p-symbols" class="form-select" multiple style="height:160px">
+                <option value="vegan">🌱 Vegano</option>
+                <option value="vegetarian">🥕 Vegetariano</option>
+                <option value="gluten_free">🌾 Sin TACC</option>
+                <option value="lactose_free">🥛 Sin lactosa</option>
+                <option value="organic">🌿 Orgánico</option>
+                <option value="sugar_free">🍃 Sin azúcar agregada</option>
+                <option value="contains_nuts">🥜 Contiene frutos secos</option>
+                <option value="high_protein">💪 Alto en proteína</option>
+                <option value="no_added_salt">🧂 Sin sal agregada</option>
+              </select>
+            </div>
 
-              <div class="form-2col-row">
-                <div class="form-2col-field">
-                  <label for="p-symbols">Símbolos</label>
-                  <select id="p-symbols" class="form-select" multiple style="height:160px">
-                    <option value="vegan">🌱 Vegano</option>
-                    <option value="vegetarian">🥕 Vegetariano</option>
-                    <option value="gluten_free">🌾 Sin TACC</option>
-                    <option value="lactose_free">🥛 Sin lactosa</option>
-                    <option value="organic">🌿 Orgánico</option>
-                    <option value="sugar_free">🍃 Sin azúcar agregada</option>
-                    <option value="contains_nuts">🥜 Contiene frutos secos</option>
-                    <option value="high_protein">💪 Alto en proteína</option>
-                    <option value="no_added_salt">🧂 Sin sal agregada</option>
-                  </select>
-                </div>
-                <div class="form-2col-hint">
-                  <strong>Características del producto.</strong>
-                  Seleccioná una o más. Usá <strong>Ctrl+clic</strong> (o <strong>Cmd+clic</strong> en Mac) para elegir varias. Se muestran como íconos en la lista de precios.
-                </div>
-              </div>
-
-              <div class="form-2col-row">
-                <div class="form-2col-field">
-                  <label for="p-img">URL de imagen</label>
-                  <input id="p-img" type="text" placeholder="/images/products/nombre.webp" />
-                </div>
-                <div class="form-2col-hint">
-                  <strong>Imagen del producto.</strong>
-                  Ruta relativa al servidor. Dejalo vacío si no hay imagen disponible.
-                </div>
-              </div>
-
+            <div>
+              <label for="p-img">URL de imagen</label>
+              <input id="p-img" type="text" placeholder="/images/products/nombre.webp" />
             </div>
 
             <div style="display:flex;gap:var(--sp-3)">
@@ -263,19 +210,20 @@
         </div>
         <div class="table-wrap" id="prod-table-wrap">Cargando…</div>`;
 
+      document.getElementById('p-salemode').addEventListener('change', onSaleModeChange);
+
       await loadProductsAdmin();
 
       document.getElementById('prod-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name            = document.getElementById('p-name').value.trim();
-        const description     = document.getElementById('p-desc').value.trim() || null;
-        const sale_mode       = document.getElementById('p-salemode').value;
-        const price_cents     = parseInt(document.getElementById('p-price').value);
-        const unit_of_measure = document.getElementById('p-unit').value;
-        const symbols         = Array.from(document.getElementById('p-symbols').selectedOptions).map(o => o.value);
-        const image_url       = document.getElementById('p-img').value.trim() || null;
+        const name        = document.getElementById('p-name').value.trim();
+        const description = document.getElementById('p-desc').value.trim() || null;
+        const sale_mode   = document.getElementById('p-salemode').value;
+        const price_cents = Math.round(parseFloat(document.getElementById('p-price').value) * 100);
+        const symbols     = Array.from(document.getElementById('p-symbols').selectedOptions).map(o => o.value);
+        const image_url   = document.getElementById('p-img').value.trim() || null;
 
-        if (!name || !sale_mode || !unit_of_measure || isNaN(price_cents) || price_cents < 1) return;
+        if (!name || !sale_mode || isNaN(price_cents) || price_cents < 1) return;
 
         const btn      = document.getElementById('prod-submit-btn');
         const original = btn.textContent;
@@ -283,7 +231,7 @@
         btn.textContent = '…';
 
         try {
-          const body = { name, description, sale_mode, price_cents, unit_of_measure, symbols, image_url };
+          const body = { name, description, sale_mode, price_cents, symbols, image_url };
           const res  = editingProductId
             ? await apiFetch(`/products/${editingProductId}`, { method: 'PATCH', body: JSON.stringify(body) })
             : await apiFetch('/products', { method: 'POST', body: JSON.stringify(body) });
@@ -300,50 +248,49 @@
         const btn = e.target.closest('[data-action="edit-product"]');
         if (!btn) return;
         startEditProduct({
-          id:              btn.dataset.id,
-          name:            btn.dataset.name,
-          description:     btn.dataset.description,
-          sale_mode:       btn.dataset.salemode,
-          unit_of_measure: btn.dataset.unit,
-          price_cents:     parseInt(btn.dataset.price),
-          image_url:       btn.dataset.image,
-          symbols:         btn.dataset.symbols ? btn.dataset.symbols.split(',') : [],
+          id:          btn.dataset.id,
+          name:        btn.dataset.name,
+          description: btn.dataset.description,
+          sale_mode:   btn.dataset.salemode,
+          price_cents: parseInt(btn.dataset.price),
+          image_url:   btn.dataset.image,
+          symbols:     btn.dataset.symbols ? btn.dataset.symbols.split(',') : [],
         });
       });
     }
 
     function cancelProductEdit() {
       editingProductId = null;
-      document.getElementById('prod-form-title').textContent  = 'Agregar producto';
-      document.getElementById('p-name').value                 = '';
-      document.getElementById('p-desc').value                 = '';
-      document.getElementById('p-salemode').value             = '';
-      document.getElementById('p-price').value                = '';
-      document.getElementById('p-unit').value                 = '';
+      document.getElementById('prod-form-title').textContent   = 'Agregar producto';
+      document.getElementById('p-name').value                  = '';
+      document.getElementById('p-desc').value                  = '';
+      document.getElementById('p-salemode').value              = '';
+      document.getElementById('p-price').value                 = '';
+      document.getElementById('p-price-note').style.display    = 'none';
       Array.from(document.getElementById('p-symbols').options).forEach(o => o.selected = false);
-      document.getElementById('p-img').value                  = '';
-      document.getElementById('prod-submit-btn').textContent  = 'Agregar producto';
+      document.getElementById('p-img').value                   = '';
+      document.getElementById('prod-submit-btn').textContent   = 'Agregar producto';
       document.getElementById('prod-cancel-btn').style.display = 'none';
     }
 
     function startEditProduct(p) {
       editingProductId = p.id;
-      document.getElementById('prod-form-title').textContent  = 'Editar producto';
-      document.getElementById('p-name').value                 = p.name;
-      document.getElementById('p-desc').value                 = p.description || '';
-      document.getElementById('p-salemode').value             = p.sale_mode || '';
-      document.getElementById('p-price').value                = p.price_cents;
-      document.getElementById('p-unit').value                 = p.unit_of_measure || '';
+      document.getElementById('prod-form-title').textContent   = 'Editar producto';
+      document.getElementById('p-name').value                  = p.name;
+      document.getElementById('p-desc').value                  = p.description || '';
+      document.getElementById('p-salemode').value              = p.sale_mode || '';
+      document.getElementById('p-price').value                 = (p.price_cents / 100).toFixed(2);
+      onSaleModeChange();
       Array.from(document.getElementById('p-symbols').options).forEach(o => {
         o.selected = p.symbols.includes(o.value);
       });
-      document.getElementById('p-img').value                  = p.image_url || '';
-      document.getElementById('prod-submit-btn').textContent  = 'Guardar cambios';
+      document.getElementById('p-img').value                   = p.image_url || '';
+      document.getElementById('prod-submit-btn').textContent   = 'Guardar cambios';
       document.getElementById('prod-cancel-btn').style.display = '';
       document.getElementById('prod-form-title').scrollIntoView({ behavior: 'smooth' });
     }
 
-    const PROD_PER_PAGE = 20;
+    const PROD_PER_PAGE = 50;
 
     async function loadProductsAdmin(page = 1) {
       try {
@@ -366,7 +313,6 @@
         <thead><tr>
           <th>Nombre</th>
           <th>Modalidad</th>
-          <th>U/M</th>
           <th>Precio</th>
           <th>Símbolos</th>
           <th></th>
@@ -375,8 +321,7 @@
           ${products.map(p => `<tr>
             <td style="font-weight:var(--fw-semibold)">${p.name}${p.description ? `<br><small style="font-weight:var(--fw-normal);color:var(--clr-text-muted)">${p.description}</small>` : ''}</td>
             <td>${saleModeBadge(p.sale_mode)}</td>
-            <td style="color:var(--clr-text-muted)">${p.unit_of_measure}</td>
-            <td>${fmtCents(p.price_cents)}</td>
+            <td>${fmtCents(p.price_cents)}${p.sale_mode === 'bulk' ? '<small style="color:var(--clr-text-muted)"> /kg</small>' : ''}</td>
             <td>${symbolPills(p.symbols)}</td>
             <td style="white-space:nowrap">
               <button class="btn btn-ghost" style="${actionStyle}"
@@ -385,7 +330,6 @@
                 data-name="${(p.name || '').replace(/"/g, '&quot;')}"
                 data-description="${(p.description || '').replace(/"/g, '&quot;')}"
                 data-salemode="${p.sale_mode}"
-                data-unit="${p.unit_of_measure}"
                 data-price="${p.price_cents}"
                 data-image="${(p.image_url || '').replace(/"/g, '&quot;')}"
                 data-symbols="${p.symbols.join(',')}">Editar</button>
@@ -409,28 +353,14 @@
           <div class="section-header" style="padding:0;margin-bottom:var(--sp-5)">
             <h2 id="user-form-title">Agregar usuario</h2>
           </div>
-          <form id="user-form">
-            <div class="form-2col">
-              <div class="form-2col-row">
-                <div class="form-2col-field" id="user-email-field">
-                  <label for="u-email">Email *</label>
-                  <input id="u-email" type="email" placeholder="usuario@ejemplo.com" required />
-                </div>
-                <div class="form-2col-hint">
-                  <strong>Dirección de email.</strong>
-                  Será el usuario de acceso al panel de administración.
-                </div>
-              </div>
-              <div class="form-2col-row">
-                <div class="form-2col-field" id="user-password-field">
-                  <label for="u-password">Contraseña *</label>
-                  <input id="u-password" type="password" placeholder="mínimo 8 caracteres" required />
-                </div>
-                <div class="form-2col-hint">
-                  <strong>Contraseña de acceso.</strong>
-                  Mínimo 8 caracteres. Incluí mayúsculas, números o símbolos para mayor seguridad.
-                </div>
-              </div>
+          <form id="user-form" style="display:flex;flex-direction:column;gap:var(--sp-4);max-width:420px">
+            <div id="user-email-row">
+              <label for="u-email">Email *</label>
+              <input id="u-email" type="email" required />
+            </div>
+            <div id="user-password-row">
+              <label for="u-password">Contraseña *</label>
+              <input id="u-password" type="password" required />
             </div>
             <div style="display:flex;gap:var(--sp-3)">
               <button class="btn btn-primary" type="submit" id="user-submit-btn">Agregar usuario</button>
@@ -493,52 +423,46 @@
     function cancelUserEdit() {
       editingUserId   = null;
       editingUserMode = null;
-      document.getElementById('user-form-title').textContent = 'Agregar usuario';
-      const emailRow = document.getElementById('user-email-field').closest('.form-2col-row');
-      const passRow  = document.getElementById('user-password-field').closest('.form-2col-row');
-      emailRow.style.display = '';
-      passRow.style.display  = '';
-      document.getElementById('u-email').value               = '';
-      document.getElementById('u-password').value            = '';
-      document.getElementById('u-email').required            = true;
-      document.getElementById('u-password').required         = true;
-      document.getElementById('user-submit-btn').textContent = 'Agregar usuario';
-      document.getElementById('user-cancel-btn').style.display = 'none';
+      document.getElementById('user-form-title').textContent       = 'Agregar usuario';
+      document.getElementById('user-email-row').style.display      = '';
+      document.getElementById('user-password-row').style.display   = '';
+      document.getElementById('u-email').value                     = '';
+      document.getElementById('u-password').value                  = '';
+      document.getElementById('u-email').required                  = true;
+      document.getElementById('u-password').required               = true;
+      document.getElementById('user-submit-btn').textContent       = 'Agregar usuario';
+      document.getElementById('user-cancel-btn').style.display     = 'none';
     }
 
     function startEditUserEmail(user) {
       editingUserId   = user.id;
       editingUserMode = 'email';
-      const emailRow = document.getElementById('user-email-field').closest('.form-2col-row');
-      const passRow  = document.getElementById('user-password-field').closest('.form-2col-row');
-      document.getElementById('user-form-title').textContent = 'Editar email';
-      emailRow.style.display = '';
-      passRow.style.display  = 'none';
-      document.getElementById('u-email').value               = user.email;
-      document.getElementById('u-email').required            = true;
-      document.getElementById('u-password').required         = false;
-      document.getElementById('user-submit-btn').textContent = 'Guardar email';
-      document.getElementById('user-cancel-btn').style.display = '';
+      document.getElementById('user-form-title').textContent     = 'Editar email';
+      document.getElementById('user-email-row').style.display    = '';
+      document.getElementById('user-password-row').style.display = 'none';
+      document.getElementById('u-email').value                   = user.email;
+      document.getElementById('u-email').required                = true;
+      document.getElementById('u-password').required             = false;
+      document.getElementById('user-submit-btn').textContent     = 'Guardar email';
+      document.getElementById('user-cancel-btn').style.display   = '';
       document.getElementById('user-form-title').scrollIntoView({ behavior: 'smooth' });
     }
 
     function startEditUserPassword(user) {
       editingUserId   = user.id;
       editingUserMode = 'password';
-      const emailRow = document.getElementById('user-email-field').closest('.form-2col-row');
-      const passRow  = document.getElementById('user-password-field').closest('.form-2col-row');
-      document.getElementById('user-form-title').textContent = 'Cambiar contraseña';
-      emailRow.style.display = 'none';
-      passRow.style.display  = '';
-      document.getElementById('u-password').value            = '';
-      document.getElementById('u-email').required            = false;
-      document.getElementById('u-password').required         = true;
-      document.getElementById('user-submit-btn').textContent = 'Guardar contraseña';
-      document.getElementById('user-cancel-btn').style.display = '';
+      document.getElementById('user-form-title').textContent     = 'Cambiar contraseña';
+      document.getElementById('user-email-row').style.display    = 'none';
+      document.getElementById('user-password-row').style.display = '';
+      document.getElementById('u-password').value                = '';
+      document.getElementById('u-email').required                = false;
+      document.getElementById('u-password').required             = true;
+      document.getElementById('user-submit-btn').textContent     = 'Guardar contraseña';
+      document.getElementById('user-cancel-btn').style.display   = '';
       document.getElementById('user-form-title').scrollIntoView({ behavior: 'smooth' });
     }
 
-    const USER_PER_PAGE = 20;
+    const USER_PER_PAGE = 50;
 
     async function loadUsersAdmin(page = 1) {
       try {

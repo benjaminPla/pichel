@@ -18,13 +18,12 @@ pub async fn create(
 ) -> Result<impl IntoResponse, ProductInterError> {
     let product = CreateProductUseCase::new(app_state.product_repo)
         .execute(CreateProductInput {
-            description:     body.description,
-            image_url:       body.image_url,
-            name:            body.name,
-            price_cents:     body.price_cents,
-            sale_mode:       body.sale_mode,
-            symbols:         body.symbols,
-            unit_of_measure: body.unit_of_measure,
+            description: body.description,
+            image_url:   body.image_url,
+            name:        body.name,
+            price_cents: body.price_cents,
+            sale_mode:   body.sale_mode,
+            symbols:     body.symbols,
         })
         .await?;
     Ok((StatusCode::CREATED, Json(ProductCreateResponse::from(product))))

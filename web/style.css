@@ -740,7 +740,8 @@ tr:hover td { background: var(--clr-surface-2); }
   border-bottom: var(--border);
   transition: background var(--ease);
 }
-.price-list tbody tr:hover td { background: var(--clr-surface); }
+.price-list tr:hover td { background: unset; }
+.price-list tbody:hover td { background: var(--clr-surface); }
 .price-list td { padding: var(--sp-3) var(--sp-4); vertical-align: middle; }
 
 .pl-img-cell { width: 52px; padding-right: 0; }

@@ -16,13 +16,12 @@ use crate::{
 use std::sync::Arc;
 
 pub struct CreateProductInput {
-    pub description:     Option<String>,
-    pub image_url:       Option<String>,
-    pub name:            String,
-    pub price_cents:     u32,
-    pub sale_mode:       String,
-    pub symbols:         Vec<String>,
-    pub unit_of_measure: String,
+    pub description: Option<String>,
+    pub image_url:   Option<String>,
+    pub name:        String,
+    pub price_cents: u32,
+    pub sale_mode:   String,
+    pub symbols:     Vec<String>,
 }
 
 pub struct CreateProductUseCase {
@@ -40,16 +39,11 @@ impl CreateProductUseCase {
         let price_cents     = PriceCents::new(input.price_cents)?;
         let sale_mode       = input.sale_mode.parse::<SaleMode>()?;
         let symbols         = input.symbols.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?;
-        let unit_of_measure = input.unit_of_measure.parse::<UnitOfMeasure>()?;
-        let product         = Product::new(
-            description,
-            input.image_url,
-            name,
-            price_cents,
-            sale_mode,
-            symbols,
-            unit_of_measure,
-        );
+        let unit_of_measure = match &sale_mode {
+            SaleMode::Unit => UnitOfMeasure::Unit,
+            SaleMode::Bulk    => UnitOfMeasure::Kilogram,
+        };
+        let product = Product::new(description, input.image_url, name, price_cents, sale_mode, symbols, unit_of_measure);
         let product = self.product_repo.create(&product).await?;
         Ok(product)
     }

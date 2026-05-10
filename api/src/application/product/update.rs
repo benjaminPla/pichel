@@ -18,14 +18,13 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct UpdateProductInput {
-    pub description:     Option<String>,
-    pub id:              Uuid,
-    pub image_url:       Option<String>,
-    pub name:            Option<String>,
-    pub price_cents:     Option<u32>,
-    pub sale_mode:       Option<String>,
-    pub symbols:         Option<Vec<String>>,
-    pub unit_of_measure: Option<String>,
+    pub description: Option<String>,
+    pub id:          Uuid,
+    pub image_url:   Option<String>,
+    pub name:        Option<String>,
+    pub price_cents: Option<u32>,
+    pub sale_mode:   Option<String>,
+    pub symbols:     Option<Vec<String>>,
 }
 
 pub struct UpdateProductUseCase {
@@ -57,13 +56,13 @@ impl UpdateProductUseCase {
             Some(s) => s.parse::<SaleMode>()?,
             None    => current.get_sale_mode().clone(),
         };
+        let unit_of_measure = match &sale_mode {
+            SaleMode::Unit => UnitOfMeasure::Unit,
+            SaleMode::Bulk    => UnitOfMeasure::Kilogram,
+        };
         let symbols         = match input.symbols {
             Some(s) => s.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?,
             None    => current.get_symbols().to_vec(),
-        };
-        let unit_of_measure = match input.unit_of_measure {
-            Some(u) => u.parse::<UnitOfMeasure>()?,
-            None    => current.get_unit_of_measure().clone(),
         };
         let updated = Product::reconstitute(
             description,

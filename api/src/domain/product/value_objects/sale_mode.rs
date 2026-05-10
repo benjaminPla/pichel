@@ -3,14 +3,14 @@ use std::str::FromStr;
 #[derive(Debug, Clone, PartialEq)]
 pub enum SaleMode {
     Bulk,
-    Package,
+    Unit,
 }
 
 impl SaleMode {
     pub fn as_str(&self) -> &'static str {
         match self {
-            Self::Bulk    => "bulk",
-            Self::Package => "package",
+            Self::Bulk => "bulk",
+            Self::Unit => "unit",
         }
     }
 }
@@ -20,9 +20,9 @@ impl FromStr for SaleMode {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "bulk"    => Ok(Self::Bulk),
-            "package" => Ok(Self::Package),
-            other     => Err(SaleModeError::Invalid(other.to_string())),
+            "bulk" => Ok(Self::Bulk),
+            "unit" => Ok(Self::Unit),
+            other  => Err(SaleModeError::Invalid(other.to_string())),
         }
     }
 }

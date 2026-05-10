@@ -8,7 +8,7 @@ use value_objects::{
     price_cents::PriceCents,
     sale_mode::SaleMode,
     symbol::Symbol,
-    unit_of_measure::{UnitOfMeasure, UnitOfMeasureError},
+    unit_of_measure::UnitOfMeasure,
 };
 
 #[derive(Debug, Clone)]
@@ -56,18 +56,6 @@ impl Product {
         unit_of_measure: UnitOfMeasure,
     ) -> Self {
         Self { description, id, image_url, name, price_cents, sale_mode, symbols, unit_of_measure }
-    }
-
-    pub fn price_for(&self, amount: f64, unit: &UnitOfMeasure) -> Result<PriceCents, UnitOfMeasureError> {
-        if unit.dimension() != self.unit_of_measure.dimension() {
-            return Err(UnitOfMeasureError::Invalid(format!(
-                "cannot convert {:?} to {:?}",
-                unit.dimension(),
-                self.unit_of_measure.dimension()
-            )));
-        }
-        let ratio = (amount * unit.to_base_factor()) / self.unit_of_measure.to_base_factor();
-        Ok(PriceCents::reconstitute((ratio * self.price_cents.value() as f64).round() as u32))
     }
 
     // ── Getters ──────────────────────────────────────────────────────────────

@@ -6,7 +6,6 @@ use crate::domain::product::{
         price_cents::PriceCentsError,
         sale_mode::SaleModeError,
         symbol::SymbolError,
-        unit_of_measure::UnitOfMeasureError,
     },
 };
 
@@ -38,10 +37,6 @@ impl From<SaleModeError> for ProductAppError {
 
 impl From<SymbolError> for ProductAppError {
     fn from(e: SymbolError) -> Self { Self::Validation(e.to_string()) }
-}
-
-impl From<UnitOfMeasureError> for ProductAppError {
-    fn from(e: UnitOfMeasureError) -> Self { Self::Validation(e.to_string()) }
 }
 
 impl From<ProductRepoError> for ProductAppError {

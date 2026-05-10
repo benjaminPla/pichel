@@ -229,13 +229,13 @@
 
     function modeLabel(p) {
       if (p.sale_mode === 'bulk')    return `<span class="pl-mode pl-mode-bulk">A granel</span>`;
-      if (p.sale_mode === 'package') return `<span class="pl-mode pl-mode-pkg">Envasado</span>`;
+      if (p.sale_mode === 'unit') return `<span class="pl-mode pl-mode-pkg">Unidad</span>`;
       return `<span class="pl-mode">${p.sale_mode}</span>`;
     }
 
     function fmtPrice(p) {
       if (p.sale_mode === 'bulk') {
-        return `${fmtCents(p.price_cents)}<span class="pl-price-unit"> / ${p.unit_of_measure}</span>`;
+        return `${fmtCents(p.price_cents)}<span class="pl-price-unit"> / kg</span>`;
       }
       return fmtCents(p.price_cents);
     }
@@ -264,15 +264,15 @@
         ${symbolPills(main.symbols)}`;
 
       if (group.variants.length === 1) {
-        return `<tr>
+        return `<tbody><tr>
           <td class="pl-img-cell">${imgCell}</td>
           <td class="pl-name">${nameCell}</td>
           <td class="pl-unit">${modeLabel(main)}</td>
           <td class="pl-price">${fmtPrice(main)}</td>
-        </tr>`;
+        </tr></tbody>`;
       }
 
-      return group.variants.map((p, i) => {
+      const rows = group.variants.map((p, i) => {
         if (i === 0) {
           return `<tr>
             <td class="pl-img-cell" rowspan="${group.variants.length}">${imgCell}</td>
@@ -286,12 +286,13 @@
           <td class="pl-price">${fmtPrice(p)}</td>
         </tr>`;
       }).join('');
+      return `<tbody>${rows}</tbody>`;
     }
 
     // ── Price list ─────────────────────────────────────────────────
 
     let currentPage = 1;
-    const PER_PAGE  = 20;
+    const PER_PAGE  = 50;
 
     function priceTable(products) {
       const groups = groupByName(products);
@@ -305,9 +306,7 @@
               <th>Precio</th>
             </tr>
           </thead>
-          <tbody>
-            ${groups.map(renderGroup).join('')}
-          </tbody>
+          ${groups.map(renderGroup).join('')}
         </table>`;
     }
 
@@ -341,8 +340,8 @@
         }
 
         wrap.innerHTML = priceTable(products) + paginationBar(page, total_pages);
-      } catch (err) {
-        wrap.innerHTML = `<p class="pl-empty">No se pudo cargar la lista. ¿Está corriendo la API?<br><small>${err.message}</small></p>`;
+      } catch (_err) {
+        wrap.innerHTML = `<p class="pl-empty">No se pudo cargar la lista.</p>`;
       }
     }
 
