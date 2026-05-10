@@ -1,4 +1,5 @@
 mod create;
+mod delete;
 mod errors;
 mod get_all;
 mod get_by_id;
@@ -27,6 +28,10 @@ impl PgProductRepo {
 impl ProductRepo for PgProductRepo {
     async fn create(&self, product: &Product) -> Result<Product, ProductRepoError> {
         create::create(&self.pool, product).await
+    }
+
+    async fn delete(&self, product_id: &ProductId) -> Result<Product, ProductRepoError> {
+        delete::delete(&self.pool, product_id).await
     }
 
     async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductRepoError> {

@@ -1,0 +1,27 @@
+use crate::{
+    application::product::errors::ProductAppError,
+    domain::product::{ports::repository::ProductRepo, value_objects::id::ProductId, Product},
+};
+use std::sync::Arc;
+use uuid::Uuid;
+
+pub struct DeleteProductInput {
+    pub id: Uuid
+
+}
+
+pub struct DeleteProductUseCase {
+    product_repo: Arc<dyn ProductRepo>,
+}
+
+impl DeleteProductUseCase {
+    pub fn new(product_repo: Arc<dyn ProductRepo>) -> Self {
+        Self { product_repo }
+    }
+
+    pub async fn execute(&self, input: DeleteProductInput) -> Result<Product, ProductAppError> {
+        let product_id = ProductId::reconstitute(input.id);
+        let product    = self.product_repo.delete(&product_id).await?;
+        Ok(product)
+    }
+}
