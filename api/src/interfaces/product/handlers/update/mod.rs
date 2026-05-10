@@ -31,7 +31,6 @@ pub async fn update(
             name:            body.name,
             price_cents:     body.price_cents,
             sale_mode:       body.sale_mode,
-            stock:           body.stock,
             symbols:         body.symbols,
             unit_of_measure: body.unit_of_measure,
         })

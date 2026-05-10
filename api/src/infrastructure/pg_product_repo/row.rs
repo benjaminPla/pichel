@@ -7,7 +7,6 @@ use crate::domain::product::{
         name::Name,
         price_cents::PriceCents,
         sale_mode::SaleMode,
-        stock::Stock,
         symbol::Symbol,
         unit_of_measure::UnitOfMeasure,
     },
@@ -22,7 +21,6 @@ pub struct ProductRow {
     name:            String,
     price_cents:     i32,
     sale_mode:       String,
-    stock:           i32,
     symbols:         Vec<String>,
     unit_of_measure: String,
 }
@@ -36,9 +34,8 @@ impl TryFrom<ProductRow> for Product {
         let name            = Name::new(r.name)?;
         let price_cents     = PriceCents::new(u32::try_from(r.price_cents)?)?;
         let sale_mode       = r.sale_mode.parse::<SaleMode>()?;
-        let stock           = Stock::new(u32::try_from(r.stock)?);
         let symbols         = r.symbols.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?;
         let unit_of_measure = r.unit_of_measure.parse::<UnitOfMeasure>()?;
-        Ok(Product::reconstitute(description, id, r.image_url, name, price_cents, sale_mode, stock, symbols, unit_of_measure))
+        Ok(Product::reconstitute(description, id, r.image_url, name, price_cents, sale_mode, symbols, unit_of_measure))
     }
 }

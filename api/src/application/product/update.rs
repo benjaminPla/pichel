@@ -8,7 +8,6 @@ use crate::{
             name::Name,
             price_cents::PriceCents,
             sale_mode::SaleMode,
-            stock::Stock,
             symbol::Symbol,
             unit_of_measure::UnitOfMeasure,
         },
@@ -25,7 +24,6 @@ pub struct UpdateProductInput {
     pub name:            Option<String>,
     pub price_cents:     Option<u32>,
     pub sale_mode:       Option<String>,
-    pub stock:           Option<u32>,
     pub symbols:         Option<Vec<String>>,
     pub unit_of_measure: Option<String>,
 }
@@ -59,10 +57,6 @@ impl UpdateProductUseCase {
             Some(s) => s.parse::<SaleMode>()?,
             None    => current.get_sale_mode().clone(),
         };
-        let stock           = match input.stock {
-            Some(v) => Stock::new(v),
-            None    => current.get_stock(),
-        };
         let symbols         = match input.symbols {
             Some(s) => s.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?,
             None    => current.get_symbols().to_vec(),
@@ -78,7 +72,6 @@ impl UpdateProductUseCase {
             name,
             price_cents,
             sale_mode,
-            stock,
             symbols,
             unit_of_measure,
         );

@@ -14,7 +14,6 @@ CREATE TABLE products (
     price_cents         INTEGER      NOT NULL CHECK (price_cents > 0),
     unit_of_measure     VARCHAR(20)  NOT NULL,
     sale_mode           VARCHAR(20)  NOT NULL CHECK (sale_mode IN ('bulk', 'package')),
-    stock               INTEGER      NOT NULL DEFAULT 0 CHECK (stock >= 0),
     image_url           VARCHAR(255),
     symbols             TEXT[]       NOT NULL DEFAULT ARRAY[]::TEXT[],
     created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW()

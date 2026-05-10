@@ -7,7 +7,6 @@ use crate::{
             name::Name,
             price_cents::PriceCents,
             sale_mode::SaleMode,
-            stock::Stock,
             symbol::Symbol,
             unit_of_measure::UnitOfMeasure,
         },
@@ -22,7 +21,6 @@ pub struct CreateProductInput {
     pub name:            String,
     pub price_cents:     u32,
     pub sale_mode:       String,
-    pub stock:           u32,
     pub symbols:         Vec<String>,
     pub unit_of_measure: String,
 }
@@ -41,7 +39,6 @@ impl CreateProductUseCase {
         let name            = Name::new(input.name)?;
         let price_cents     = PriceCents::new(input.price_cents)?;
         let sale_mode       = input.sale_mode.parse::<SaleMode>()?;
-        let stock           = Stock::new(input.stock);
         let symbols         = input.symbols.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?;
         let unit_of_measure = input.unit_of_measure.parse::<UnitOfMeasure>()?;
         let product         = Product::new(
@@ -50,7 +47,6 @@ impl CreateProductUseCase {
             name,
             price_cents,
             sale_mode,
-            stock,
             symbols,
             unit_of_measure,
         );
