@@ -11,14 +11,14 @@
   <aside class="sidebar" id="sidebar">
     <a href="/" class="sidebar-brand">Pichel <small>ADMIN</small></a>
     <nav class="sidebar-nav">
-      <a class="nav-item active" data-page="dashboard">
-        <span class="icon">📊</span> Dashboard
-      </a>
-      <a class="nav-item" data-page="products">
+      <a class="nav-item active" data-page="products" data-label="Productos">
         <span class="icon">📦</span> Productos
       </a>
-      <a class="nav-item" data-page="users">
+      <a class="nav-item" data-page="users" data-label="Usuarios">
         <span class="icon">👤</span> Usuarios
+      </a>
+      <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
+        <span class="icon">🛒</span> Ver lista de precios
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -31,7 +31,7 @@
       <button class="menu-toggle" id="menu-toggle">
         <span></span><span></span><span></span>
       </button>
-      <span class="topbar-title" id="topbar-title">Dashboard</span>
+      <span class="topbar-title" id="topbar-title">Productos</span>
     </div>
     <div class="content" id="content"></div>
   </div>
@@ -57,7 +57,7 @@
       item.addEventListener('click', () => {
         navItems.forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        document.getElementById('topbar-title').textContent = item.textContent.trim();
+        document.getElementById('topbar-title').textContent = item.dataset.label || '';
         document.getElementById('sidebar').classList.remove('open');
         renderPage(item.dataset.page);
       });
@@ -108,10 +108,10 @@
       }).join(' ');
     }
 
-    function stockStatusBadge(status) {
-      if (status === 'out_of_stock') return `<span class="badge badge-out">Sin stock</span>`;
-      if (status === 'low_stock')    return `<span class="badge badge-low">Stock bajo</span>`;
-      return `<span class="badge badge-green">En stock</span>`;
+    function saleModeBadge(mode) {
+      if (mode === 'bulk')    return `<span class="badge badge-bulk">A granel</span>`;
+      if (mode === 'package') return `<span class="badge badge-pkg">Envasado</span>`;
+      return `<span class="badge">${mode}</span>`;
     }
 
     function paginationBar(page, totalPages, loadFn) {
@@ -124,76 +124,12 @@
         </div>`;
     }
 
-    function statSkeleton() {
-      return `<div class="stat-card" style="opacity:.35">
-        <div style="background:var(--clr-surface-2);height:10px;width:60%;border-radius:var(--radius-sm)"></div>
-        <div style="background:var(--clr-surface-2);height:30px;width:50%;border-radius:var(--radius-sm);margin-top:var(--sp-2)"></div>
-      </div>`;
-    }
-
     // ── Pages ──────────────────────────────────────────────────────
 
     function renderPage(page) {
       const content = document.getElementById('content');
-      if (page === 'dashboard') return renderDashboard(content);
-      if (page === 'products')  return renderProducts(content);
-      if (page === 'users')     return renderUsers(content);
-    }
-
-    // ── Dashboard ─────────────────────────────────────────────────
-
-    async function renderDashboard(el) {
-      el.innerHTML = `<div class="stats">${statSkeleton()}${statSkeleton()}${statSkeleton()}</div>`;
-
-      try {
-        const res = await apiFetch('/products?page=1&per_page=50');
-        if (!res || !res.ok) { el.innerHTML = `<p style="color:var(--clr-text-muted)">Error al cargar el dashboard.</p>`; return; }
-        const { products, total } = await res.json();
-
-        const invValue   = products.reduce((s, p) => s + p.stock * p.price_cents, 0);
-        const avgPrice   = products.length ? Math.round(products.reduce((s, p) => s + p.price_cents, 0) / products.length) : 0;
-        const outOfStock = products.filter(p => p.stock_status === 'out_of_stock');
-        const lowStock   = products.filter(p => p.stock_status === 'low_stock');
-
-        el.innerHTML = `
-          <div class="stats">
-            <div class="stat-card">
-              <div class="stat-label">Productos</div>
-              <div class="stat-value accent">${total}</div>
-              <div class="stat-sub">en catálogo</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Valor de inventario</div>
-              <div class="stat-value">${fmtCents(invValue)}</div>
-              <div class="stat-sub">stock × precio de venta</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Precio promedio</div>
-              <div class="stat-value">${fmtCents(avgPrice)}</div>
-              <div class="stat-sub">precio de venta</div>
-            </div>
-          </div>
-
-          ${(outOfStock.length || lowStock.length) ? `
-          <div class="alert-panel">
-            ${outOfStock.length ? `
-              <div class="alert-block alert-block--error">
-                <div class="alert-title">⚠ Sin stock (${outOfStock.length})</div>
-                <ul class="alert-list">
-                  ${outOfStock.map(p => `<li>${p.name} <span class="text-muted">— ${p.unit_of_measure}</span></li>`).join('')}
-                </ul>
-              </div>` : ''}
-            ${lowStock.length ? `
-              <div class="alert-block alert-block--warning">
-                <div class="alert-title">⚡ Stock bajo (${lowStock.length})</div>
-                <ul class="alert-list">
-                  ${lowStock.map(p => `<li>${p.name} <span class="text-muted">— ${p.stock} uds.</span></li>`).join('')}
-                </ul>
-              </div>` : ''}
-          </div>` : ''}`;
-      } catch {
-        el.innerHTML = `<p style="color:var(--clr-text-muted)">Error al cargar el dashboard.</p>`;
-      }
+      if (page === 'products') return renderProducts(content);
+      if (page === 'users')    return renderUsers(content);
     }
 
     // ── Products ──────────────────────────────────────────────────
@@ -208,49 +144,113 @@
           <div class="section-header" style="padding:0;margin-bottom:var(--sp-5)">
             <h2 id="prod-form-title">Agregar producto</h2>
           </div>
+
           <form id="prod-form">
-            <div class="form-grid">
-              <div class="form-field">
-                <label>Nombre *</label>
-                <input id="p-name" placeholder="ej. Avena integral" required />
+            <div class="form-2col">
+
+              <div class="form-2col-row">
+                <div class="form-2col-field">
+                  <label for="p-name">Nombre *</label>
+                  <input id="p-name" type="text" maxlength="100" required placeholder="ej. Avena integral" />
+                </div>
+                <div class="form-2col-hint">
+                  <strong>Nombre del producto.</strong>
+                  Máximo 100 caracteres. Sé específico: incluí el tipo o variedad si corresponde.
+                </div>
               </div>
-              <div class="form-field">
-                <label>Descripción</label>
-                <input id="p-desc" placeholder="ej. Sin gluten, orgánica" />
+
+              <div class="form-2col-row">
+                <div class="form-2col-field">
+                  <label for="p-desc">Descripción</label>
+                  <textarea id="p-desc" maxlength="255" rows="3" placeholder="ej. Producida en San Luis, sin aditivos"></textarea>
+                </div>
+                <div class="form-2col-hint">
+                  <strong>Descripción breve.</strong>
+                  Opcional. Máximo 255 caracteres. Aparece debajo del nombre en la lista de precios.
+                </div>
               </div>
-              <div class="form-field">
-                <label>Unidad de medida *</label>
-                <input id="p-unit" list="unit-options" placeholder="g, kg, ml, l, unit" required />
-                <datalist id="unit-options">
-                  <option value="g">
-                  <option value="kg">
-                  <option value="ml">
-                  <option value="l">
-                  <option value="unit">
-                </datalist>
+
+              <div class="form-2col-row">
+                <div class="form-2col-field">
+                  <label for="p-salemode">Modalidad de venta *</label>
+                  <select id="p-salemode" class="form-select" required>
+                    <option value="">— Seleccionar —</option>
+                    <option value="bulk">A granel</option>
+                    <option value="package">Envasado</option>
+                  </select>
+                </div>
+                <div class="form-2col-hint">
+                  <strong>¿Cómo se vende?</strong>
+                  <em>A granel:</em> el cliente pide la cantidad que necesita y se pesa en el momento.<br>
+                  <em>Envasado:</em> unidades cerradas — paquete, bolsa, caja, botella.
+                </div>
               </div>
-              <div class="form-field">
-                <label>Precio de venta (centavos) *</label>
-                <input id="p-price" type="number" min="0" step="1" placeholder="ej. 420" required />
+
+              <div class="form-2col-row">
+                <div class="form-2col-field">
+                  <label for="p-price">Precio (centavos) *</label>
+                  <input id="p-price" type="number" min="1" step="1" required placeholder="ej. 420" />
+                </div>
+                <div class="form-2col-hint">
+                  <strong>Precio de venta en centavos.</strong>
+                  $4,20 → escribir <strong>420</strong>. Para a granel, es el precio por la unidad de medida elegida.
+                </div>
               </div>
-              <div class="form-field">
-                <label>Stock</label>
-                <input id="p-stock" type="number" min="0" step="1" value="0" />
+
+              <div class="form-2col-row">
+                <div class="form-2col-field">
+                  <label for="p-unit">Unidad de medida *</label>
+                  <select id="p-unit" class="form-select" required>
+                    <option value="">— Seleccionar —</option>
+                    <option value="g">g — gramos</option>
+                    <option value="kg">kg — kilogramos</option>
+                    <option value="ml">ml — mililitros</option>
+                    <option value="l">l — litros</option>
+                    <option value="unit">unidad</option>
+                  </select>
+                </div>
+                <div class="form-2col-hint">
+                  <strong>Unidad de referencia para el precio.</strong>
+                  Para a granel: el peso o volumen en que se expresa el precio.<br>
+                  Para envasados: usar <em>unidad</em>.
+                </div>
               </div>
-              <div class="form-field">
-                <label>Alerta stock bajo</label>
-                <input id="p-threshold" type="number" min="0" step="1" value="5" />
+
+              <div class="form-2col-row">
+                <div class="form-2col-field">
+                  <label for="p-symbols">Símbolos</label>
+                  <select id="p-symbols" class="form-select" multiple style="height:160px">
+                    <option value="vegan">🌱 Vegano</option>
+                    <option value="vegetarian">🥕 Vegetariano</option>
+                    <option value="gluten_free">🌾 Sin TACC</option>
+                    <option value="lactose_free">🥛 Sin lactosa</option>
+                    <option value="organic">🌿 Orgánico</option>
+                    <option value="sugar_free">🍃 Sin azúcar agregada</option>
+                    <option value="contains_nuts">🥜 Contiene frutos secos</option>
+                    <option value="high_protein">💪 Alto en proteína</option>
+                    <option value="no_added_salt">🧂 Sin sal agregada</option>
+                  </select>
+                </div>
+                <div class="form-2col-hint">
+                  <strong>Características del producto.</strong>
+                  Seleccioná una o más. Usá <strong>Ctrl+clic</strong> (o <strong>Cmd+clic</strong> en Mac) para elegir varias. Se muestran como íconos en la lista de precios.
+                </div>
               </div>
-              <div class="form-field" style="grid-column:1/-1">
-                <label>URL de imagen</label>
-                <input id="p-img" placeholder="/images/products/nombre.webp" />
+
+              <div class="form-2col-row">
+                <div class="form-2col-field">
+                  <label for="p-img">URL de imagen</label>
+                  <input id="p-img" type="text" placeholder="/images/products/nombre.webp" />
+                </div>
+                <div class="form-2col-hint">
+                  <strong>Imagen del producto.</strong>
+                  Ruta relativa al servidor. Dejalo vacío si no hay imagen disponible.
+                </div>
               </div>
-              <div class="form-field" style="grid-column:1/-1">
-                <label>Símbolos (separados por coma)</label>
-                <input id="p-symbols" placeholder="vegan, vegetarian, gluten_free, lactose_free, organic, sugar_free, contains_nuts, high_protein, no_added_salt" />
-              </div>
+
             </div>
-            <div style="margin-top:var(--sp-5);display:flex;gap:var(--sp-3)">
+
+            <div style="display:flex;gap:var(--sp-3)">
               <button class="btn btn-primary" type="submit" id="prod-submit-btn">Agregar producto</button>
               <button class="btn btn-ghost" type="button" id="prod-cancel-btn" style="display:none" onclick="cancelProductEdit()">Cancelar</button>
             </div>
@@ -267,17 +267,15 @@
 
       document.getElementById('prod-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name                = document.getElementById('p-name').value.trim();
-        const description         = document.getElementById('p-desc').value.trim() || null;
-        const unit_of_measure     = document.getElementById('p-unit').value.trim();
-        const price_cents         = parseInt(document.getElementById('p-price').value);
-        const stock               = parseInt(document.getElementById('p-stock').value) || 0;
-        const low_stock_threshold = parseInt(document.getElementById('p-threshold').value) || 5;
-        const image_url           = document.getElementById('p-img').value.trim() || null;
-        const symbols_raw         = document.getElementById('p-symbols').value.trim();
-        const symbols             = symbols_raw ? symbols_raw.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const name            = document.getElementById('p-name').value.trim();
+        const description     = document.getElementById('p-desc').value.trim() || null;
+        const sale_mode       = document.getElementById('p-salemode').value;
+        const price_cents     = parseInt(document.getElementById('p-price').value);
+        const unit_of_measure = document.getElementById('p-unit').value;
+        const symbols         = Array.from(document.getElementById('p-symbols').selectedOptions).map(o => o.value);
+        const image_url       = document.getElementById('p-img').value.trim() || null;
 
-        if (!name || !unit_of_measure || isNaN(price_cents)) return;
+        if (!name || !sale_mode || !unit_of_measure || isNaN(price_cents) || price_cents < 1) return;
 
         const btn      = document.getElementById('prod-submit-btn');
         const original = btn.textContent;
@@ -285,13 +283,12 @@
         btn.textContent = '…';
 
         try {
-          const body = { name, description, unit_of_measure, price_cents, stock, low_stock_threshold, image_url, symbols };
+          const body = { name, description, sale_mode, price_cents, unit_of_measure, symbols, image_url };
           const res  = editingProductId
             ? await apiFetch(`/products/${editingProductId}`, { method: 'PATCH', body: JSON.stringify(body) })
             : await apiFetch('/products', { method: 'POST', body: JSON.stringify(body) });
 
           if (!res || !res.ok) { toast(editingProductId ? 'Error al actualizar' : 'Error al crear el producto', 'error'); return; }
-
           toast(editingProductId ? 'Producto actualizado' : 'Producto agregado');
           cancelProductEdit();
           await loadProductsAdmin();
@@ -303,47 +300,46 @@
         const btn = e.target.closest('[data-action="edit-product"]');
         if (!btn) return;
         startEditProduct({
-          id:                  btn.dataset.id,
-          name:                btn.dataset.name,
-          description:         btn.dataset.description,
-          unit_of_measure:     btn.dataset.unit,
-          price_cents:         parseInt(btn.dataset.price),
-          stock:               parseInt(btn.dataset.stock),
-          low_stock_threshold: parseInt(btn.dataset.threshold),
-          image_url:           btn.dataset.image,
-          symbols:             btn.dataset.symbols ? btn.dataset.symbols.split(',') : [],
+          id:              btn.dataset.id,
+          name:            btn.dataset.name,
+          description:     btn.dataset.description,
+          sale_mode:       btn.dataset.salemode,
+          unit_of_measure: btn.dataset.unit,
+          price_cents:     parseInt(btn.dataset.price),
+          image_url:       btn.dataset.image,
+          symbols:         btn.dataset.symbols ? btn.dataset.symbols.split(',') : [],
         });
       });
     }
 
     function cancelProductEdit() {
       editingProductId = null;
-      document.getElementById('prod-form-title').textContent         = 'Agregar producto';
-      document.getElementById('p-name').value                         = '';
-      document.getElementById('p-desc').value                         = '';
-      document.getElementById('p-unit').value                         = '';
-      document.getElementById('p-price').value                        = '';
-      document.getElementById('p-stock').value                        = '0';
-      document.getElementById('p-threshold').value                    = '5';
-      document.getElementById('p-img').value                          = '';
-      document.getElementById('p-symbols').value                      = '';
-      document.getElementById('prod-submit-btn').textContent          = 'Agregar producto';
-      document.getElementById('prod-cancel-btn').style.display        = 'none';
+      document.getElementById('prod-form-title').textContent  = 'Agregar producto';
+      document.getElementById('p-name').value                 = '';
+      document.getElementById('p-desc').value                 = '';
+      document.getElementById('p-salemode').value             = '';
+      document.getElementById('p-price').value                = '';
+      document.getElementById('p-unit').value                 = '';
+      Array.from(document.getElementById('p-symbols').options).forEach(o => o.selected = false);
+      document.getElementById('p-img').value                  = '';
+      document.getElementById('prod-submit-btn').textContent  = 'Agregar producto';
+      document.getElementById('prod-cancel-btn').style.display = 'none';
     }
 
     function startEditProduct(p) {
       editingProductId = p.id;
-      document.getElementById('prod-form-title').textContent         = 'Editar producto';
-      document.getElementById('p-name').value                         = p.name;
-      document.getElementById('p-desc').value                         = p.description || '';
-      document.getElementById('p-unit').value                         = p.unit_of_measure;
-      document.getElementById('p-price').value                        = p.price_cents;
-      document.getElementById('p-stock').value                        = p.stock;
-      document.getElementById('p-threshold').value                    = p.low_stock_threshold;
-      document.getElementById('p-img').value                          = p.image_url || '';
-      document.getElementById('p-symbols').value                      = p.symbols.join(', ');
-      document.getElementById('prod-submit-btn').textContent          = 'Guardar cambios';
-      document.getElementById('prod-cancel-btn').style.display        = '';
+      document.getElementById('prod-form-title').textContent  = 'Editar producto';
+      document.getElementById('p-name').value                 = p.name;
+      document.getElementById('p-desc').value                 = p.description || '';
+      document.getElementById('p-salemode').value             = p.sale_mode || '';
+      document.getElementById('p-price').value                = p.price_cents;
+      document.getElementById('p-unit').value                 = p.unit_of_measure || '';
+      Array.from(document.getElementById('p-symbols').options).forEach(o => {
+        o.selected = p.symbols.includes(o.value);
+      });
+      document.getElementById('p-img').value                  = p.image_url || '';
+      document.getElementById('prod-submit-btn').textContent  = 'Guardar cambios';
+      document.getElementById('prod-cancel-btn').style.display = '';
       document.getElementById('prod-form-title').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -369,20 +365,18 @@
       return `<table>
         <thead><tr>
           <th>Nombre</th>
+          <th>Modalidad</th>
           <th>U/M</th>
           <th>Precio</th>
-          <th>Stock</th>
-          <th>Estado</th>
           <th>Símbolos</th>
           <th></th>
         </tr></thead>
         <tbody>
           ${products.map(p => `<tr>
             <td style="font-weight:var(--fw-semibold)">${p.name}${p.description ? `<br><small style="font-weight:var(--fw-normal);color:var(--clr-text-muted)">${p.description}</small>` : ''}</td>
+            <td>${saleModeBadge(p.sale_mode)}</td>
             <td style="color:var(--clr-text-muted)">${p.unit_of_measure}</td>
             <td>${fmtCents(p.price_cents)}</td>
-            <td>${p.stock} uds.</td>
-            <td>${stockStatusBadge(p.stock_status)}</td>
             <td>${symbolPills(p.symbols)}</td>
             <td style="white-space:nowrap">
               <button class="btn btn-ghost" style="${actionStyle}"
@@ -390,10 +384,9 @@
                 data-id="${p.id}"
                 data-name="${(p.name || '').replace(/"/g, '&quot;')}"
                 data-description="${(p.description || '').replace(/"/g, '&quot;')}"
+                data-salemode="${p.sale_mode}"
                 data-unit="${p.unit_of_measure}"
                 data-price="${p.price_cents}"
-                data-stock="${p.stock}"
-                data-threshold="${p.low_stock_threshold}"
                 data-image="${(p.image_url || '').replace(/"/g, '&quot;')}"
                 data-symbols="${p.symbols.join(',')}">Editar</button>
             </td>
@@ -405,7 +398,7 @@
     // ── Users ─────────────────────────────────────────────────────
 
     let editingUserId   = null;
-    let editingUserMode = null; // 'email' | 'password'
+    let editingUserMode = null;
 
     async function renderUsers(el) {
       editingUserId   = null;
@@ -417,17 +410,29 @@
             <h2 id="user-form-title">Agregar usuario</h2>
           </div>
           <form id="user-form">
-            <div class="form-grid">
-              <div class="form-field" id="user-email-field">
-                <label>Email *</label>
-                <input id="u-email" type="email" placeholder="usuario@ejemplo.com" required />
+            <div class="form-2col">
+              <div class="form-2col-row">
+                <div class="form-2col-field" id="user-email-field">
+                  <label for="u-email">Email *</label>
+                  <input id="u-email" type="email" placeholder="usuario@ejemplo.com" required />
+                </div>
+                <div class="form-2col-hint">
+                  <strong>Dirección de email.</strong>
+                  Será el usuario de acceso al panel de administración.
+                </div>
               </div>
-              <div class="form-field" id="user-password-field">
-                <label>Contraseña *</label>
-                <input id="u-password" type="password" placeholder="mínimo 8 caracteres" required />
+              <div class="form-2col-row">
+                <div class="form-2col-field" id="user-password-field">
+                  <label for="u-password">Contraseña *</label>
+                  <input id="u-password" type="password" placeholder="mínimo 8 caracteres" required />
+                </div>
+                <div class="form-2col-hint">
+                  <strong>Contraseña de acceso.</strong>
+                  Mínimo 8 caracteres. Incluí mayúsculas, números o símbolos para mayor seguridad.
+                </div>
               </div>
             </div>
-            <div style="margin-top:var(--sp-5);display:flex;gap:var(--sp-3)">
+            <div style="display:flex;gap:var(--sp-3)">
               <button class="btn btn-primary" type="submit" id="user-submit-btn">Agregar usuario</button>
               <button class="btn btn-ghost" type="button" id="user-cancel-btn" style="display:none" onclick="cancelUserEdit()">Cancelar</button>
             </div>
@@ -488,42 +493,48 @@
     function cancelUserEdit() {
       editingUserId   = null;
       editingUserMode = null;
-      document.getElementById('user-form-title').textContent       = 'Agregar usuario';
-      document.getElementById('user-email-field').style.display    = '';
-      document.getElementById('user-password-field').style.display = '';
-      document.getElementById('u-email').value                     = '';
-      document.getElementById('u-password').value                  = '';
-      document.getElementById('u-email').required                  = true;
-      document.getElementById('u-password').required               = true;
-      document.getElementById('user-submit-btn').textContent       = 'Agregar usuario';
-      document.getElementById('user-cancel-btn').style.display     = 'none';
+      document.getElementById('user-form-title').textContent = 'Agregar usuario';
+      const emailRow = document.getElementById('user-email-field').closest('.form-2col-row');
+      const passRow  = document.getElementById('user-password-field').closest('.form-2col-row');
+      emailRow.style.display = '';
+      passRow.style.display  = '';
+      document.getElementById('u-email').value               = '';
+      document.getElementById('u-password').value            = '';
+      document.getElementById('u-email').required            = true;
+      document.getElementById('u-password').required         = true;
+      document.getElementById('user-submit-btn').textContent = 'Agregar usuario';
+      document.getElementById('user-cancel-btn').style.display = 'none';
     }
 
     function startEditUserEmail(user) {
       editingUserId   = user.id;
       editingUserMode = 'email';
-      document.getElementById('user-form-title').textContent       = 'Editar email';
-      document.getElementById('user-email-field').style.display    = '';
-      document.getElementById('user-password-field').style.display = 'none';
-      document.getElementById('u-email').value                     = user.email;
-      document.getElementById('u-email').required                  = true;
-      document.getElementById('u-password').required               = false;
-      document.getElementById('user-submit-btn').textContent       = 'Guardar email';
-      document.getElementById('user-cancel-btn').style.display     = '';
+      const emailRow = document.getElementById('user-email-field').closest('.form-2col-row');
+      const passRow  = document.getElementById('user-password-field').closest('.form-2col-row');
+      document.getElementById('user-form-title').textContent = 'Editar email';
+      emailRow.style.display = '';
+      passRow.style.display  = 'none';
+      document.getElementById('u-email').value               = user.email;
+      document.getElementById('u-email').required            = true;
+      document.getElementById('u-password').required         = false;
+      document.getElementById('user-submit-btn').textContent = 'Guardar email';
+      document.getElementById('user-cancel-btn').style.display = '';
       document.getElementById('user-form-title').scrollIntoView({ behavior: 'smooth' });
     }
 
     function startEditUserPassword(user) {
       editingUserId   = user.id;
       editingUserMode = 'password';
-      document.getElementById('user-form-title').textContent       = 'Cambiar contraseña';
-      document.getElementById('user-email-field').style.display    = 'none';
-      document.getElementById('user-password-field').style.display = '';
-      document.getElementById('u-password').value                  = '';
-      document.getElementById('u-email').required                  = false;
-      document.getElementById('u-password').required               = true;
-      document.getElementById('user-submit-btn').textContent       = 'Guardar contraseña';
-      document.getElementById('user-cancel-btn').style.display     = '';
+      const emailRow = document.getElementById('user-email-field').closest('.form-2col-row');
+      const passRow  = document.getElementById('user-password-field').closest('.form-2col-row');
+      document.getElementById('user-form-title').textContent = 'Cambiar contraseña';
+      emailRow.style.display = 'none';
+      passRow.style.display  = '';
+      document.getElementById('u-password').value            = '';
+      document.getElementById('u-email').required            = false;
+      document.getElementById('u-password').required         = true;
+      document.getElementById('user-submit-btn').textContent = 'Guardar contraseña';
+      document.getElementById('user-cancel-btn').style.display = '';
       document.getElementById('user-form-title').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -574,7 +585,7 @@
     async function init() {
       const res = await fetch(`${API}/users?page=1&per_page=1`);
       if (res.status === 401) { window.location.href = '/login.html'; return; }
-      renderPage('dashboard');
+      renderPage('products');
     }
 
     init();

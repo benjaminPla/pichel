@@ -427,10 +427,8 @@ label {
   letter-spacing: .07em;
 }
 
-input[type="email"],
-input[type="password"],
-input[type="text"],
-input[type="number"] {
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea {
   width: 100%;
   padding: var(--sp-3) var(--sp-4);
   background: var(--clr-bg);
@@ -442,11 +440,21 @@ input[type="number"] {
   outline: none;
   transition: border-color var(--ease), box-shadow var(--ease);
 }
-input:focus {
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+textarea:focus {
   border-color: var(--clr-accent);
   box-shadow: 0 0 0 3px var(--clr-accent-muted);
 }
-input::placeholder { color: var(--clr-border); }
+input::placeholder,
+textarea::placeholder { color: var(--clr-border); }
+textarea { resize: none; }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--clr-bg) inset;
+  -webkit-text-fill-color: var(--clr-text);
+  transition: background-color 5000s ease-in-out 0s;
+}
 
 /* Admin inline form card */
 .form-card {
@@ -473,10 +481,6 @@ input::placeholder { color: var(--clr-border); }
   margin-bottom: var(--sp-1);
 }
 
-.form-field input {
-  padding: var(--sp-2) var(--sp-3);
-  font-size: var(--text-sm);
-}
 
 
 /* ── 13. Error / feedback ──────────────────────────────────────── */
@@ -647,42 +651,6 @@ nav.sidebar-nav {
 .content { padding: var(--sp-7); flex: 1; }
 
 
-/* ── 19. Dashboard grids + stat cards ──────────────────────────── */
-/* Both .stats and .alert-panel reference the same custom property,
-   so they always share identical column widths.                   */
-:root { --dashboard-cols: repeat(3, 1fr); }
-
-.stats,
-.alert-panel {
-  display: grid;
-  grid-template-columns: var(--dashboard-cols);
-  gap: var(--sp-4);
-}
-.stats       { margin-bottom: var(--sp-4); }
-.alert-panel { margin-bottom: var(--sp-8); }
-.stat-card {
-  background: var(--clr-surface);
-  border: var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--sp-5);
-}
-.stat-label {
-  font-size: var(--text-xs);
-  color: var(--clr-text-muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: var(--sp-2);
-}
-.stat-value {
-  font-family: var(--font-display);
-  font-size: 1.9rem;
-  font-weight: var(--fw-bold);
-  letter-spacing: -1px;
-  line-height: 1;
-}
-.stat-value.accent { color: var(--clr-accent); }
-.stat-sub { font-size: var(--text-xs); color: var(--clr-text-muted); margin-top: var(--sp-1); }
-
 
 /* ── 20. Table ─────────────────────────────────────────────────── */
 .table-wrap {
@@ -716,6 +684,8 @@ tr:hover td { background: var(--clr-surface-2); }
   font-weight: var(--fw-semibold);
 }
 .badge-green { background: var(--clr-success-bg); color: var(--clr-success); }
+.badge-bulk  { background: var(--clr-accent-muted); color: var(--clr-accent); }
+.badge-pkg   { background: var(--clr-surface-2); color: var(--clr-text-muted); border: var(--border); }
 
 
 /* ── 22. Toast ─────────────────────────────────────────────────── */
@@ -742,53 +712,6 @@ tr:hover td { background: var(--clr-surface-2); }
 }
 
 
-/* ── 22b. Stock status badges ──────────────────────────────────── */
-.badge-out {
-  background: var(--clr-error-bg);
-  color: var(--clr-error);
-  border: 1px solid var(--clr-error-border);
-}
-.badge-low {
-  background: rgba(139, 105, 20, .10);
-  color: var(--clr-warning);
-  border: 1px solid rgba(139, 105, 20, .22);
-}
-
-/* Stock badges on the public price list */
-.stock-badge {
-  display: inline-block;
-  padding: 2px var(--sp-2);
-  border-radius: var(--radius-pill);
-  font-size: var(--text-xs);
-  font-weight: var(--fw-semibold);
-  margin-top: var(--sp-1);
-}
-.stock-out { background: var(--clr-error-bg); color: var(--clr-error); }
-.stock-low { background: rgba(139, 105, 20, .10); color: var(--clr-warning); }
-
-/* ── 22c. Dashboard alert panel ────────────────────────────────── */
-.alert-block {
-  border-radius: var(--radius-md);
-  padding: var(--sp-4) var(--sp-5);
-  border: var(--border);
-}
-.alert-block--error   { background: var(--clr-error-bg);            border-color: var(--clr-error-border); }
-.alert-block--warning { background: rgba(139, 105, 20, .07);        border-color: rgba(139, 105, 20, .22); }
-.alert-title {
-  font-weight: var(--fw-semibold);
-  font-size: var(--text-sm);
-  margin-bottom: var(--sp-3);
-}
-.alert-block--error   .alert-title { color: var(--clr-error); }
-.alert-block--warning .alert-title { color: var(--clr-warning); }
-.alert-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  font-size: var(--text-sm);
-  color: var(--clr-text);
-}
 
 /* ── 23. Public price list ─────────────────────────────────────── */
 .price-list-wrap {
@@ -860,7 +783,11 @@ tr:hover td { background: var(--clr-surface-2); }
   text-align: right;
 }
 .pl-unavailable { color: var(--clr-text-muted); }
-.pl-row-unavailable td { opacity: .5; }
+.pl-mode { display: inline-block; font-size: var(--text-xs); font-weight: var(--fw-semibold); padding: 2px var(--sp-2); border-radius: var(--radius-sm); white-space: nowrap; }
+.pl-mode-bulk { background: var(--clr-accent-muted); color: var(--clr-accent); }
+.pl-mode-pkg  { background: var(--clr-surface-2); color: var(--clr-text-muted); }
+.pl-price-unit { font-size: var(--text-xs); font-weight: var(--fw-normal); color: var(--clr-text-muted); }
+.pl-row-variant td { border-top: none; padding-top: 0; padding-bottom: var(--sp-3); }
 
 .pl-empty {
   text-align: center;
@@ -1066,11 +993,32 @@ tr:hover td { background: var(--clr-surface-2); }
   animation: pulse 1.4s ease-in-out infinite;
 }
 
-/* ── 23b. Admin form grid ──────────────────────────────────────── */
-.form-grid {
+/* ── 23b. Admin form 2-column layout ──────────────────────────── */
+.form-2col {
+  border: var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--sp-6);
+}
+.form-2col-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--sp-4);
+  grid-template-columns: 1fr 1fr;
+  border-bottom: var(--border);
+}
+.form-2col-row:last-child { border-bottom: none; }
+.form-2col-field { padding: var(--sp-4) var(--sp-5); background: var(--clr-surface); }
+.form-2col-hint {
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--clr-bg);
+  border-left: var(--border);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  line-height: var(--lh-normal);
+}
+.form-2col-hint strong {
+  display: block;
+  color: var(--clr-text);
+  margin-bottom: var(--sp-1);
 }
 
 .form-select {
@@ -1091,7 +1039,8 @@ tr:hover td { background: var(--clr-surface-2); }
   background-position: right var(--sp-3) center;
   padding-right: var(--sp-8);
 }
-.form-select:focus { border-color: var(--clr-accent); }
+.form-select:focus { border-color: var(--clr-accent); box-shadow: 0 0 0 3px var(--clr-accent-muted); }
+select[multiple] { appearance: auto; background-image: none; padding-right: var(--sp-3); }
 
 .text-muted { font-size: var(--text-sm); color: var(--clr-text-muted); }
 
@@ -1148,7 +1097,8 @@ footer {
   .main { margin-left: 0; }
   .menu-toggle { display: flex; }
   .form-row { grid-template-columns: 1fr; }
-  :root { --dashboard-cols: repeat(2, 1fr); }
+  .form-2col-row { display: block; }
+  .form-2col-hint { display: none; }
 }
 
 @media (max-width: 480px) {

@@ -217,12 +217,6 @@
         + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
     }
 
-    function stockBadge(status) {
-      if (status === 'out_of_stock') return `<span class="stock-badge stock-out">Sin stock</span>`;
-      if (status === 'low_stock')    return `<span class="stock-badge stock-low">Últimas unidades</span>`;
-      return '';
-    }
-
     function symbolPills(symbols) {
       if (!symbols || !symbols.length) return '';
       const pills = symbols.map(s => {
@@ -233,39 +227,86 @@
       return pills ? `<span class="pl-symbols">${pills}</span>` : '';
     }
 
+    function modeLabel(p) {
+      if (p.sale_mode === 'bulk')    return `<span class="pl-mode pl-mode-bulk">A granel</span>`;
+      if (p.sale_mode === 'package') return `<span class="pl-mode pl-mode-pkg">Envasado</span>`;
+      return `<span class="pl-mode">${p.sale_mode}</span>`;
+    }
+
+    function fmtPrice(p) {
+      if (p.sale_mode === 'bulk') {
+        return `${fmtCents(p.price_cents)}<span class="pl-price-unit"> / ${p.unit_of_measure}</span>`;
+      }
+      return fmtCents(p.price_cents);
+    }
+
+    function groupByName(products) {
+      const groups = [];
+      for (const p of products) {
+        const last = groups[groups.length - 1];
+        if (last && last.name === p.name) {
+          last.variants.push(p);
+        } else {
+          groups.push({ name: p.name, variants: [p] });
+        }
+      }
+      return groups;
+    }
+
+    function renderGroup(group) {
+      const main = group.variants[0];
+      const imgCell = main.image_url
+        ? `<img src="${main.image_url}" alt="${main.name}" class="pl-thumb">`
+        : `<div class="pl-thumb pl-thumb-empty">🌿</div>`;
+      const nameCell = `
+        <span>${main.name}</span>
+        ${main.description ? `<span class="pl-desc">${main.description}</span>` : ''}
+        ${symbolPills(main.symbols)}`;
+
+      if (group.variants.length === 1) {
+        return `<tr>
+          <td class="pl-img-cell">${imgCell}</td>
+          <td class="pl-name">${nameCell}</td>
+          <td class="pl-unit">${modeLabel(main)}</td>
+          <td class="pl-price">${fmtPrice(main)}</td>
+        </tr>`;
+      }
+
+      return group.variants.map((p, i) => {
+        if (i === 0) {
+          return `<tr>
+            <td class="pl-img-cell" rowspan="${group.variants.length}">${imgCell}</td>
+            <td class="pl-name" rowspan="${group.variants.length}">${nameCell}</td>
+            <td class="pl-unit">${modeLabel(p)}</td>
+            <td class="pl-price">${fmtPrice(p)}</td>
+          </tr>`;
+        }
+        return `<tr class="pl-row-variant">
+          <td class="pl-unit">${modeLabel(p)}</td>
+          <td class="pl-price">${fmtPrice(p)}</td>
+        </tr>`;
+      }).join('');
+    }
+
     // ── Price list ─────────────────────────────────────────────────
 
     let currentPage = 1;
     const PER_PAGE  = 20;
 
     function priceTable(products) {
+      const groups = groupByName(products);
       return `
         <table class="price-list">
           <thead>
             <tr>
               <th></th>
               <th>Producto</th>
-              <th>Presentación</th>
+              <th>Modalidad</th>
               <th>Precio</th>
             </tr>
           </thead>
           <tbody>
-            ${products.map(p => `
-              <tr class="${p.stock_status === 'out_of_stock' ? 'pl-row-unavailable' : ''}">
-                <td class="pl-img-cell">
-                  ${p.image_url
-                    ? `<img src="${p.image_url}" alt="${p.name}" class="pl-thumb">`
-                    : `<div class="pl-thumb pl-thumb-empty">🌿</div>`}
-                </td>
-                <td class="pl-name">
-                  <span>${p.name}</span>
-                  ${p.description ? `<span class="pl-desc">${p.description}</span>` : ''}
-                  ${symbolPills(p.symbols)}
-                  ${stockBadge(p.stock_status)}
-                </td>
-                <td class="pl-unit">${p.unit_of_measure}</td>
-                <td class="pl-price">${p.stock_status === 'out_of_stock' ? '<span class="pl-unavailable">—</span>' : fmtCents(p.price_cents)}</td>
-              </tr>`).join('')}
+            ${groups.map(renderGroup).join('')}
           </tbody>
         </table>`;
     }
@@ -290,9 +331,7 @@
         const { products, total } = await res.json();
         const total_pages = Math.ceil(total / PER_PAGE);
 
-        const available = products.filter(p => p.stock_status !== 'out_of_stock').length;
-        document.getElementById('product-count').textContent =
-          `${total} productos · ${available} disponibles`;
+        document.getElementById('product-count').textContent = `${total} productos`;
         document.getElementById('list-updated').textContent =
           `Actualizada el ${fmtDate(new Date())}`;
 
