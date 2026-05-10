@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuarios — Admin Pichel</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="layout-admin">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/admin/" class="sidebar-brand">Pichel <small>ADMIN</small></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/admin/">
+        <span class="icon">📦</span> Productos
+      </a>
+      <a class="nav-item active" href="/admin/users.html">
+        <span class="icon">👤</span> Usuarios
+      </a>
+      <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
+        <span class="icon">🛒</span> Ver lista de precios
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" id="logout-btn">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
+      <span class="topbar-title">Usuarios</span>
+    </div>
+    <div class="content">
+
+      <!-- Create form -->
+      <div class="form-card" id="create-card" style="max-width:520px">
+        <h2 style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--sp-5)">Nuevo usuario</h2>
+        <form id="create-form" style="display:flex;flex-direction:column;gap:var(--sp-4)">
+          <div>
+            <label for="u-email">Email *</label>
+            <input id="u-email" type="email" required />
+          </div>
+          <div>
+            <label for="u-password">Contraseña *</label>
+            <input id="u-password" type="password" required />
+          </div>
+          <div>
+            <button class="btn btn-primary" type="submit" id="create-btn">Agregar usuario</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Edit card (shown when editing) -->
+      <div class="form-card" id="edit-card" style="max-width:520px;display:none">
+        <h2 id="edit-title" style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--sp-5)"></h2>
+        <form id="edit-form" style="display:flex;flex-direction:column;gap:var(--sp-4)">
+          <div id="edit-field"></div>
+          <div style="display:flex;gap:var(--sp-3)">
+            <button class="btn btn-primary" type="submit" id="edit-btn">Guardar</button>
+            <button class="btn btn-ghost" type="button" onclick="closeEdit()">Cancelar</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Table -->
+      <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
+        <h2>Todos los usuarios</h2>
+        <span id="user-count" class="text-muted"></span>
+      </div>
+      <div class="table-wrap" id="user-table-wrap">Cargando…</div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '';
+    let editingUserId   = null;
+    let editingUserMode = null;
+
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await fetch(`${API}/auth/logout`, { method: 'POST' });
+      window.location.href = '/login.html';
+    });
+
+    function toast(msg, type = 'success') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = `toast show ${type}`;
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    async function apiFetch(path, opts = {}) {
+      const res = await fetch(`${API}${path}`, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+      });
+      if (res.status === 401) { window.location.href = '/login.html'; return res; }
+      return res;
+    }
+
+    // ── Create user ───────────────────────────────────────────────
+
+    document.getElementById('create-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email    = document.getElementById('u-email').value.trim();
+      const password = document.getElementById('u-password').value;
+      if (!email || !password) return;
+
+      const btn = document.getElementById('create-btn');
+      btn.disabled = true; btn.textContent = '…';
+      try {
+        const res = await apiFetch('/users', { method: 'POST', body: JSON.stringify({ email, password }) });
+        if (!res || !res.ok) { toast('Error al crear el usuario', 'error'); return; }
+        toast('Usuario creado');
+        document.getElementById('u-email').value    = '';
+        document.getElementById('u-password').value = '';
+        await loadUsers();
+      } catch { toast('Error del servidor', 'error'); }
+      finally   { btn.disabled = false; btn.textContent = 'Agregar usuario'; }
+    });
+
+    // ── Edit user ─────────────────────────────────────────────────
+
+    function openEditEmail(id, email) {
+      editingUserId   = id;
+      editingUserMode = 'email';
+      document.getElementById('edit-title').textContent = 'Cambiar email';
+      document.getElementById('edit-field').innerHTML   =
+        `<div><label for="edit-input">Nuevo email *</label><input id="edit-input" type="email" value="${email}" required /></div>`;
+      document.getElementById('edit-btn').textContent   = 'Guardar email';
+      document.getElementById('edit-card').style.display = '';
+      document.getElementById('edit-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function openEditPassword(id) {
+      editingUserId   = id;
+      editingUserMode = 'password';
+      document.getElementById('edit-title').textContent = 'Cambiar contraseña';
+      document.getElementById('edit-field').innerHTML   =
+        `<div><label for="edit-input">Nueva contraseña *</label><input id="edit-input" type="password" required /></div>`;
+      document.getElementById('edit-btn').textContent   = 'Guardar contraseña';
+      document.getElementById('edit-card').style.display = '';
+      document.getElementById('edit-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function closeEdit() {
+      editingUserId   = null;
+      editingUserMode = null;
+      document.getElementById('edit-card').style.display = 'none';
+      document.getElementById('edit-field').innerHTML    = '';
+    }
+
+    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const value = document.getElementById('edit-input').value.trim();
+      if (!value) return;
+
+      const btn = document.getElementById('edit-btn');
+      const orig = btn.textContent;
+      btn.disabled = true; btn.textContent = '…';
+
+      try {
+        let res;
+        if (editingUserMode === 'email') {
+          res = await apiFetch(`/users/${editingUserId}`, { method: 'PATCH', body: JSON.stringify({ email: value }) });
+          if (!res || !res.ok) { toast('Error al actualizar el email', 'error'); return; }
+          toast('Email actualizado');
+        } else {
+          res = await apiFetch(`/users/${editingUserId}/password`, { method: 'PATCH', body: JSON.stringify({ password: value }) });
+          if (!res || !res.ok) { toast('Error al actualizar la contraseña', 'error'); return; }
+          toast('Contraseña actualizada');
+        }
+        closeEdit();
+        await loadUsers();
+      } catch { toast('Error del servidor', 'error'); }
+      finally   { btn.disabled = false; btn.textContent = orig; }
+    });
+
+    // ── Table ─────────────────────────────────────────────────────
+
+    const PER_PAGE = 50;
+
+    async function loadUsers(page = 1) {
+      try {
+        const res = await apiFetch(`/users?page=${page}&per_page=${PER_PAGE}`);
+        if (!res || !res.ok) { document.getElementById('user-table-wrap').textContent = 'Error al cargar.'; return; }
+        const { users, total } = await res.json();
+        const totalPages = Math.ceil(total / PER_PAGE);
+        document.getElementById('user-count').textContent = `${total} usuarios`;
+        document.getElementById('user-table-wrap').innerHTML = usersTable(users, page, totalPages);
+      } catch {
+        document.getElementById('user-table-wrap').textContent = 'Error al cargar.';
+      }
+    }
+
+    function paginationBar(page, totalPages) {
+      if (totalPages <= 1) return '';
+      return `
+        <div class="pagination">
+          <button class="pagination-btn" onclick="loadUsers(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
+          <span class="pagination-info">Página ${page} de ${totalPages}</span>
+          <button class="pagination-btn" onclick="loadUsers(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
+        </div>`;
+    }
+
+    function usersTable(users, page, totalPages) {
+      if (!users.length) return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin usuarios todavía.</p>`;
+      const sm = 'padding:var(--sp-2) var(--sp-4);font-size:var(--text-sm)';
+      return `<table>
+        <thead><tr>
+          <th>Email</th>
+          <th>Acciones</th>
+        </tr></thead>
+        <tbody>
+          ${users.map(u => `<tr>
+            <td style="font-weight:var(--fw-semibold)">${u.email}</td>
+            <td>
+              <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+                <button class="btn btn-ghost" style="${sm}"
+                  onclick="openEditEmail('${u.id}', '${(u.email || '').replace(/'/g, "\\'")}')">Cambiar email</button>
+                <button class="btn btn-ghost" style="${sm}"
+                  onclick="openEditPassword('${u.id}')">Cambiar contraseña</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>${paginationBar(page, totalPages)}`;
+    }
+
+    // ── Init ──────────────────────────────────────────────────────
+
+    async function init() {
+      const res = await fetch(`${API}/users?page=1&per_page=1`);
+      if (res.status === 401) { window.location.href = '/login.html'; return; }
+      await loadUsers();
+    }
+
+    init();
+  </script>
+</body>
+</html>

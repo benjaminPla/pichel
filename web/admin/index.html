@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — Pichel</title>
+  <title>Productos — Admin Pichel</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body class="layout-admin">
 
   <aside class="sidebar" id="sidebar">
-    <a href="/" class="sidebar-brand">Pichel <small>ADMIN</small></a>
+    <a href="/admin/" class="sidebar-brand">Pichel <small>ADMIN</small></a>
     <nav class="sidebar-nav">
-      <a class="nav-item active" data-page="products" data-label="Productos">
+      <a class="nav-item active" href="/admin/">
         <span class="icon">📦</span> Productos
       </a>
-      <a class="nav-item" data-page="users" data-label="Usuarios">
+      <a class="nav-item" href="/admin/users.html">
         <span class="icon">👤</span> Usuarios
       </a>
       <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
@@ -28,12 +28,17 @@
 
   <div class="main">
     <div class="topbar">
-      <button class="menu-toggle" id="menu-toggle">
-        <span></span><span></span><span></span>
-      </button>
-      <span class="topbar-title" id="topbar-title">Productos</span>
+      <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
+      <span class="topbar-title">Productos</span>
+      <a href="/admin/create-product.html" class="btn btn-primary" style="margin-left:auto;font-size:var(--text-sm)">+ Agregar</a>
     </div>
-    <div class="content" id="content"></div>
+    <div class="content">
+      <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
+        <h2>Todos los productos</h2>
+        <span id="prod-count" class="text-muted"></span>
+      </div>
+      <div class="table-wrap" id="prod-table-wrap">Cargando…</div>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -41,29 +46,13 @@
   <script>
     const API = '';
 
-    // ── Bootstrap ─────────────────────────────────────────────────
-
     document.getElementById('menu-toggle').addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('open');
     });
-
     document.getElementById('logout-btn').addEventListener('click', async () => {
       await fetch(`${API}/auth/logout`, { method: 'POST' });
       window.location.href = '/login.html';
     });
-
-    const navItems = document.querySelectorAll('.nav-item[data-page]');
-    navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        navItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        document.getElementById('topbar-title').textContent = item.dataset.label || '';
-        document.getElementById('sidebar').classList.remove('open');
-        renderPage(item.dataset.page);
-      });
-    });
-
-    // ── Helpers ───────────────────────────────────────────────────
 
     function toast(msg, type = 'success') {
       const el = document.getElementById('toast');
@@ -87,228 +76,61 @@
     }
 
     const SYMBOL_DEFS = {
-      vegan:         { icon: '🌱', name: 'Vegano'                },
-      vegetarian:    { icon: '🥕', name: 'Vegetariano'           },
-      gluten_free:   { icon: '🌾', name: 'Sin TACC'              },
-      lactose_free:  { icon: '🥛', name: 'Sin lactosa'           },
-      organic:       { icon: '🌿', name: 'Orgánico'              },
-      sugar_free:    { icon: '🍃', name: 'Sin azúcar agregada'   },
-      contains_nuts: { icon: '🥜', name: 'Contiene frutos secos' },
-      high_protein:  { icon: '💪', name: 'Alto en proteína'      },
-      no_added_salt: { icon: '🧂', name: 'Sin sal agregada'      },
+      vegan: { icon: '🌱' }, vegetarian: { icon: '🥕' }, gluten_free: { icon: '🌾' },
+      lactose_free: { icon: '🥛' }, organic: { icon: '🌿' }, sugar_free: { icon: '🍃' },
+      contains_nuts: { icon: '🥜' }, high_protein: { icon: '💪' }, no_added_salt: { icon: '🧂' },
     };
 
     function symbolPills(symbols) {
       if (!symbols || !symbols.length) return '<span style="color:var(--clr-text-muted)">—</span>';
       return symbols.map(s => {
         const def = SYMBOL_DEFS[s];
-        return def
-          ? `<span class="pl-sym" title="${def.name}" style="font-size:1rem">${def.icon}</span>`
-          : `<span style="font-size:var(--text-xs);color:var(--clr-text-muted)">${s}</span>`;
+        return def ? `<span style="font-size:1rem">${def.icon}</span>` : '';
       }).join(' ');
     }
 
     function saleModeBadge(mode) {
-      if (mode === 'bulk')    return `<span class="badge badge-bulk">A granel</span>`;
+      if (mode === 'bulk') return `<span class="badge badge-bulk">A granel</span>`;
       if (mode === 'unit') return `<span class="badge badge-pkg">Unidad</span>`;
       return `<span class="badge">${mode}</span>`;
     }
 
-    function paginationBar(page, totalPages, loadFn) {
+    function paginationBar(page, totalPages) {
       if (totalPages <= 1) return '';
       return `
         <div class="pagination">
-          <button class="pagination-btn" onclick="${loadFn}(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
+          <button class="pagination-btn" onclick="loadProducts(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
           <span class="pagination-info">Página ${page} de ${totalPages}</span>
-          <button class="pagination-btn" onclick="${loadFn}(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
+          <button class="pagination-btn" onclick="loadProducts(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
         </div>`;
     }
 
-    function onSaleModeChange() {
-      const mode = document.getElementById('p-salemode').value;
-      const note = document.getElementById('p-price-note');
-      if (note) note.style.display = mode === 'bulk' ? '' : 'none';
+    async function deleteProduct(id) {
+      if (!confirm('¿Eliminar este producto?')) return;
+      const res = await apiFetch(`/products/${id}`, { method: 'DELETE' });
+      if (!res || !res.ok) { toast('Error al eliminar', 'error'); return; }
+      toast('Producto eliminado');
+      await loadProducts();
     }
 
-    // ── Pages ──────────────────────────────────────────────────────
+    const PER_PAGE = 50;
 
-    function renderPage(page) {
-      const content = document.getElementById('content');
-      if (page === 'products') return renderProducts(content);
-      if (page === 'users')    return renderUsers(content);
-    }
-
-    // ── Products ──────────────────────────────────────────────────
-
-    let editingProductId = null;
-
-    async function renderProducts(el) {
-      editingProductId = null;
-
-      el.innerHTML = `
-        <div class="form-card">
-          <div class="section-header" style="padding:0;margin-bottom:var(--sp-5)">
-            <h2 id="prod-form-title">Agregar producto</h2>
-          </div>
-
-          <form id="prod-form" style="display:flex;flex-direction:column;gap:var(--sp-4);max-width:420px">
-
-            <div>
-              <label for="p-name">Nombre *</label>
-              <input id="p-name" type="text" maxlength="100" required />
-            </div>
-
-            <div>
-              <label for="p-desc">Descripción</label>
-              <textarea id="p-desc" maxlength="255" rows="3"></textarea>
-            </div>
-
-            <div>
-              <label for="p-salemode">Modalidad *</label>
-              <select id="p-salemode" class="form-select" required>
-                <option value="">— Seleccionar —</option>
-                <option value="bulk">A granel</option>
-                <option value="unit">Unidad</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="p-price">Precio * <small id="p-price-note" style="display:none;font-weight:normal;color:var(--clr-text-muted)">(por kg)</small></label>
-              <input id="p-price" type="number" min="0.01" step="0.01" required />
-            </div>
-
-            <div>
-              <label for="p-symbols">Símbolos</label>
-              <select id="p-symbols" class="form-select" multiple style="height:160px">
-                <option value="vegan">🌱 Vegano</option>
-                <option value="vegetarian">🥕 Vegetariano</option>
-                <option value="gluten_free">🌾 Sin TACC</option>
-                <option value="lactose_free">🥛 Sin lactosa</option>
-                <option value="organic">🌿 Orgánico</option>
-                <option value="sugar_free">🍃 Sin azúcar agregada</option>
-                <option value="contains_nuts">🥜 Contiene frutos secos</option>
-                <option value="high_protein">💪 Alto en proteína</option>
-                <option value="no_added_salt">🧂 Sin sal agregada</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="p-img">URL de imagen</label>
-              <input id="p-img" type="text" placeholder="/images/products/nombre.webp" />
-            </div>
-
-            <div style="display:flex;gap:var(--sp-3)">
-              <button class="btn btn-primary" type="submit" id="prod-submit-btn">Agregar producto</button>
-              <button class="btn btn-ghost" type="button" id="prod-cancel-btn" style="display:none" onclick="cancelProductEdit()">Cancelar</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
-          <h2>Todos los productos</h2>
-          <span id="prod-count" class="text-muted"></span>
-        </div>
-        <div class="table-wrap" id="prod-table-wrap">Cargando…</div>`;
-
-      document.getElementById('p-salemode').addEventListener('change', onSaleModeChange);
-
-      await loadProductsAdmin();
-
-      document.getElementById('prod-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name        = document.getElementById('p-name').value.trim();
-        const description = document.getElementById('p-desc').value.trim() || null;
-        const sale_mode   = document.getElementById('p-salemode').value;
-        const price_cents = Math.round(parseFloat(document.getElementById('p-price').value) * 100);
-        const symbols     = Array.from(document.getElementById('p-symbols').selectedOptions).map(o => o.value);
-        const image_url   = document.getElementById('p-img').value.trim() || null;
-
-        if (!name || !sale_mode || isNaN(price_cents) || price_cents < 1) return;
-
-        const btn      = document.getElementById('prod-submit-btn');
-        const original = btn.textContent;
-        btn.disabled   = true;
-        btn.textContent = '…';
-
-        try {
-          const body = { name, description, sale_mode, price_cents, symbols, image_url };
-          const res  = editingProductId
-            ? await apiFetch(`/products/${editingProductId}`, { method: 'PATCH', body: JSON.stringify(body) })
-            : await apiFetch('/products', { method: 'POST', body: JSON.stringify(body) });
-
-          if (!res || !res.ok) { toast(editingProductId ? 'Error al actualizar' : 'Error al crear el producto', 'error'); return; }
-          toast(editingProductId ? 'Producto actualizado' : 'Producto agregado');
-          cancelProductEdit();
-          await loadProductsAdmin();
-        } catch { toast('Error del servidor', 'error'); }
-        finally   { btn.disabled = false; btn.textContent = original; }
-      });
-
-      document.getElementById('prod-table-wrap').addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-action="edit-product"]');
-        if (!btn) return;
-        startEditProduct({
-          id:          btn.dataset.id,
-          name:        btn.dataset.name,
-          description: btn.dataset.description,
-          sale_mode:   btn.dataset.salemode,
-          price_cents: parseInt(btn.dataset.price),
-          image_url:   btn.dataset.image,
-          symbols:     btn.dataset.symbols ? btn.dataset.symbols.split(',') : [],
-        });
-      });
-    }
-
-    function cancelProductEdit() {
-      editingProductId = null;
-      document.getElementById('prod-form-title').textContent   = 'Agregar producto';
-      document.getElementById('p-name').value                  = '';
-      document.getElementById('p-desc').value                  = '';
-      document.getElementById('p-salemode').value              = '';
-      document.getElementById('p-price').value                 = '';
-      document.getElementById('p-price-note').style.display    = 'none';
-      Array.from(document.getElementById('p-symbols').options).forEach(o => o.selected = false);
-      document.getElementById('p-img').value                   = '';
-      document.getElementById('prod-submit-btn').textContent   = 'Agregar producto';
-      document.getElementById('prod-cancel-btn').style.display = 'none';
-    }
-
-    function startEditProduct(p) {
-      editingProductId = p.id;
-      document.getElementById('prod-form-title').textContent   = 'Editar producto';
-      document.getElementById('p-name').value                  = p.name;
-      document.getElementById('p-desc').value                  = p.description || '';
-      document.getElementById('p-salemode').value              = p.sale_mode || '';
-      document.getElementById('p-price').value                 = (p.price_cents / 100).toFixed(2);
-      onSaleModeChange();
-      Array.from(document.getElementById('p-symbols').options).forEach(o => {
-        o.selected = p.symbols.includes(o.value);
-      });
-      document.getElementById('p-img').value                   = p.image_url || '';
-      document.getElementById('prod-submit-btn').textContent   = 'Guardar cambios';
-      document.getElementById('prod-cancel-btn').style.display = '';
-      document.getElementById('prod-form-title').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    const PROD_PER_PAGE = 50;
-
-    async function loadProductsAdmin(page = 1) {
+    async function loadProducts(page = 1) {
       try {
-        const res = await apiFetch(`/products?page=${page}&per_page=${PROD_PER_PAGE}`);
+        const res = await apiFetch(`/products?page=${page}&per_page=${PER_PAGE}`);
         if (!res || !res.ok) { document.getElementById('prod-table-wrap').textContent = 'Error al cargar.'; return; }
         const { products, total } = await res.json();
-        const totalPages = Math.ceil(total / PROD_PER_PAGE);
+        const totalPages = Math.ceil(total / PER_PAGE);
         document.getElementById('prod-count').textContent = `${total} productos`;
-        document.getElementById('prod-table-wrap').innerHTML =
-          productsTable(products) + paginationBar(page, totalPages, 'loadProductsAdmin');
+        document.getElementById('prod-table-wrap').innerHTML = productsTable(products, page, totalPages);
       } catch {
         document.getElementById('prod-table-wrap').textContent = 'Error al cargar.';
       }
     }
 
-    function productsTable(products) {
+    function productsTable(products, page, totalPages) {
       if (!products.length) return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin productos todavía.</p>`;
-      const actionStyle = 'padding:var(--sp-1) var(--sp-3);font-size:var(--text-sm)';
+      const sm = 'padding:var(--sp-1) var(--sp-3);font-size:var(--text-sm)';
       return `<table>
         <thead><tr>
           <th>Nombre</th>
@@ -324,192 +146,18 @@
             <td>${fmtCents(p.price_cents)}${p.sale_mode === 'bulk' ? '<small style="color:var(--clr-text-muted)"> /kg</small>' : ''}</td>
             <td>${symbolPills(p.symbols)}</td>
             <td style="white-space:nowrap">
-              <button class="btn btn-ghost" style="${actionStyle}"
-                data-action="edit-product"
-                data-id="${p.id}"
-                data-name="${(p.name || '').replace(/"/g, '&quot;')}"
-                data-description="${(p.description || '').replace(/"/g, '&quot;')}"
-                data-salemode="${p.sale_mode}"
-                data-price="${p.price_cents}"
-                data-image="${(p.image_url || '').replace(/"/g, '&quot;')}"
-                data-symbols="${p.symbols.join(',')}">Editar</button>
+              <a class="btn btn-ghost" style="${sm}" href="/admin/edit-product.html?id=${p.id}">Editar</a>
+              <button class="btn btn-danger" style="${sm}" onclick="deleteProduct('${p.id}')">Eliminar</button>
             </td>
           </tr>`).join('')}
         </tbody>
-      </table>`;
+      </table>${paginationBar(page, totalPages)}`;
     }
-
-    // ── Users ─────────────────────────────────────────────────────
-
-    let editingUserId   = null;
-    let editingUserMode = null;
-
-    async function renderUsers(el) {
-      editingUserId   = null;
-      editingUserMode = null;
-
-      el.innerHTML = `
-        <div class="form-card">
-          <div class="section-header" style="padding:0;margin-bottom:var(--sp-5)">
-            <h2 id="user-form-title">Agregar usuario</h2>
-          </div>
-          <form id="user-form" style="display:flex;flex-direction:column;gap:var(--sp-4);max-width:420px">
-            <div id="user-email-row">
-              <label for="u-email">Email *</label>
-              <input id="u-email" type="email" required />
-            </div>
-            <div id="user-password-row">
-              <label for="u-password">Contraseña *</label>
-              <input id="u-password" type="password" required />
-            </div>
-            <div style="display:flex;gap:var(--sp-3)">
-              <button class="btn btn-primary" type="submit" id="user-submit-btn">Agregar usuario</button>
-              <button class="btn btn-ghost" type="button" id="user-cancel-btn" style="display:none" onclick="cancelUserEdit()">Cancelar</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
-          <h2>Todos los usuarios</h2>
-          <span id="user-count" class="text-muted"></span>
-        </div>
-        <div class="table-wrap" id="user-table-wrap">Cargando…</div>`;
-
-      await loadUsersAdmin();
-
-      document.getElementById('user-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn      = document.getElementById('user-submit-btn');
-        const original = btn.textContent;
-        btn.disabled   = true;
-        btn.textContent = '…';
-
-        try {
-          if (editingUserId && editingUserMode === 'email') {
-            const email = document.getElementById('u-email').value.trim();
-            if (!email) return;
-            const res = await apiFetch(`/users/${editingUserId}`, { method: 'PATCH', body: JSON.stringify({ email }) });
-            if (!res || !res.ok) { toast('Error al actualizar el email', 'error'); return; }
-            toast('Email actualizado');
-          } else if (editingUserId && editingUserMode === 'password') {
-            const password = document.getElementById('u-password').value;
-            if (!password) return;
-            const res = await apiFetch(`/users/${editingUserId}/password`, { method: 'PATCH', body: JSON.stringify({ password }) });
-            if (!res || !res.ok) { toast('Error al actualizar la contraseña', 'error'); return; }
-            toast('Contraseña actualizada');
-          } else {
-            const email    = document.getElementById('u-email').value.trim();
-            const password = document.getElementById('u-password').value;
-            if (!email || !password) return;
-            const res = await apiFetch('/users', { method: 'POST', body: JSON.stringify({ email, password }) });
-            if (!res || !res.ok) { toast('Error al crear el usuario', 'error'); return; }
-            toast('Usuario creado');
-          }
-          cancelUserEdit();
-          await loadUsersAdmin();
-        } catch { toast('Error del servidor', 'error'); }
-        finally   { btn.disabled = false; btn.textContent = original; }
-      });
-
-      document.getElementById('user-table-wrap').addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-action]');
-        if (!btn) return;
-        const user = { id: btn.dataset.id, email: btn.dataset.email };
-        if (btn.dataset.action === 'edit-email')    startEditUserEmail(user);
-        if (btn.dataset.action === 'edit-password') startEditUserPassword(user);
-      });
-    }
-
-    function cancelUserEdit() {
-      editingUserId   = null;
-      editingUserMode = null;
-      document.getElementById('user-form-title').textContent       = 'Agregar usuario';
-      document.getElementById('user-email-row').style.display      = '';
-      document.getElementById('user-password-row').style.display   = '';
-      document.getElementById('u-email').value                     = '';
-      document.getElementById('u-password').value                  = '';
-      document.getElementById('u-email').required                  = true;
-      document.getElementById('u-password').required               = true;
-      document.getElementById('user-submit-btn').textContent       = 'Agregar usuario';
-      document.getElementById('user-cancel-btn').style.display     = 'none';
-    }
-
-    function startEditUserEmail(user) {
-      editingUserId   = user.id;
-      editingUserMode = 'email';
-      document.getElementById('user-form-title').textContent     = 'Editar email';
-      document.getElementById('user-email-row').style.display    = '';
-      document.getElementById('user-password-row').style.display = 'none';
-      document.getElementById('u-email').value                   = user.email;
-      document.getElementById('u-email').required                = true;
-      document.getElementById('u-password').required             = false;
-      document.getElementById('user-submit-btn').textContent     = 'Guardar email';
-      document.getElementById('user-cancel-btn').style.display   = '';
-      document.getElementById('user-form-title').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function startEditUserPassword(user) {
-      editingUserId   = user.id;
-      editingUserMode = 'password';
-      document.getElementById('user-form-title').textContent     = 'Cambiar contraseña';
-      document.getElementById('user-email-row').style.display    = 'none';
-      document.getElementById('user-password-row').style.display = '';
-      document.getElementById('u-password').value                = '';
-      document.getElementById('u-email').required                = false;
-      document.getElementById('u-password').required             = true;
-      document.getElementById('user-submit-btn').textContent     = 'Guardar contraseña';
-      document.getElementById('user-cancel-btn').style.display   = '';
-      document.getElementById('user-form-title').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    const USER_PER_PAGE = 50;
-
-    async function loadUsersAdmin(page = 1) {
-      try {
-        const res = await apiFetch(`/users?page=${page}&per_page=${USER_PER_PAGE}`);
-        if (!res || !res.ok) { document.getElementById('user-table-wrap').textContent = 'Error al cargar.'; return; }
-        const { users, total } = await res.json();
-        const totalPages = Math.ceil(total / USER_PER_PAGE);
-        document.getElementById('user-count').textContent = `${total} usuarios`;
-        document.getElementById('user-table-wrap').innerHTML =
-          usersTable(users) + paginationBar(page, totalPages, 'loadUsersAdmin');
-      } catch {
-        document.getElementById('user-table-wrap').textContent = 'Error al cargar.';
-      }
-    }
-
-    function usersTable(users) {
-      if (!users.length) return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin usuarios todavía.</p>`;
-      const actionStyle = 'padding:var(--sp-1) var(--sp-3);font-size:var(--text-sm)';
-      return `<table>
-        <thead><tr>
-          <th>Email</th>
-          <th></th>
-        </tr></thead>
-        <tbody>
-          ${users.map(u => `<tr>
-            <td style="font-weight:var(--fw-semibold)">${u.email}</td>
-            <td style="white-space:nowrap">
-              <button class="btn btn-ghost" style="${actionStyle}"
-                data-action="edit-email"
-                data-id="${u.id}"
-                data-email="${(u.email || '').replace(/"/g, '&quot;')}">Email</button>
-              <button class="btn btn-ghost" style="${actionStyle}"
-                data-action="edit-password"
-                data-id="${u.id}"
-                data-email="${(u.email || '').replace(/"/g, '&quot;')}">Contraseña</button>
-            </td>
-          </tr>`).join('')}
-        </tbody>
-      </table>`;
-    }
-
-    // ── Init ──────────────────────────────────────────────────────
 
     async function init() {
       const res = await fetch(`${API}/users?page=1&per_page=1`);
       if (res.status === 401) { window.location.href = '/login.html'; return; }
-      renderPage('products');
+      await loadProducts();
     }
 
     init();
