@@ -1,4 +1,5 @@
 mod create;
+mod delete;
 mod errors;
 mod get_all;
 mod get_by_email;
@@ -29,6 +30,10 @@ impl PgUserRepo {
 impl UserRepo for PgUserRepo {
     async fn create(&self, user: &User) -> Result<User, UserRepoError> {
         create::create(&self.pool, user).await
+    }
+
+    async fn delete(&self, user_id: &UserId) -> Result<User, UserRepoError> {
+        delete::delete(&self.pool, user_id).await
     }
 
     async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<User>, i64), UserRepoError> {

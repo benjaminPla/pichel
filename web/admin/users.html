@@ -34,7 +34,7 @@
     <div class="content">
 
       <!-- Create form -->
-      <div class="form-card" id="create-card" style="max-width:520px">
+      <div class="form-card" id="create-card">
         <h2 style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--sp-5)">Nuevo usuario</h2>
         <form id="create-form" style="display:flex;flex-direction:column;gap:var(--sp-4)">
           <div>
@@ -227,11 +227,23 @@
                   onclick="openEditEmail('${u.id}', '${(u.email || '').replace(/'/g, "\\'")}')">Cambiar email</button>
                 <button class="btn btn-ghost" style="${sm}"
                   onclick="openEditPassword('${u.id}')">Cambiar contraseña</button>
+                <button class="btn btn-danger" style="${sm}"
+                  onclick="deleteUser('${u.id}')">Eliminar</button>
               </div>
             </td>
           </tr>`).join('')}
         </tbody>
       </table>${paginationBar(page, totalPages)}`;
+    }
+
+    // ── Delete user ───────────────────────────────────────────────
+
+    async function deleteUser(id) {
+      if (!confirm('¿Eliminar este usuario?')) return;
+      const res = await apiFetch(`/users/${id}`, { method: 'DELETE' });
+      if (!res || !res.ok) { toast('Error al eliminar', 'error'); return; }
+      toast('Usuario eliminado');
+      await loadUsers();
     }
 
     // ── Init ──────────────────────────────────────────────────────

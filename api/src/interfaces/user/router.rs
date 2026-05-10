@@ -1,13 +1,14 @@
 use crate::interfaces::{app_state::AppState, middleware::auth_middleware, user::handlers};
 use axum::{
     middleware,
-    routing::{get, patch, post},
+    routing::{delete, get, patch, post},
     Router,
 };
 
 pub fn users_router(state: AppState) -> Router<AppState> {
     let admin = Router::new()
         .route("/",             get(handlers::get_all))
+        .route("/:id",          delete(handlers::delete))
         .route("/:id",          get(handlers::get_by_id))
         .route("/:id/password", patch(handlers::update_password))
         .route("/:id",          patch(handlers::update))
