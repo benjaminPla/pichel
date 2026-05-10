@@ -1,7 +1,11 @@
 use crate::domain::product::{
     ports::repository::ProductRepoError,
     value_objects::{
-        description::DescriptionError, name::NameError, symbol::SymbolError,
+        description::DescriptionError,
+        name::NameError,
+        price_cents::PriceCentsError,
+        sale_mode::SaleModeError,
+        symbol::SymbolError,
         unit_of_measure::UnitOfMeasureError,
     },
 };
@@ -22,6 +26,14 @@ impl From<DescriptionError> for ProductAppError {
 
 impl From<NameError> for ProductAppError {
     fn from(e: NameError) -> Self { Self::Validation(e.to_string()) }
+}
+
+impl From<PriceCentsError> for ProductAppError {
+    fn from(e: PriceCentsError) -> Self { Self::Validation(e.to_string()) }
+}
+
+impl From<SaleModeError> for ProductAppError {
+    fn from(e: SaleModeError) -> Self { Self::Validation(e.to_string()) }
 }
 
 impl From<SymbolError> for ProductAppError {

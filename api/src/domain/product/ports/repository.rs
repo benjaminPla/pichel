@@ -1,6 +1,11 @@
 use crate::domain::product::{
     value_objects::{
-        description::DescriptionError, id::ProductId, name::NameError, symbol::SymbolError,
+        description::DescriptionError,
+        id::ProductId,
+        name::NameError,
+        price_cents::PriceCentsError,
+        sale_mode::SaleModeError,
+        symbol::SymbolError,
         unit_of_measure::UnitOfMeasureError,
     },
     Product,
@@ -41,4 +46,12 @@ impl From<SymbolError> for ProductRepoError {
 
 impl From<UnitOfMeasureError> for ProductRepoError {
     fn from(e: UnitOfMeasureError) -> Self { Self::Mapping(e.to_string()) }
+}
+
+impl From<PriceCentsError> for ProductRepoError {
+    fn from(e: PriceCentsError) -> Self { Self::Mapping(e.to_string()) }
+}
+
+impl From<SaleModeError> for ProductRepoError {
+    fn from(e: SaleModeError) -> Self { Self::Mapping(e.to_string()) }
 }

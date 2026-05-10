@@ -25,15 +25,15 @@ pub async fn update(
 ) -> Result<impl IntoResponse, ProductInterError> {
     let product = UpdateProductUseCase::new(app_state.product_repo)
         .execute(UpdateProductInput {
-            description:         body.description,
+            description:     body.description,
             id,
-            image_url:           body.image_url,
-            low_stock_threshold: body.low_stock_threshold,
-            name:                body.name,
-            price_cents:         body.price_cents,
-            stock:               body.stock,
-            symbols:             body.symbols,
-            unit_of_measure:     body.unit_of_measure,
+            image_url:       body.image_url,
+            name:            body.name,
+            price_cents:     body.price_cents,
+            sale_mode:       body.sale_mode,
+            stock:           body.stock,
+            symbols:         body.symbols,
+            unit_of_measure: body.unit_of_measure,
         })
         .await?;
     Ok((StatusCode::OK, Json(ProductUpdateResponse::from(product))))

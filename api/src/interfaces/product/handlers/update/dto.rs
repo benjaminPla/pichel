@@ -4,43 +4,43 @@ use crate::domain::product::Product;
 
 #[derive(Deserialize)]
 pub struct ProductUpdateRequestBody {
-    pub description:         Option<String>,
-    pub image_url:           Option<String>,
-    pub low_stock_threshold: Option<u32>,
-    pub name:                Option<String>,
-    pub price_cents:         Option<u32>,
-    pub stock:               Option<u32>,
-    pub symbols:             Option<Vec<String>>,
-    pub unit_of_measure:     Option<String>,
+    pub description:     Option<String>,
+    pub image_url:       Option<String>,
+    pub name:            Option<String>,
+    pub price_cents:     Option<u32>,
+    pub sale_mode:       Option<String>,
+    pub stock:           Option<u32>,
+    pub symbols:         Option<Vec<String>>,
+    pub unit_of_measure: Option<String>,
 }
 
 #[derive(Serialize)]
 pub struct ProductUpdateResponse {
-    description:         Option<String>,
-    id:                  Uuid,
-    image_url:           Option<String>,
-    low_stock_threshold: u32,
-    name:                String,
-    price_cents:         u32,
-    stock:               u32,
-    stock_status:        String,
-    symbols:             Vec<String>,
-    unit_of_measure:     String,
+    description:     Option<String>,
+    id:              Uuid,
+    image_url:       Option<String>,
+    name:            String,
+    price_cents:     u32,
+    sale_mode:       String,
+    stock:           u32,
+    stock_status:    String,
+    symbols:         Vec<String>,
+    unit_of_measure: String,
 }
 
 impl From<Product> for ProductUpdateResponse {
     fn from(p: Product) -> Self {
         Self {
-            description:         p.get_description().map(|d| d.value().to_string()),
-            id:                  p.get_id().value(),
-            image_url:           p.get_image_url().map(|i| i.to_string()),
-            low_stock_threshold: p.get_low_stock_threshold(),
-            name:                p.get_name().value().to_string(),
-            price_cents:         p.get_price_cents(),
-            stock:               p.get_stock(),
-            stock_status:        p.compute_stock_status().as_str().to_string(),
-            symbols:             p.get_symbols().into_iter().map(|s| s.to_string()).collect(),
-            unit_of_measure:     p.get_unit_of_measure().as_str().to_string(),
+            description:     p.get_description().map(|d| d.value().to_string()),
+            id:              p.get_id().value(),
+            image_url:       p.get_image_url().map(|i| i.to_string()),
+            name:            p.get_name().value().to_string(),
+            price_cents:     p.get_price_cents().value(),
+            sale_mode:       p.get_sale_mode().as_str().to_string(),
+            stock:           p.get_stock().value(),
+            stock_status:    p.compute_stock_status().as_str().to_string(),
+            symbols:         p.get_symbols().iter().map(|s| s.to_string()).collect(),
+            unit_of_measure: p.get_unit_of_measure().as_str().to_string(),
         }
     }
 }
