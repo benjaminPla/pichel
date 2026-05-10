@@ -7,9 +7,7 @@ use axum::{
     Json,
 };
 use crate::{
-    application::user::commands::update_password::{
-        UserUpdatePasswordCommand, UserUpdatePasswordHandler,
-    },
+    application::user::update_password::{UpdateUserPasswordInput, UpdateUserPasswordUseCase},
     interfaces::{
         app_state::AppState,
         user::{
@@ -27,8 +25,8 @@ pub async fn update_password(
     Path(id):         Path<Uuid>,
     Json(body):       Json<UserUpdatePasswordRequestBody>,
 ) -> Result<impl IntoResponse, UserInterError> {
-    let user = UserUpdatePasswordHandler::new(app_state.hasher_service, app_state.user_repo)
-        .execute(UserUpdatePasswordCommand { id, password: body.password })
+    let user = UpdateUserPasswordUseCase::new(app_state.hasher_service, app_state.user_repo)
+        .execute(UpdateUserPasswordInput { id, password: body.password })
         .await?;
     Ok((StatusCode::OK, Json(UserUpdatePasswordResponse::from(user))))
 }

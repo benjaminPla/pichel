@@ -12,9 +12,7 @@ use crate::{
 use std::sync::Arc;
 use uuid::Uuid;
 
-// ── Command ──────────────────────────────────────────────────────────────
-
-pub struct ProductUpdateCommand {
+pub struct UpdateProductInput {
     pub description:         Option<String>,
     pub id:                  Uuid,
     pub image_url:           Option<String>,
@@ -26,37 +24,35 @@ pub struct ProductUpdateCommand {
     pub unit_of_measure:     Option<String>,
 }
 
-// ── Handler ──────────────────────────────────────────────────────────────
-
-pub struct ProductUpdateHandler {
+pub struct UpdateProductUseCase {
     product_repo: Arc<dyn ProductRepo>,
 }
 
-impl ProductUpdateHandler {
+impl UpdateProductUseCase {
     pub fn new(product_repo: Arc<dyn ProductRepo>) -> Self {
         Self { product_repo }
     }
 
-    pub async fn execute(&self, cmd: ProductUpdateCommand) -> Result<Product, ProductAppError> {
-        let product_id          = ProductId::reconstitute(cmd.id);
+    pub async fn execute(&self, input: UpdateProductInput) -> Result<Product, ProductAppError> {
+        let product_id          = ProductId::reconstitute(input.id);
         let current             = self.product_repo.get_by_id(&product_id).await?;
-        let description         = match cmd.description {
+        let description         = match input.description {
             Some(d) => Some(Description::new(d)?),
             None    => current.get_description().cloned(),
         };
-        let image_url           = cmd.image_url.or_else(|| current.get_image_url().map(str::to_string));
-        let low_stock_threshold = cmd.low_stock_threshold.unwrap_or(current.get_low_stock_threshold());
-        let name                = match cmd.name {
+        let image_url           = input.image_url.or_else(|| current.get_image_url().map(str::to_string));
+        let low_stock_threshold = input.low_stock_threshold.unwrap_or(current.get_low_stock_threshold());
+        let name                = match input.name {
             Some(n) => Name::new(n)?,
             None    => current.get_name().clone(),
         };
-        let price_cents         = cmd.price_cents.unwrap_or(current.get_price_cents());
-        let stock               = cmd.stock.unwrap_or(current.get_stock());
-        let symbols             = match cmd.symbols {
+        let price_cents         = input.price_cents.unwrap_or(current.get_price_cents());
+        let stock               = input.stock.unwrap_or(current.get_stock());
+        let symbols             = match input.symbols {
             Some(s) => s.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?,
             None    => current.get_symbols().to_vec(),
         };
-        let unit_of_measure     = match cmd.unit_of_measure {
+        let unit_of_measure     = match input.unit_of_measure {
             Some(u) => u.parse::<UnitOfMeasure>()?,
             None    => current.get_unit_of_measure().clone(),
         };

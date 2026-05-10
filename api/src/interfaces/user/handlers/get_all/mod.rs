@@ -7,7 +7,7 @@ use axum::{
     Json,
 };
 use crate::{
-    application::user::queries::get_all::{UserGetAllHandler, UserGetAllQuery},
+    application::user::get_all::{GetAllUsersInput, GetAllUsersUseCase},
     interfaces::{
         app_state::AppState,
         user::{
@@ -21,8 +21,8 @@ pub async fn get_all(
     State(app_state): State<AppState>,
     Query(query):     Query<GetAllQueryParams>,
 ) -> Result<impl IntoResponse, UserInterError> {
-    let (users, total) = UserGetAllHandler::new(app_state.user_repo)
-        .execute(UserGetAllQuery {
+    let (users, total) = GetAllUsersUseCase::new(app_state.user_repo)
+        .execute(GetAllUsersInput {
             page:     query.page.max(1),
             per_page: query.per_page.clamp(1, GetAllQueryParams::MAX_PER_PAGE),
         })

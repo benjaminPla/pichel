@@ -12,29 +12,25 @@ use crate::{
 use std::sync::Arc;
 use uuid::Uuid;
 
-// ── Command ──────────────────────────────────────────────────────────────
-
-pub struct UserUpdatePasswordCommand {
+pub struct UpdateUserPasswordInput {
     pub id:       Uuid,
     pub password: String,
 }
 
-// ── Handler ──────────────────────────────────────────────────────────────
-
-pub struct UserUpdatePasswordHandler {
+pub struct UpdateUserPasswordUseCase {
     hasher_service: Arc<dyn HasherService>,
     user_repo:      Arc<dyn UserRepo>,
 }
 
-impl UserUpdatePasswordHandler {
+impl UpdateUserPasswordUseCase {
     pub fn new(hasher_service: Arc<dyn HasherService>, user_repo: Arc<dyn UserRepo>) -> Self {
         Self { hasher_service, user_repo }
     }
 
-    pub async fn execute(&self, cmd: UserUpdatePasswordCommand) -> Result<User, UserAppError> {
-        let user_id       = UserId::reconstitute(cmd.id);
+    pub async fn execute(&self, input: UpdateUserPasswordInput) -> Result<User, UserAppError> {
+        let user_id       = UserId::reconstitute(input.id);
         self.user_repo.get_by_id(&user_id).await?;
-        let raw           = PasswordRaw::new(cmd.password)?;
+        let raw           = PasswordRaw::new(input.password)?;
         let password_hash = self.hasher_service.hash(&raw).await?;
         let user          = self.user_repo.update_password(&user_id, &password_hash).await?;
         Ok(user)

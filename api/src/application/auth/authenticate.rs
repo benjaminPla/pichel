@@ -11,18 +11,18 @@ use crate::{
 };
 use std::sync::Arc;
 
-pub struct AuthenticateCommand {
+pub struct AuthenticateInput {
     pub email:    String,
     pub password: String,
 }
 
-pub struct AuthenticateHandler {
+pub struct AuthenticateUseCase {
     hasher_service: Arc<dyn HasherService>,
     token_service:  Arc<dyn TokenService>,
     user_repo:      Arc<dyn UserRepo>,
 }
 
-impl AuthenticateHandler {
+impl AuthenticateUseCase {
     pub fn new(
         hasher_service: Arc<dyn HasherService>,
         token_service:  Arc<dyn TokenService>,
@@ -31,10 +31,10 @@ impl AuthenticateHandler {
         Self { hasher_service, token_service, user_repo }
     }
 
-    pub async fn execute(&self, cmd: AuthenticateCommand) -> Result<String, AuthAppError> {
-        let email    = Email::new(cmd.email)?;
+    pub async fn execute(&self, input: AuthenticateInput) -> Result<String, AuthAppError> {
+        let email    = Email::new(input.email)?;
         let user     = self.user_repo.get_by_email(&email).await?;
-        let password = PasswordRaw::new(cmd.password)?;
+        let password = PasswordRaw::new(input.password)?;
         let valid    = self.hasher_service.verify(&password, user.get_password_hash()).await?;
         if !valid { return Err(AuthAppError::Unauthorized); }
         let token    = self.token_service.issue(user.get_id())?;

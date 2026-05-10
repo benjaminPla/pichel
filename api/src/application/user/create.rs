@@ -11,28 +11,24 @@ use crate::{
 };
 use std::sync::Arc;
 
-// ── Command ──────────────────────────────────────────────────────────────
-
-pub struct UserCreateCommand {
+pub struct CreateUserInput {
     pub email:    String,
     pub password: String,
 }
 
-// ── Handler ──────────────────────────────────────────────────────────────
-
-pub struct UserCreateHandler {
+pub struct CreateUserUseCase {
     hasher_service: Arc<dyn HasherService>,
     user_repo:      Arc<dyn UserRepo>,
 }
 
-impl UserCreateHandler {
+impl CreateUserUseCase {
     pub fn new(hasher_service: Arc<dyn HasherService>, user_repo: Arc<dyn UserRepo>) -> Self {
         Self { hasher_service, user_repo }
     }
 
-    pub async fn execute(&self, cmd: UserCreateCommand) -> Result<User, UserAppError> {
-        let email         = Email::new(cmd.email)?;
-        let password      = PasswordRaw::new(cmd.password)?;
+    pub async fn execute(&self, input: CreateUserInput) -> Result<User, UserAppError> {
+        let email         = Email::new(input.email)?;
+        let password      = PasswordRaw::new(input.password)?;
         let password_hash = self.hasher_service.hash(&password).await?;
         let user          = User::new(email, password_hash);
         let user          = self.user_repo.create(&user).await?;

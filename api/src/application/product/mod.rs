@@ -1,3 +1,5 @@
-pub mod commands;
+pub mod create;
 pub mod errors;
-pub mod queries;
+pub mod get_all;
+pub mod get_by_id;
+pub mod update;

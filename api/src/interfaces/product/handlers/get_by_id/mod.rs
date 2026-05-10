@@ -8,7 +8,7 @@ use axum::{
 };
 use uuid::Uuid;
 use crate::{
-    application::product::queries::get_by_id::{ProductGetByIdHandler, ProductGetByIdQuery},
+    application::product::get_by_id::{GetProductByIdInput, GetProductByIdUseCase},
     interfaces::{
         app_state::AppState,
         product::{
@@ -22,8 +22,8 @@ pub async fn get_by_id(
     State(app_state): State<AppState>,
     Path(id):         Path<Uuid>,
 ) -> Result<impl IntoResponse, ProductInterError> {
-    let product = ProductGetByIdHandler::new(app_state.product_repo)
-        .execute(ProductGetByIdQuery { id })
+    let product = GetProductByIdUseCase::new(app_state.product_repo)
+        .execute(GetProductByIdInput { id })
         .await?;
     Ok((StatusCode::OK, Json(ProductGetByIdResponse::from(product))))
 }

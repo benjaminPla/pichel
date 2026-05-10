@@ -9,28 +9,24 @@ use crate::{
 use std::sync::Arc;
 use uuid::Uuid;
 
-// ── Command ──────────────────────────────────────────────────────────────
-
-pub struct UserUpdateCommand {
+pub struct UpdateUserInput {
     pub email: Option<String>,
     pub id:    Uuid,
 }
 
-// ── Handler ──────────────────────────────────────────────────────────────
-
-pub struct UserUpdateHandler {
+pub struct UpdateUserUseCase {
     user_repo: Arc<dyn UserRepo>,
 }
 
-impl UserUpdateHandler {
+impl UpdateUserUseCase {
     pub fn new(user_repo: Arc<dyn UserRepo>) -> Self {
         Self { user_repo }
     }
 
-    pub async fn execute(&self, cmd: UserUpdateCommand) -> Result<User, UserAppError> {
-        let user_id = UserId::reconstitute(cmd.id);
+    pub async fn execute(&self, input: UpdateUserInput) -> Result<User, UserAppError> {
+        let user_id = UserId::reconstitute(input.id);
         let current = self.user_repo.get_by_id(&user_id).await?;
-        let email = match cmd.email {
+        let email = match input.email {
             Some(e) => Email::new(e)?,
             None    => current.get_email().clone(),
         };

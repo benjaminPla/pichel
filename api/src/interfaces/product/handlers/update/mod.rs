@@ -7,7 +7,7 @@ use axum::{
     Json,
 };
 use crate::{
-    application::product::commands::update::{ProductUpdateCommand, ProductUpdateHandler},
+    application::product::update::{UpdateProductInput, UpdateProductUseCase},
     interfaces::{
         app_state::AppState,
         product::{
@@ -23,8 +23,8 @@ pub async fn update(
     Path(id):         Path<Uuid>,
     Json(body):       Json<ProductUpdateRequestBody>,
 ) -> Result<impl IntoResponse, ProductInterError> {
-    let product = ProductUpdateHandler::new(app_state.product_repo)
-        .execute(ProductUpdateCommand {
+    let product = UpdateProductUseCase::new(app_state.product_repo)
+        .execute(UpdateProductInput {
             description:         body.description,
             id,
             image_url:           body.image_url,

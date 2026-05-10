@@ -7,7 +7,7 @@ use axum::{
     Json,
 };
 use crate::{
-    application::user::commands::update::{UserUpdateCommand, UserUpdateHandler},
+    application::user::update::{UpdateUserInput, UpdateUserUseCase},
     interfaces::{
         app_state::AppState,
         user::{
@@ -23,8 +23,8 @@ pub async fn update(
     Path(id):         Path<Uuid>,
     Json(body):       Json<UserUpdateRequestBody>,
 ) -> Result<impl IntoResponse, UserInterError> {
-    let user = UserUpdateHandler::new(app_state.user_repo)
-        .execute(UserUpdateCommand { email: body.email, id })
+    let user = UpdateUserUseCase::new(app_state.user_repo)
+        .execute(UpdateUserInput { email: body.email, id })
         .await?;
     Ok((StatusCode::OK, Json(UserUpdateResponse::from(user))))
 }
