@@ -12,7 +12,7 @@ envy               = "0.4.2"
 jsonwebtoken       = "9"
 serde_json         = "1"
 serde              = { version = "1",   features = ["derive"] }
-sqlx               = { version = "0.8", features = ["postgres", "runtime-tokio", "uuid", "migrate"] }
+sqlx               = { version = "0.8", features = ["postgres", "runtime-tokio", "uuid", "migrate", "chrono"] }
 thiserror          = "2"
 tokio              = { version = "1",   features = ["full"] }
 tracing            = "0.1"
