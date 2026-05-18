@@ -20,7 +20,7 @@
       <a class="nav-item active" href="/admin/users.html">
         <span class="icon">👤</span> Usuarios
       </a>
-      <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
+      <a class="nav-item nav-item--push" href="/" target="_blank" rel="noopener">
         <span class="icon">🛒</span> Ver tienda
       </a>
     </nav>
@@ -38,8 +38,8 @@
 
       <!-- Create form -->
       <div class="form-card" id="create-card">
-        <h2 style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--sp-5)">Nuevo usuario</h2>
-        <form id="create-form" style="display:flex;flex-direction:column;gap:var(--sp-4)">
+        <h2 class="form-title">Nuevo usuario</h2>
+        <form id="create-form" class="form-stack">
           <div>
             <label for="u-email">Email *</label>
             <input id="u-email" type="email" required />
@@ -55,11 +55,11 @@
       </div>
 
       <!-- Edit card (shown when editing) -->
-      <div class="form-card" id="edit-card" style="max-width:520px;display:none">
-        <h2 id="edit-title" style="font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--sp-5)"></h2>
-        <form id="edit-form" style="display:flex;flex-direction:column;gap:var(--sp-4)">
+      <div class="form-card form-card--edit" id="edit-card" style="display:none">
+        <h2 id="edit-title" class="form-title"></h2>
+        <form id="edit-form" class="form-stack">
           <div id="edit-field"></div>
-          <div style="display:flex;gap:var(--sp-3)">
+          <div class="form-actions">
             <button class="btn btn-primary" type="submit" id="edit-btn">Guardar</button>
             <button class="btn btn-ghost" type="button" onclick="closeEdit()">Cancelar</button>
           </div>
@@ -67,7 +67,7 @@
       </div>
 
       <!-- Table -->
-      <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
+      <div class="section-header section-header--flush">
         <h2>Todos los usuarios</h2>
         <span id="user-count" class="text-muted"></span>
       </div>
@@ -214,8 +214,7 @@
     }
 
     function usersTable(users, page, totalPages) {
-      if (!users.length) return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin usuarios todavía.</p>`;
-      const sm = 'padding:var(--sp-2) var(--sp-4);font-size:var(--text-sm)';
+      if (!users.length) return `<p class="table-empty">Sin usuarios todavía.</p>`;
       return `<table>
         <thead><tr>
           <th>Email</th>
@@ -223,14 +222,14 @@
         </tr></thead>
         <tbody>
           ${users.map(u => `<tr>
-            <td style="font-weight:var(--fw-semibold)">${u.email}</td>
+            <td class="td-strong">${u.email}</td>
             <td>
-              <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
-                <button class="btn btn-ghost" style="${sm}"
+              <div class="actions-wrap">
+                <button class="btn btn-ghost btn-sm"
                   onclick="openEditEmail('${u.id}', '${(u.email || '').replace(/'/g, "\\'")}')">Cambiar email</button>
-                <button class="btn btn-ghost" style="${sm}"
+                <button class="btn btn-ghost btn-sm"
                   onclick="openEditPassword('${u.id}')">Cambiar contraseña</button>
-                <button class="btn btn-danger" style="${sm}"
+                <button class="btn btn-danger btn-sm"
                   onclick="deleteUser('${u.id}')">Eliminar</button>
               </div>
             </td>

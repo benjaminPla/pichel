@@ -20,7 +20,7 @@
       <a class="nav-item" href="/admin/users.html">
         <span class="icon">👤</span> Usuarios
       </a>
-      <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
+      <a class="nav-item nav-item--push" href="/" target="_blank" rel="noopener">
         <span class="icon">🛒</span> Ver tienda
       </a>
     </nav>
@@ -33,10 +33,10 @@
     <div class="topbar">
       <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
       <span class="topbar-title">Productos</span>
-      <a href="/admin/create-product.html" class="btn btn-primary" style="margin-left:auto;font-size:var(--text-sm)">+ Agregar</a>
+      <a href="/admin/create-product.html" class="btn btn-primary topbar-action">+ Agregar</a>
     </div>
     <div class="content">
-      <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
+      <div class="section-header section-header--flush">
         <h2>Todos los productos</h2>
         <span id="prod-count" class="text-muted"></span>
       </div>
@@ -85,10 +85,10 @@
     };
 
     function symbolPills(symbols) {
-      if (!symbols || !symbols.length) return '<span style="color:var(--clr-text-muted)">—</span>';
+      if (!symbols || !symbols.length) return '<span class="text-muted">—</span>';
       return symbols.map(s => {
         const def = SYMBOL_DEFS[s];
-        return def ? `<span style="font-size:1rem">${def.icon}</span>` : '';
+        return def ? `<span class="symbol-icon">${def.icon}</span>` : '';
       }).join(' ');
     }
 
@@ -131,8 +131,7 @@
     }
 
     function productsTable(products, page, totalPages) {
-      if (!products.length) return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin productos todavía.</p>`;
-      const sm = 'padding:var(--sp-1) var(--sp-3);font-size:var(--text-sm)';
+      if (!products.length) return `<p class="table-empty">Sin productos todavía.</p>`;
       return `<table>
         <thead><tr>
           <th>Nombre</th>
@@ -143,13 +142,13 @@
         </tr></thead>
         <tbody>
           ${products.map(p => `<tr>
-            <td style="font-weight:var(--fw-semibold)">${p.name}${p.description ? `<br><small style="font-weight:var(--fw-normal);color:var(--clr-text-muted)">${p.description}</small>` : ''}</td>
+            <td class="td-strong">${p.name}${p.description ? `<br><small class="text-muted">${p.description}</small>` : ''}</td>
             <td>${saleModeBadge(p.sale_mode)}</td>
-            <td>${fmtCents(p.price_cents)}${p.sale_mode === 'bulk' ? '<small style="color:var(--clr-text-muted)"> /kg</small>' : ''}</td>
+            <td>${fmtCents(p.price_cents)}${p.sale_mode === 'bulk' ? `<small class="text-muted"> /kg</small>` : ''}</td>
             <td>${symbolPills(p.symbols)}</td>
-            <td style="white-space:nowrap">
-              <a class="btn btn-ghost" style="${sm}" href="/admin/edit-product.html?id=${p.id}">Editar</a>
-              <button class="btn btn-danger" style="${sm}" onclick="deleteProduct('${p.id}')">Eliminar</button>
+            <td class="nowrap">
+              <a class="btn btn-ghost btn-sm" href="/admin/edit-product.html?id=${p.id}">Editar</a>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Eliminar</button>
             </td>
           </tr>`).join('')}
         </tbody>

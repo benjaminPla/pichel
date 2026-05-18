@@ -20,7 +20,7 @@
       <a class="nav-item" href="/admin/users.html">
         <span class="icon">👤</span> Usuarios
       </a>
-      <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
+      <a class="nav-item nav-item--push" href="/" target="_blank" rel="noopener">
         <span class="icon">🛒</span> Ver tienda
       </a>
     </nav>
@@ -121,9 +121,8 @@
 
     function ordersTable(orders, page, totalPages) {
       if (!orders.length) {
-        return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin pedidos todavía.</p>`;
+        return `<p class="table-empty">Sin pedidos todavía.</p>`;
       }
-      const sm = 'padding:var(--sp-1) var(--sp-3);font-size:var(--text-sm)';
       return `<table>
         <thead><tr>
           <th>Fecha</th>
@@ -137,19 +136,19 @@
           ${orders.map(o => {
             const itemsSummary = o.items.map(i => `${i.product_name} · ${fmtQty(i)}`).join('<br>');
             const actions = o.status === 'pending'
-              ? `<button class="btn btn-primary" style="${sm}" onclick="updateStatus('${o.id}','closed')">Cerrar</button>
-                 <button class="btn btn-danger"  style="${sm}" onclick="updateStatus('${o.id}','cancelled')">Cancelar</button>`
+              ? `<button class="btn btn-primary btn-sm" onclick="updateStatus('${o.id}','closed')">Cerrar</button>
+                 <button class="btn btn-danger btn-sm" onclick="updateStatus('${o.id}','cancelled')">Cancelar</button>`
               : '—';
             return `<tr>
-              <td style="white-space:nowrap;font-size:var(--text-xs);color:var(--clr-text-muted)">${fmtDate(o.created_at)}</td>
+              <td class="td-meta">${fmtDate(o.created_at)}</td>
               <td>
-                <span style="font-weight:var(--fw-semibold)">${o.customer_phone}</span>
-                ${o.customer_name ? `<br><small style="color:var(--clr-text-muted)">${o.customer_name}</small>` : ''}
+                <span class="fw-semibold">${o.customer_phone}</span>
+                ${o.customer_name ? `<br><small class="text-muted">${o.customer_name}</small>` : ''}
               </td>
-              <td style="font-size:var(--text-xs);color:var(--clr-text-muted);max-width:200px">${itemsSummary}</td>
-              <td style="font-weight:var(--fw-semibold);white-space:nowrap">${fmtCents(o.total_price_cents)}</td>
+              <td class="td-items">${itemsSummary}</td>
+              <td class="td-amount">${fmtCents(o.total_price_cents)}</td>
               <td>${statusBadge(o.status)}</td>
-              <td style="white-space:nowrap">${actions}</td>
+              <td class="nowrap">${actions}</td>
             </tr>`;
           }).join('')}
         </tbody>

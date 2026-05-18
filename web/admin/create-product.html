@@ -20,7 +20,7 @@
       <a class="nav-item" href="/admin/users.html">
         <span class="icon">👤</span> Usuarios
       </a>
-      <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
+      <a class="nav-item nav-item--push" href="/" target="_blank" rel="noopener">
         <span class="icon">🛒</span> Ver tienda
       </a>
     </nav>
@@ -36,7 +36,7 @@
     </div>
     <div class="content">
       <div class="form-card">
-        <form id="prod-form" style="display:flex;flex-direction:column;gap:var(--sp-4)">
+        <form id="prod-form" class="form-stack">
 
           <div>
             <label for="p-name">Nombre *</label>
@@ -58,13 +58,13 @@
           </div>
 
           <div>
-            <label for="p-price">Precio * <small id="p-price-note" style="display:none;font-weight:normal;color:var(--clr-text-muted)">(por kg)</small></label>
+            <label for="p-price">Precio * <small id="p-price-note" class="form-label-note" style="display:none">(por kg)</small></label>
             <input id="p-price" type="number" min="0.01" step="0.01" required />
           </div>
 
           <div>
             <label for="p-symbols">Símbolos</label>
-            <select id="p-symbols" class="form-select" multiple style="height:160px">
+            <select id="p-symbols" class="form-select select-multi" multiple>
               <option value="vegan">🌱 Vegano</option>
               <option value="vegetarian">🥕 Vegetariano</option>
               <option value="gluten_free">🌾 Sin TACC</option>
@@ -82,7 +82,7 @@
             <input id="p-img" type="text" placeholder="/images/products/nombre.webp" />
           </div>
 
-          <div style="display:flex;gap:var(--sp-3)">
+          <div class="form-actions">
             <button class="btn btn-primary" type="submit" id="submit-btn">Agregar producto</button>
             <a class="btn btn-ghost" href="/admin/">Cancelar</a>
           </div>
