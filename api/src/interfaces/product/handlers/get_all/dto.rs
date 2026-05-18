@@ -31,8 +31,9 @@ impl From<Product> for ProductGetAllItem {
 
 #[derive(Serialize)]
 pub struct ProductGetAllResponse {
-    pub products: Vec<ProductGetAllItem>,
-    pub total:    i64,
+    pub products:              Vec<ProductGetAllItem>,
+    pub total:                 i64,
+    pub price_list_updated_at: Option<String>,
 }
 
 #[derive(Deserialize)]

@@ -2,6 +2,7 @@ use crate::{
     application::product::errors::ProductAppError,
     domain::product::{ports::repository::ProductRepo, Product},
 };
+use chrono::{DateTime, Utc};
 use std::sync::Arc;
 
 pub struct GetAllProductsInput {
@@ -18,8 +19,8 @@ impl GetAllProductsUseCase {
         Self { product_repo }
     }
 
-    pub async fn execute(&self, input: GetAllProductsInput) -> Result<(Vec<Product>, i64), ProductAppError> {
-        let (products, total) = self.product_repo.get_all(input.page, input.per_page).await?;
-        Ok((products, total))
+    pub async fn execute(&self, input: GetAllProductsInput) -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductAppError> {
+        let (products, total, price_list_updated_at) = self.product_repo.get_all(input.page, input.per_page).await?;
+        Ok((products, total, price_list_updated_at))
     }
 }

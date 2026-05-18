@@ -7,6 +7,7 @@ mod row;
 mod update;
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use crate::domain::product::{
     ports::repository::{ProductRepo, ProductRepoError},
@@ -34,7 +35,7 @@ impl ProductRepo for PgProductRepo {
         delete::delete(&self.pool, product_id).await
     }
 
-    async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64), ProductRepoError> {
+    async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError> {
         get_all::get_all(&self.pool, page, per_page).await
     }
 

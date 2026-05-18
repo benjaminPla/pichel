@@ -1,0 +1,19 @@
+CREATE TABLE app_settings (
+    key        VARCHAR(50) PRIMARY KEY,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO app_settings (key) VALUES ('price_list_updated_at');
+
+CREATE OR REPLACE FUNCTION fn_touch_price_list()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE app_settings SET updated_at = NOW() WHERE key = 'price_list_updated_at';
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_price_list_updated
+AFTER INSERT OR UPDATE OR DELETE ON products
+FOR EACH STATEMENT
+EXECUTE FUNCTION fn_touch_price_list();
