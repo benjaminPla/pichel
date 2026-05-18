@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productos — Admin Pichel</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="layout-admin">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/admin/" class="sidebar-brand">Pichel <small>ADMIN</small></a>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="/admin/">
+        <span class="icon">📋</span> Pedidos
+      </a>
+      <a class="nav-item active" href="/admin/products.html">
+        <span class="icon">📦</span> Productos
+      </a>
+      <a class="nav-item" href="/admin/users.html">
+        <span class="icon">👤</span> Usuarios
+      </a>
+      <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
+        <span class="icon">🛒</span> Ver tienda
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" id="logout-btn">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
+      <span class="topbar-title">Productos</span>
+      <a href="/admin/create-product.html" class="btn btn-primary" style="margin-left:auto;font-size:var(--text-sm)">+ Agregar</a>
+    </div>
+    <div class="content">
+      <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
+        <h2>Todos los productos</h2>
+        <span id="prod-count" class="text-muted"></span>
+      </div>
+      <div class="table-wrap" id="prod-table-wrap">Cargando…</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '';
+
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await fetch(`${API}/auth/logout`, { method: 'POST' });
+      window.location.href = '/login.html';
+    });
+
+    function toast(msg, type = 'success') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = `toast show ${type}`;
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    async function apiFetch(path, opts = {}) {
+      const res = await fetch(`${API}${path}`, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+      });
+      if (res.status === 401) { window.location.href = '/login.html'; return res; }
+      return res;
+    }
+
+    function fmtCents(cents) {
+      return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
+    }
+
+    const SYMBOL_DEFS = {
+      vegan: { icon: '🌱' }, vegetarian: { icon: '🥕' }, gluten_free: { icon: '🌾' },
+      lactose_free: { icon: '🥛' }, organic: { icon: '🌿' }, sugar_free: { icon: '🍃' },
+      contains_nuts: { icon: '🥜' }, high_protein: { icon: '💪' }, no_added_salt: { icon: '🧂' },
+    };
+
+    function symbolPills(symbols) {
+      if (!symbols || !symbols.length) return '<span style="color:var(--clr-text-muted)">—</span>';
+      return symbols.map(s => {
+        const def = SYMBOL_DEFS[s];
+        return def ? `<span style="font-size:1rem">${def.icon}</span>` : '';
+      }).join(' ');
+    }
+
+    function saleModeBadge(mode) {
+      if (mode === 'bulk') return `<span class="badge badge-bulk">A granel</span>`;
+      if (mode === 'unit') return `<span class="badge badge-pkg">Unidad</span>`;
+      return `<span class="badge">${mode}</span>`;
+    }
+
+    function paginationBar(page, totalPages) {
+      if (totalPages <= 1) return '';
+      return `<div class="pagination">
+        <button class="pagination-btn" onclick="loadProducts(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
+        <span class="pagination-info">Página ${page} de ${totalPages}</span>
+        <button class="pagination-btn" onclick="loadProducts(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
+      </div>`;
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('¿Eliminar este producto?')) return;
+      const res = await apiFetch(`/products/${id}`, { method: 'DELETE' });
+      if (!res || !res.ok) { toast('Error al eliminar', 'error'); return; }
+      toast('Producto eliminado');
+      await loadProducts();
+    }
+
+    const PER_PAGE = 50;
+
+    async function loadProducts(page = 1) {
+      try {
+        const res = await apiFetch(`/products?page=${page}&per_page=${PER_PAGE}`);
+        if (!res || !res.ok) { document.getElementById('prod-table-wrap').textContent = 'Error al cargar.'; return; }
+        const { products, total } = await res.json();
+        const totalPages = Math.ceil(total / PER_PAGE);
+        document.getElementById('prod-count').textContent = `${total} productos`;
+        document.getElementById('prod-table-wrap').innerHTML = productsTable(products, page, totalPages);
+      } catch {
+        document.getElementById('prod-table-wrap').textContent = 'Error al cargar.';
+      }
+    }
+
+    function productsTable(products, page, totalPages) {
+      if (!products.length) return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin productos todavía.</p>`;
+      const sm = 'padding:var(--sp-1) var(--sp-3);font-size:var(--text-sm)';
+      return `<table>
+        <thead><tr>
+          <th>Nombre</th>
+          <th>Modalidad</th>
+          <th>Precio</th>
+          <th>Símbolos</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+          ${products.map(p => `<tr>
+            <td style="font-weight:var(--fw-semibold)">${p.name}${p.description ? `<br><small style="font-weight:var(--fw-normal);color:var(--clr-text-muted)">${p.description}</small>` : ''}</td>
+            <td>${saleModeBadge(p.sale_mode)}</td>
+            <td>${fmtCents(p.price_cents)}${p.sale_mode === 'bulk' ? '<small style="color:var(--clr-text-muted)"> /kg</small>' : ''}</td>
+            <td>${symbolPills(p.symbols)}</td>
+            <td style="white-space:nowrap">
+              <a class="btn btn-ghost" style="${sm}" href="/admin/edit-product.html?id=${p.id}">Editar</a>
+              <button class="btn btn-danger" style="${sm}" onclick="deleteProduct('${p.id}')">Eliminar</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>${paginationBar(page, totalPages)}`;
+    }
+
+    async function init() {
+      const res = await fetch(`${API}/users?page=1&per_page=1`);
+      if (res.status === 401) { window.location.href = '/login.html'; return; }
+      await loadProducts();
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Productos — Admin Pichel</title>
+  <title>Pedidos — Admin Pichel</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body class="layout-admin">
@@ -12,13 +12,16 @@
     <a href="/admin/" class="sidebar-brand">Pichel <small>ADMIN</small></a>
     <nav class="sidebar-nav">
       <a class="nav-item active" href="/admin/">
+        <span class="icon">📋</span> Pedidos
+      </a>
+      <a class="nav-item" href="/admin/products.html">
         <span class="icon">📦</span> Productos
       </a>
       <a class="nav-item" href="/admin/users.html">
         <span class="icon">👤</span> Usuarios
       </a>
       <a class="nav-item" href="/" target="_blank" rel="noopener" style="margin-top:auto">
-        <span class="icon">🛒</span> Ver lista de precios
+        <span class="icon">🛒</span> Ver tienda
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -29,15 +32,11 @@
   <div class="main">
     <div class="topbar">
       <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
-      <span class="topbar-title">Productos</span>
-      <a href="/admin/create-product.html" class="btn btn-primary" style="margin-left:auto;font-size:var(--text-sm)">+ Agregar</a>
+      <span class="topbar-title">Pedidos</span>
+      <span id="order-count" class="topbar-user"></span>
     </div>
     <div class="content">
-      <div class="section-header" style="padding:0;margin-bottom:var(--sp-4)">
-        <h2>Todos los productos</h2>
-        <span id="prod-count" class="text-muted"></span>
-      </div>
-      <div class="table-wrap" id="prod-table-wrap">Cargando…</div>
+      <div class="table-wrap" id="orders-wrap">Cargando…</div>
     </div>
   </div>
 
@@ -75,89 +74,107 @@
       return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(cents / 100);
     }
 
-    const SYMBOL_DEFS = {
-      vegan: { icon: '🌱' }, vegetarian: { icon: '🥕' }, gluten_free: { icon: '🌾' },
-      lactose_free: { icon: '🥛' }, organic: { icon: '🌿' }, sugar_free: { icon: '🍃' },
-      contains_nuts: { icon: '🥜' }, high_protein: { icon: '💪' }, no_added_salt: { icon: '🧂' },
-    };
-
-    function symbolPills(symbols) {
-      if (!symbols || !symbols.length) return '<span style="color:var(--clr-text-muted)">—</span>';
-      return symbols.map(s => {
-        const def = SYMBOL_DEFS[s];
-        return def ? `<span style="font-size:1rem">${def.icon}</span>` : '';
-      }).join(' ');
+    function fmtDate(d) {
+      return new Date(d).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        + ' ' + new Date(d).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
     }
 
-    function saleModeBadge(mode) {
-      if (mode === 'bulk') return `<span class="badge badge-bulk">A granel</span>`;
-      if (mode === 'unit') return `<span class="badge badge-pkg">Unidad</span>`;
-      return `<span class="badge">${mode}</span>`;
+    function statusBadge(status) {
+      const map = {
+        pending:   { cls: 'badge-pending',   label: 'Pendiente'  },
+        closed:    { cls: 'badge-closed',     label: 'Cerrado'    },
+        cancelled: { cls: 'badge-cancelled',  label: 'Cancelado'  },
+      };
+      const s = map[status] || { cls: '', label: status };
+      return `<span class="badge ${s.cls}">${s.label}</span>`;
     }
+
+    function fmtQty(item) {
+      if (item.sale_mode === 'bulk') {
+        const g = item.quantity;
+        return g >= 1000 ? `${g}g (${(g / 1000).toFixed(1).replace(/\.0$/, '')}kg)` : `${g}g`;
+      }
+      return item.quantity === 1 ? '1 unidad' : `${item.quantity} unidades`;
+    }
+
+    async function updateStatus(id, status) {
+      const res = await apiFetch(`/orders/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
+      if (!res || !res.ok) { toast('Error al actualizar estado', 'error'); return; }
+      toast(status === 'closed' ? 'Pedido cerrado' : 'Pedido cancelado');
+      await loadOrders(currentPage);
+    }
+
+    const PER_PAGE = 25;
+    let currentPage = 1;
 
     function paginationBar(page, totalPages) {
       if (totalPages <= 1) return '';
-      return `
-        <div class="pagination">
-          <button class="pagination-btn" onclick="loadProducts(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
-          <span class="pagination-info">Página ${page} de ${totalPages}</span>
-          <button class="pagination-btn" onclick="loadProducts(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
-        </div>`;
+      return `<div class="pagination">
+        <button class="pagination-btn" onclick="loadOrders(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
+        <span class="pagination-info">Página ${page} de ${totalPages}</span>
+        <button class="pagination-btn" onclick="loadOrders(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
+      </div>`;
     }
 
-    async function deleteProduct(id) {
-      if (!confirm('¿Eliminar este producto?')) return;
-      const res = await apiFetch(`/products/${id}`, { method: 'DELETE' });
-      if (!res || !res.ok) { toast('Error al eliminar', 'error'); return; }
-      toast('Producto eliminado');
-      await loadProducts();
-    }
-
-    const PER_PAGE = 50;
-
-    async function loadProducts(page = 1) {
-      try {
-        const res = await apiFetch(`/products?page=${page}&per_page=${PER_PAGE}`);
-        if (!res || !res.ok) { document.getElementById('prod-table-wrap').textContent = 'Error al cargar.'; return; }
-        const { products, total } = await res.json();
-        const totalPages = Math.ceil(total / PER_PAGE);
-        document.getElementById('prod-count').textContent = `${total} productos`;
-        document.getElementById('prod-table-wrap').innerHTML = productsTable(products, page, totalPages);
-      } catch {
-        document.getElementById('prod-table-wrap').textContent = 'Error al cargar.';
+    function ordersTable(orders, page, totalPages) {
+      if (!orders.length) {
+        return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin pedidos todavía.</p>`;
       }
-    }
-
-    function productsTable(products, page, totalPages) {
-      if (!products.length) return `<p style="padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)">Sin productos todavía.</p>`;
       const sm = 'padding:var(--sp-1) var(--sp-3);font-size:var(--text-sm)';
       return `<table>
         <thead><tr>
-          <th>Nombre</th>
-          <th>Modalidad</th>
-          <th>Precio</th>
-          <th>Símbolos</th>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Productos</th>
+          <th>Total</th>
+          <th>Estado</th>
           <th></th>
         </tr></thead>
         <tbody>
-          ${products.map(p => `<tr>
-            <td style="font-weight:var(--fw-semibold)">${p.name}${p.description ? `<br><small style="font-weight:var(--fw-normal);color:var(--clr-text-muted)">${p.description}</small>` : ''}</td>
-            <td>${saleModeBadge(p.sale_mode)}</td>
-            <td>${fmtCents(p.price_cents)}${p.sale_mode === 'bulk' ? '<small style="color:var(--clr-text-muted)"> /kg</small>' : ''}</td>
-            <td>${symbolPills(p.symbols)}</td>
-            <td style="white-space:nowrap">
-              <a class="btn btn-ghost" style="${sm}" href="/admin/edit-product.html?id=${p.id}">Editar</a>
-              <button class="btn btn-danger" style="${sm}" onclick="deleteProduct('${p.id}')">Eliminar</button>
-            </td>
-          </tr>`).join('')}
+          ${orders.map(o => {
+            const itemsSummary = o.items.map(i => `${i.product_name} · ${fmtQty(i)}`).join('<br>');
+            const actions = o.status === 'pending'
+              ? `<button class="btn btn-primary" style="${sm}" onclick="updateStatus('${o.id}','closed')">Cerrar</button>
+                 <button class="btn btn-danger"  style="${sm}" onclick="updateStatus('${o.id}','cancelled')">Cancelar</button>`
+              : '—';
+            return `<tr>
+              <td style="white-space:nowrap;font-size:var(--text-xs);color:var(--clr-text-muted)">${fmtDate(o.created_at)}</td>
+              <td>
+                <span style="font-weight:var(--fw-semibold)">${o.customer_phone}</span>
+                ${o.customer_name ? `<br><small style="color:var(--clr-text-muted)">${o.customer_name}</small>` : ''}
+              </td>
+              <td style="font-size:var(--text-xs);color:var(--clr-text-muted);max-width:200px">${itemsSummary}</td>
+              <td style="font-weight:var(--fw-semibold);white-space:nowrap">${fmtCents(o.total_price_cents)}</td>
+              <td>${statusBadge(o.status)}</td>
+              <td style="white-space:nowrap">${actions}</td>
+            </tr>`;
+          }).join('')}
         </tbody>
       </table>${paginationBar(page, totalPages)}`;
+    }
+
+    async function loadOrders(page = 1) {
+      currentPage = page;
+      const wrap = document.getElementById('orders-wrap');
+      try {
+        const res = await apiFetch(`/orders?page=${page}&per_page=${PER_PAGE}`);
+        if (!res || !res.ok) { wrap.textContent = 'Error al cargar pedidos.'; return; }
+        const { orders, total } = await res.json();
+        const totalPages = Math.ceil(total / PER_PAGE);
+        document.getElementById('order-count').textContent = `${total} pedido${total !== 1 ? 's' : ''}`;
+        wrap.innerHTML = ordersTable(orders, page, totalPages);
+      } catch {
+        wrap.textContent = 'Error al cargar pedidos.';
+      }
     }
 
     async function init() {
       const res = await fetch(`${API}/users?page=1&per_page=1`);
       if (res.status === 401) { window.location.href = '/login.html'; return; }
-      await loadProducts();
+      await loadOrders();
     }
 
     init();
