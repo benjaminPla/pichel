@@ -1,0 +1,4 @@
+- [x] add price_list `updated_at` logic
+- [ ] standarize and double check css (also mobile)
+- [ ] add cart, check fe way to save session status
+- [ ] add wpp logic
