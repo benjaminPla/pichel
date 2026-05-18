@@ -53,12 +53,20 @@
       <h3>Tu pedido</h3>
       <button class="cart-close" id="cart-close" aria-label="Cerrar carrito">✕</button>
     </div>
+    <div class="cart-alert" id="cart-alert" style="display:none"></div>
     <div class="cart-items" id="cart-items"></div>
     <div class="cart-footer">
       <div class="cart-total-row">
         <span>Total estimado</span>
         <strong id="cart-total">$0</strong>
       </div>
+      <label class="cart-persist-row">
+        <input type="checkbox" id="cart-persist" />
+        <span>
+          <strong>Guardar pedido para futuras compras</strong>
+          <small>El pedido no se borrará al confirmar ni expirará automáticamente</small>
+        </span>
+      </label>
       <div class="cart-form">
         <input type="tel"   id="cart-phone" placeholder="📱 Teléfono (requerido)" autocomplete="tel" />
         <input type="email" id="cart-email" placeholder="Email (requerido)"        autocomplete="email" />
@@ -90,22 +98,27 @@
     document.getElementById('yr').textContent = new Date().getFullYear();
 
     // ── State ───────────────────────────────────────────────────
-    let cart     = {};   // { [id]: { id, name, price_cents, sale_mode, quantity } }
-    let products = [];
+    let cart        = {};   // { [id]: { id, name, price_cents, sale_mode, quantity } }
+    let products    = [];
+    let cartPersist = false;
 
     // ── Cart persistence ────────────────────────────────────────
     function cartLoad() {
       try {
         const raw  = localStorage.getItem(CART_KEY);
-        if (!raw) return {};
-        const data = JSON.parse(raw);
-        if (Date.now() - data.savedAt > CART_TTL) { localStorage.removeItem(CART_KEY); return {}; }
-        return data.items || {};
-      } catch { return {}; }
+        if (!raw) return { items: {}, persist: false };
+        const data    = JSON.parse(raw);
+        const persist = !!data.persist;
+        if (!persist && Date.now() - data.savedAt > CART_TTL) {
+          localStorage.removeItem(CART_KEY);
+          return { items: {}, persist: false };
+        }
+        return { items: data.items || {}, persist };
+      } catch { return { items: {}, persist: false }; }
     }
 
     function cartSave() {
-      localStorage.setItem(CART_KEY, JSON.stringify({ savedAt: Date.now(), items: cart }));
+      localStorage.setItem(CART_KEY, JSON.stringify({ savedAt: Date.now(), items: cart, persist: cartPersist }));
     }
 
     function cartSet(id, qty) {
@@ -355,12 +368,14 @@
       ];
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msgParts.join('\n'))}`, '_blank');
 
-      // Clear cart
-      const clearedIds = Object.keys(cart);
-      cart = {};
-      cartSave();
-      updateFab();
-      clearedIds.forEach(id => syncCardStepper(id));
+      // Clear cart (skip if user wants to keep it for future orders)
+      if (!cartPersist) {
+        const clearedIds = Object.keys(cart);
+        cart = {};
+        cartSave();
+        updateFab();
+        clearedIds.forEach(id => syncCardStepper(id));
+      }
       closeCart();
 
       // Reset form
@@ -440,6 +455,46 @@
       </div>`;
     }
 
+    // ── Cart reconciliation ──────────────────────────────────────
+    function reconcileCart(allLoaded) {
+      if (!Object.keys(cart).length) return;
+      const removed  = [];
+      const repriced = [];
+
+      Object.keys(cart).forEach(id => {
+        const item    = cart[id];
+        const current = products.find(p => p.id === id);
+        if (!current) {
+          // Only mark as removed when we know all products were returned in this page
+          if (allLoaded) { removed.push(item.name); delete cart[id]; }
+        } else if (current.price_cents !== item.price_cents) {
+          repriced.push({ name: item.name, from: item.price_cents, to: current.price_cents });
+          cart[id] = { ...cart[id], price_cents: current.price_cents, sale_mode: current.sale_mode };
+        }
+      });
+
+      if (!removed.length && !repriced.length) return;
+      cartSave();
+      updateFab();
+
+      const el    = document.getElementById('cart-alert');
+      const parts = [];
+      if (repriced.length) {
+        parts.push(
+          'Precios actualizados:<br>' +
+          repriced.map(r => `· ${r.name}: ${fmtCents(r.from)} → ${fmtCents(r.to)}`).join('<br>')
+        );
+      }
+      if (removed.length) {
+        parts.push(
+          'Productos no disponibles (eliminados del pedido):<br>' +
+          removed.map(n => `· ${n}`).join('<br>')
+        );
+      }
+      el.innerHTML = parts.join('<br><br>');
+      el.style.display = 'block';
+    }
+
     // ── Load products ────────────────────────────────────────────
     let currentPage = 1;
     const PER_PAGE  = 50;
@@ -461,6 +516,7 @@
         if (!res.ok) throw new Error();
         const { products: data, total, price_list_updated_at } = await res.json();
         products = data;
+        if (page === 1) reconcileCart(data.length === total);
         const totalPages = Math.ceil(total / PER_PAGE);
         document.getElementById('product-count').textContent = `${total} productos`;
         if (price_list_updated_at) {
@@ -479,7 +535,14 @@
     }
 
     // ── Init ────────────────────────────────────────────────────
-    cart = cartLoad();
+    const { items: savedItems, persist: savedPersist } = cartLoad();
+    cart        = savedItems;
+    cartPersist = savedPersist;
+    document.getElementById('cart-persist').checked = cartPersist;
+    document.getElementById('cart-persist').addEventListener('change', function() {
+      cartPersist = this.checked;
+      cartSave();
+    });
     updateFab();
     loadProducts();
 
