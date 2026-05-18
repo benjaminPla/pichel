@@ -8,8 +8,9 @@
 </head>
 <body>
 
-  <nav class="topnav">
+  <nav class="topnav" id="main-nav">
     <a href="/" class="nav-brand">Pichel</a>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
     <ul class="topnav-links">
       <li><a href="/">Precios</a></li>
       <li><a href="/como-comprar.html">Cómo comprar</a></li>
@@ -43,6 +44,15 @@
   <footer>
     &copy; <span id="yr"></span> Pichel · Dietética Natural de Barrio
   </footer>
-  <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+    (function() {
+      var nav = document.getElementById('main-nav');
+      document.getElementById('nav-hamburger').addEventListener('click', function(e) {
+        e.stopPropagation(); nav.classList.toggle('open');
+      });
+      document.addEventListener('click', function() { nav.classList.remove('open'); });
+    })();
+  </script>
 </body>
 </html>
