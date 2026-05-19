@@ -2,3 +2,4 @@
 - [x] standarize and double check css (also mobile)
 - [x] add cart, check fe way to save session status
 - [x] add wpp logic
+- [ ] update db.price_list table accepting `updated_by`

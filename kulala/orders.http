@@ -1,0 +1,25 @@
+@token    = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2ZWJiMjVhYy00NmQwLTRlMjktOGQxNi1kNDBjOGQxNTc2MzIiLCJleHAiOjE3NzkxOTA5MTV9.Kh9AVgsGHmhgChkpiw-6TLHlQQumFd7dhhp7P4qXKiQ
+@order_id = 00000000-0000-0000-0000-000000000000
+
+### create (public)
+POST {{base}}/orders
+Content-Type: application/json
+
+{
+    "customer_email": "cliente@ejemplo.com",
+    "customer_name":  "Juan Pérez",
+    "customer_phone": "+5492291234567",
+    "items": [
+        { "product_id": "00000000-0000-0000-0000-000000000000", "quantity": 500 },
+        { "product_id": "00000000-0000-0000-0000-000000000001", "quantity": 2 }
+    ]
+}
+
+### get_all (admin)
+@page     = 1
+@per_page = 25
+GET {{base}}/orders?page={{page}}&per_page={{per_page}}
+Authorization: Bearer {{token}}
+
+### get_by_id (public)
+GET {{base}}/orders/{{order_id}}
