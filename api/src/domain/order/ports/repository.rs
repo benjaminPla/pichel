@@ -12,10 +12,9 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait OrderRepo: Send + Sync {
-    async fn create(&self, order: &Order, items: &[OrderItem])     -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
-    async fn get_by_id(&self, order_id: &OrderId)                  -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
-    async fn list(&self, page: i64, per_page: i64)                 -> Result<(Vec<(Order, Vec<OrderItem>)>, i64), OrderRepoError>;
-    async fn update_status(&self, order_id: &OrderId, status: &crate::domain::order::value_objects::order_status::OrderStatus) -> Result<Order, OrderRepoError>;
+    async fn create(&self, order: &Order, items: &[OrderItem]) -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
+    async fn get_all(&self, page: i64, per_page: i64)          -> Result<(Vec<(Order, Vec<OrderItem>)>, i64), OrderRepoError>;
+    async fn get_by_id(&self, order_id: &OrderId)              -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
 }
 
 #[derive(Debug, thiserror::Error)]

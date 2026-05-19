@@ -27,7 +27,7 @@ impl From<OrderItem> for OrderItemResponse {
 }
 
 #[derive(Serialize)]
-pub struct OrderListItem {
+pub struct OrderGetAllItem {
     created_at:        DateTime<Utc>,
     customer_email:    String,
     customer_name:     Option<String>,
@@ -38,7 +38,7 @@ pub struct OrderListItem {
     total_price_cents: u32,
 }
 
-impl From<(Order, Vec<OrderItem>)> for OrderListItem {
+impl From<(Order, Vec<OrderItem>)> for OrderGetAllItem {
     fn from((o, items): (Order, Vec<OrderItem>)) -> Self {
         Self {
             created_at:        o.get_created_at(),
@@ -54,17 +54,17 @@ impl From<(Order, Vec<OrderItem>)> for OrderListItem {
 }
 
 #[derive(Serialize)]
-pub struct OrderListResponse {
-    pub orders: Vec<OrderListItem>,
+pub struct OrderGetAllResponse {
+    pub orders: Vec<OrderGetAllItem>,
     pub total:  i64,
 }
 
 #[derive(Deserialize)]
-pub struct ListOrdersQueryParams {
+pub struct GetAllOrdersQueryParams {
     pub page:     i64,
     pub per_page: i64,
 }
 
-impl ListOrdersQueryParams {
+impl GetAllOrdersQueryParams {
     pub const MAX_PER_PAGE: i64 = 50;
 }

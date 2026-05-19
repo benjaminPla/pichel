@@ -97,16 +97,6 @@
       return item.quantity === 1 ? '1 unidad' : `${item.quantity} unidades`;
     }
 
-    async function updateStatus(id, status) {
-      const res = await apiFetch(`/orders/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-      });
-      if (!res || !res.ok) { toast('Error al actualizar estado', 'error'); return; }
-      toast(status === 'closed' ? 'Pedido cerrado' : 'Pedido cancelado');
-      await loadOrders(currentPage);
-    }
-
     const PER_PAGE = 25;
     let currentPage = 1;
 
@@ -130,15 +120,10 @@
           <th>Productos</th>
           <th>Total</th>
           <th>Estado</th>
-          <th></th>
         </tr></thead>
         <tbody>
           ${orders.map(o => {
             const itemsSummary = o.items.map(i => `${i.product_name} · ${fmtQty(i)}`).join('<br>');
-            const actions = o.status === 'pending'
-              ? `<button class="btn btn-primary btn-sm" onclick="updateStatus('${o.id}','closed')">Cerrar</button>
-                 <button class="btn btn-danger btn-sm" onclick="updateStatus('${o.id}','cancelled')">Cancelar</button>`
-              : '—';
             return `<tr>
               <td class="td-meta">${fmtDate(o.created_at)}</td>
               <td>
@@ -148,7 +133,6 @@
               <td class="td-items">${itemsSummary}</td>
               <td class="td-amount">${fmtCents(o.total_price_cents)}</td>
               <td>${statusBadge(o.status)}</td>
-              <td class="nowrap">${actions}</td>
             </tr>`;
           }).join('')}
         </tbody>

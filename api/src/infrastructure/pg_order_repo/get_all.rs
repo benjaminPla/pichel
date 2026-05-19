@@ -6,7 +6,7 @@ use crate::{
 };
 use sqlx::PgPool;
 
-pub async fn list(pool: &PgPool, page: i64, per_page: i64) -> Result<(Vec<(Order, Vec<OrderItem>)>, i64), OrderRepoError> {
+pub async fn get_all(pool: &PgPool, page: i64, per_page: i64) -> Result<(Vec<(Order, Vec<OrderItem>)>, i64), OrderRepoError> {
     let offset     = (page - 1) * per_page;
     let total: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM orders")
         .fetch_one(pool)

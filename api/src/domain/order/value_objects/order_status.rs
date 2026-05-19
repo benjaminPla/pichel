@@ -2,17 +2,17 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum OrderStatus {
-    Pending,
-    Closed,
     Cancelled,
+    Closed,
+    Pending,
 }
 
 impl OrderStatus {
     pub fn as_str(&self) -> &'static str {
         match self {
-            Self::Pending   => "pending",
-            Self::Closed    => "closed",
             Self::Cancelled => "cancelled",
+            Self::Closed    => "closed",
+            Self::Pending   => "pending",
         }
     }
 }
@@ -22,9 +22,9 @@ impl FromStr for OrderStatus {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "pending"   => Ok(Self::Pending),
-            "closed"    => Ok(Self::Closed),
             "cancelled" => Ok(Self::Cancelled),
+            "closed"    => Ok(Self::Closed),
+            "pending"   => Ok(Self::Pending),
             other       => Err(OrderStatusError::Invalid(other.to_string())),
         }
     }
