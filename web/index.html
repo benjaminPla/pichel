@@ -349,29 +349,29 @@
         });
       } catch (_) { /* silent — WA still opens */ }
 
-      // Build WhatsApp message — triple backticks force monospace so padEnd alignment works
-      const total     = items.reduce((s, i) => s + calcSubtotal(i), 0);
-      const nameW     = Math.max(...items.map(i => i.name.length));
-      const qtyW      = Math.max(...items.map(i => fmtQty(i).length));
-      const tableRows = items.map(i => {
-        const sub = calcSubtotal(i);
-        return `${i.name.padEnd(nameW)}  ${fmtQty(i).padEnd(qtyW)}  ${fmtCents(sub)}`;
+      // Build WhatsApp message
+      const total = items.reduce((s, i) => s + calcSubtotal(i), 0);
+      const tableRows = items.flatMap(i => {
+          const sub = calcSubtotal(i);
+          return [ `• ${i.name} — ${fmtQty(i)} — ${fmtCents(sub)}` ];
       });
+
       const msgParts = [
-        '*Nuevo pedido — Pichel*',
-        '',
-        '```',
-        ...tableRows,
-        '```',
-        '',
-        `Total: ${fmtCents(total)}`,
-        '',
-        'Cliente',
-        `Tel: ${phone}`,
-        `Email: ${email}`,
-        ...(name ? [`Nombre: ${name}`] : []),
+          '*Nuevo pedido — Pichel*',
+          '',
+          ...tableRows,
+          `Total: ${fmtCents(total)}`,
+          '',
+          'Cliente',
+          `Tel: ${phone}`,
+          `Email: ${email}`,
+          ...(name ? [`Nombre: ${name}`] : []),
       ];
-      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msgParts.join('\n'))}`, '_blank');
+
+      window.open(
+      `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msgParts.join('\n'))}`,
+      '_blank'
+      );
 
       // Clear cart (skip if user wants to keep it for future orders)
       if (!cartPersist) {
