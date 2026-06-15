@@ -27,9 +27,9 @@ impl std::fmt::Debug for PasswordRaw {
 pub enum PasswordRawError {
     #[error("password cannot be blank")]
     Blank,
-    #[error("password is too long (maximum {0} characters")]
+    #[error("password is too long (maximum {0} characters)")]
     TooLong(usize),
-    #[error("password is too short (minimum {0} characters")]
+    #[error("password is too short (minimum {0} characters)")]
     TooShort(usize),
 }
 

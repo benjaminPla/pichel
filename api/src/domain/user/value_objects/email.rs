@@ -29,8 +29,8 @@ pub enum EmailError {
     Blank,
     #[error("invalid email address")]
     Invalid,
-    #[error("email is too long (maximum {0} characters")]
+    #[error("email is too long (maximum {0} characters)")]
     TooLong(usize),
-    #[error("email is too short (minimum {0} characters")]
+    #[error("email is too short (minimum {0} characters)")]
     TooShort(usize),
 }

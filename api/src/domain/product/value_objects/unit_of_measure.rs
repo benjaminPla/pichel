@@ -29,6 +29,6 @@ impl FromStr for UnitOfMeasure {
 
 #[derive(Debug, thiserror::Error)]
 pub enum UnitOfMeasureError {
-    #[error("unidad de medida inválida: {0}")]
+    #[error("invalid unit of measure: {0}")]
     Invalid(String),
 }

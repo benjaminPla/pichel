@@ -12,6 +12,6 @@ impl PasswordHash {
 
 impl std::fmt::Debug for PasswordHash {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("PasswordHash([redacted)]")
+        f.write_str("PasswordHash([redacted])")
     }
 }
