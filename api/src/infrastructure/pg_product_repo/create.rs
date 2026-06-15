@@ -3,8 +3,9 @@ use crate::{
     infrastructure::pg_product_repo::row::ProductRow,
 };
 use sqlx::PgPool;
+use uuid::Uuid;
 
-pub async fn create(pool: &PgPool, product: &Product) -> Result<Product, ProductRepoError> {
+pub async fn create(pool: &PgPool, product: &Product, updated_by: Uuid) -> Result<Product, ProductRepoError> {
     let row = sqlx::query_as::<_, ProductRow>(
         "INSERT INTO products
            (description, id, image_url, name, price_cents, sale_mode, symbols, unit_of_measure)
@@ -21,5 +22,10 @@ pub async fn create(pool: &PgPool, product: &Product) -> Result<Product, Product
     .bind(&product.get_unit_of_measure().as_str())
     .fetch_one(pool)
     .await?;
+    sqlx::query("UPDATE app_settings SET updated_by = $1 WHERE key = 'price_list_updated_at'")
+        .bind(updated_by)
+        .execute(pool)
+        .await
+        .map_err(|e| ProductRepoError::Database(e.to_string()))?;
     Ok(Product::try_from(row)?)
 }

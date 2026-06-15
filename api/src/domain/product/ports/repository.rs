@@ -12,14 +12,15 @@ use crate::domain::product::{
 };
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
 #[async_trait]
 pub trait ProductRepo: Send + Sync {
-    async fn create(&self, product: &Product)         -> Result<Product, ProductRepoError>;
-    async fn delete(&self, product: &ProductId)       -> Result<Product, ProductRepoError>;
-    async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError>;
-    async fn get_by_id(&self, product_id: &ProductId) -> Result<Product, ProductRepoError>;
-    async fn update(&self, product: &Product)         -> Result<Product, ProductRepoError>;
+    async fn create(&self, product: &Product, updated_by: Uuid)    -> Result<Product, ProductRepoError>;
+    async fn delete(&self, product_id: &ProductId, updated_by: Uuid) -> Result<Product, ProductRepoError>;
+    async fn get_all(&self, page: i64, per_page: i64)              -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError>;
+    async fn get_by_id(&self, product_id: &ProductId)              -> Result<Product, ProductRepoError>;
+    async fn update(&self, product: &Product, updated_by: Uuid)    -> Result<Product, ProductRepoError>;
 }
 
 // ── Errors ───────────────────────────────────────────────────────────────

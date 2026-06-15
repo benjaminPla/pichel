@@ -6,8 +6,8 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct DeleteProductInput {
-    pub id: Uuid
-
+    pub id:         Uuid,
+    pub updated_by: Uuid,
 }
 
 pub struct DeleteProductUseCase {
@@ -21,7 +21,7 @@ impl DeleteProductUseCase {
 
     pub async fn execute(&self, input: DeleteProductInput) -> Result<Product, ProductAppError> {
         let product_id = ProductId::reconstitute(input.id);
-        let product    = self.product_repo.delete(&product_id).await?;
+        let product    = self.product_repo.delete(&product_id, input.updated_by).await?;
         Ok(product)
     }
 }

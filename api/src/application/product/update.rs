@@ -25,6 +25,7 @@ pub struct UpdateProductInput {
     pub price_cents: Option<u32>,
     pub sale_mode:   Option<String>,
     pub symbols:     Option<Vec<String>>,
+    pub updated_by:  Uuid,
 }
 
 pub struct UpdateProductUseCase {
@@ -74,7 +75,7 @@ impl UpdateProductUseCase {
             symbols,
             unit_of_measure,
         );
-        let product = self.product_repo.update(&updated).await?;
+        let product = self.product_repo.update(&updated, input.updated_by).await?;
         Ok(product)
     }
 }

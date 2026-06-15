@@ -14,6 +14,7 @@ use crate::{
     },
 };
 use std::sync::Arc;
+use uuid::Uuid;
 
 pub struct CreateProductInput {
     pub description: Option<String>,
@@ -22,6 +23,7 @@ pub struct CreateProductInput {
     pub price_cents: u32,
     pub sale_mode:   String,
     pub symbols:     Vec<String>,
+    pub updated_by:  Uuid,
 }
 
 pub struct CreateProductUseCase {
@@ -44,7 +46,7 @@ impl CreateProductUseCase {
             SaleMode::Bulk    => UnitOfMeasure::Kilogram,
         };
         let product = Product::new(description, input.image_url, name, price_cents, sale_mode, symbols, unit_of_measure);
-        let product = self.product_repo.create(&product).await?;
+        let product = self.product_repo.create(&product, input.updated_by).await?;
         Ok(product)
     }
 }

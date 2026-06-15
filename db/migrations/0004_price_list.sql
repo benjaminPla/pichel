@@ -1,6 +1,7 @@
 CREATE TABLE app_settings (
     key        VARCHAR(50) PRIMARY KEY,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_by UUID REFERENCES users(id)
 );
 
 INSERT INTO app_settings (key) VALUES ('price_list_updated_at');
