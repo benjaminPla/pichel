@@ -6,7 +6,7 @@ use sqlx::PgPool;
 
 pub async fn get_by_id(pool: &PgPool, order_id: &OrderId) -> Result<(Order, Vec<OrderItem>), OrderRepoError> {
     let order_row = sqlx::query_as::<_, OrderRow>(
-        "SELECT id, customer_phone, customer_email, customer_name, total_price_cents, status, created_at
+        "SELECT id, customer_phone, customer_email, customer_name, total_price_cents, status::text as status, created_at
          FROM orders WHERE id = $1",
     )
     .bind(order_id.value())

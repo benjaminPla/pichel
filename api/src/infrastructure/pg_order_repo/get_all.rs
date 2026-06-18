@@ -14,7 +14,7 @@ pub async fn get_all(pool: &PgPool, page: i64, per_page: i64) -> Result<(Vec<(Or
         .map_err(|e| OrderRepoError::Database(e.to_string()))?;
 
     let order_rows = sqlx::query_as::<_, OrderRow>(
-        "SELECT id, customer_phone, customer_email, customer_name, total_price_cents, status, created_at
+        "SELECT id, customer_phone, customer_email, customer_name, total_price_cents, status::text as status, created_at
          FROM orders ORDER BY created_at DESC LIMIT $1 OFFSET $2",
     )
     .bind(per_page)

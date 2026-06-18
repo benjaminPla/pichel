@@ -10,7 +10,7 @@ pub async fn create(pool: &PgPool, order: &Order, items: &[OrderItem]) -> Result
     let order_row = sqlx::query_as::<_, OrderRow>(
         "INSERT INTO orders (id, customer_phone, customer_email, customer_name, total_price_cents, status)
          VALUES ($1,$2,$3,$4,$5,'pending')
-         RETURNING id, customer_phone, customer_email, customer_name, total_price_cents, status, created_at",
+         RETURNING id, customer_phone, customer_email, customer_name, total_price_cents, status::text as status, created_at",
     )
     .bind(order.get_id().value())
     .bind(order.get_customer_phone())
