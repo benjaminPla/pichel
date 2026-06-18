@@ -1,4 +1,4 @@
-@token    = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2ZWJiMjVhYy00NmQwLTRlMjktOGQxNi1kNDBjOGQxNTc2MzIiLCJleHAiOjE3NzkxOTA5MTV9.Kh9AVgsGHmhgChkpiw-6TLHlQQumFd7dhhp7P4qXKiQ
+@token    = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3YmU1ZTUwOC0wNWVlLTRmOTYtYmNhMS00NmY3ZDFjNjE5MDciLCJleHAiOjE3ODE4OTM3OTh9.qJGSAh-rB1qcDOqtoRpnkMDoKOcoWX4UfLdVAD4pwcM
 @order_id = 00000000-0000-0000-0000-000000000000
 
 ### create (public)
@@ -10,8 +10,8 @@ Content-Type: application/json
     "customer_name":  "Juan Pérez",
     "customer_phone": "+5492291234567",
     "items": [
-        { "product_id": "00000000-0000-0000-0000-000000000000", "quantity": 500 },
-        { "product_id": "00000000-0000-0000-0000-000000000001", "quantity": 2 }
+        { "product_id": "da9c448a-c2d0-4b9b-be03-9ede5ab822d6", "quantity": 500 },
+        { "product_id": "0d80f1eb-3a8f-4592-a0f8-b279a4856b91", "quantity": 2 }
     ]
 }
 
