@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_DB:       pichel
       POSTGRES_USER:     pichel
@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /tmp/pichel-pg:/var/lib/postgresql/data
+      - /tmp/pichel-pg:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pichel -d pichel"]
       interval: 3s
