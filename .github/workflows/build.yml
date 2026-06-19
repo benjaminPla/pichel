@@ -58,13 +58,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Copy docker-compose.prod.yml to server
+      - name: Copy files to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          source: docker-compose.prod.yml
+          source: docker-compose.prod.yml,infra/pichel.service
           target: /opt/pichel/
           mkdir: true
 
@@ -86,6 +86,9 @@ jobs:
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             RUST_LOG=${{ secrets.RUST_LOG }}
             EOF
+            cp /opt/pichel/infra/pichel.service /etc/systemd/system/pichel.service
+            systemctl daemon-reload
+            systemctl enable pichel
             docker compose -f /opt/pichel/docker-compose.prod.yml pull
             docker compose -f /opt/pichel/docker-compose.prod.yml up -d
             docker image prune -f
