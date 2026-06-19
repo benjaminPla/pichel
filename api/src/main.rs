@@ -26,6 +26,7 @@ async fn main() {
         .init();
     let config = envy::from_env::<Config>().expect("Failed to load env vars");
     let pool   = sqlx::PgPool::connect(&config.database_url).await.expect("Failed to connect to Postgres");
+    sqlx::migrate!("../db/migrations").run(&pool).await.expect("Failed to run migrations");
     let app_state = AppState {
         cookie_secure:  config.cookie_secure,
         hasher_service: Arc::new(Argon2HasherService::new()),

@@ -1,6 +1,9 @@
-CREATE TYPE order_status AS ENUM ('pending', 'closed', 'cancelled');
+DO $$ BEGIN
+    CREATE TYPE order_status AS ENUM ('pending', 'closed', 'cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id                UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
     customer_phone    VARCHAR(30)  NOT NULL,
     customer_email    VARCHAR(100) NOT NULL,
@@ -10,7 +13,7 @@ CREATE TABLE orders (
     created_at        TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE order_items (
+CREATE TABLE IF NOT EXISTS order_items (
     id                  UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
     order_id            UUID         NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
     product_id          UUID         NOT NULL REFERENCES products(id),
@@ -20,6 +23,6 @@ CREATE TABLE order_items (
     sale_mode           VARCHAR(20)  NOT NULL
 );
 
-CREATE INDEX idx_order_items_order_id ON order_items(order_id);
-CREATE INDEX idx_orders_status        ON orders(status);
-CREATE INDEX idx_orders_created_at    ON orders(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status        ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_created_at    ON orders(created_at DESC);
