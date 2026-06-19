@@ -16,24 +16,12 @@ services:
       timeout: 5s
       retries: 10
 
-  # ── API (future: built image) ─────────────────────────────────────────────
-  # api:
-  #   image: pichel-api:latest
-  #   environment:
-  #     DATABASE_URL: postgres://pichel:pichel@db:5432/pichel
-  #     JWT_SECRET:   change-me
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-
   web:
     image: nginx:alpine
     ports:
       - "8080:80"
     volumes:
-      - ./web:/usr/share/nginx/html:ro
+      - ./web/build:/usr/share/nginx/html:ro
       - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"

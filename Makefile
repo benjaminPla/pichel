@@ -28,7 +28,7 @@ db-exec:
 db-seed:
 	@echo "Running seed..."
 	docker compose exec -T db psql -U pichel -d pichel < db/seed.sql
-	@echo "Done. Login: admin@admin.com / admin"
+	@echo "Done. Login: admin@admin.com / admin12345!"
 
 logs:
 	docker compose logs -f
