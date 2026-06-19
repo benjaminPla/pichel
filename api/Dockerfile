@@ -4,7 +4,8 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
 
-COPY . .
+COPY api/ .
+COPY db/migrations/ /db/migrations/
 
 RUN cargo build --release
 
