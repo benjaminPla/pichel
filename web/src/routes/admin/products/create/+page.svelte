@@ -1,11 +1,10 @@
 <script>
   import { goto } from '$app/navigation';
+  import { apiFetch } from '$lib/api.js';
   import { toast } from '$lib/toast.js';
   import { topbarTitle } from '$lib/adminStore.js';
 
   topbarTitle.set('Agregar producto');
-
-  const API = '';
   const SYMBOLS = [
     { value: 'vegan',         label: '🌱 Vegano'                },
     { value: 'vegetarian',    label: '🥕 Vegetariano'           },
@@ -35,9 +34,8 @@
 
     submitting = true;
     try {
-      const res = await fetch(`${API}/products`, {
+      const res = await apiFetch('/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name:        name.trim(),
           description: description.trim() || null,
@@ -47,7 +45,7 @@
           image_url:   imageUrl.trim() || null,
         }),
       });
-      if (res.status === 401) { goto('/login'); return; }
+      if (!res) return;
       if (!res.ok) { toast('Error al crear el producto', 'error'); return; }
       goto('/admin/products');
     } catch { toast('Error del servidor', 'error'); }
