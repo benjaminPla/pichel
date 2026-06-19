@@ -1,0 +1,35 @@
+services:
+
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - /var/lib/pichel/pg-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pichel -d pichel"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: ${DOCKERHUB_USERNAME}/pichel_api:latest
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - /var/lib/pichel/uploads:/app/uploads
+
+  web:
+    image: ${DOCKERHUB_USERNAME}/pichel_web:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/lib/pichel/uploads:/usr/share/nginx/html/uploads:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - api
