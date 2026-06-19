@@ -55,6 +55,19 @@ jobs:
     environment: production
     needs: [build-api, build-web]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.prod.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          source: docker-compose.prod.yml
+          target: /opt/pichel/
+          mkdir: true
+
       - name: Deploy to Hetzner
         uses: appleboy/ssh-action@v1
         with:
@@ -62,6 +75,17 @@ jobs:
           username: ${{ secrets.HETZNER_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
+            cat > /opt/pichel/.env <<'EOF'
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            PORT=${{ secrets.PORT }}
+            COOKIE_SECURE=${{ secrets.COOKIE_SECURE }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            RUST_LOG=${{ secrets.RUST_LOG }}
+            EOF
             docker compose -f /opt/pichel/docker-compose.prod.yml pull
             docker compose -f /opt/pichel/docker-compose.prod.yml up -d
             docker image prune -f
