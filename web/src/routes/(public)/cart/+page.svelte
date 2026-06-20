@@ -9,27 +9,25 @@
   let phone = '';
   let email = '';
   let name = '';
-  let phoneError = false;
-  let emailError = false;
+  let phoneTouched = false;
+  let emailTouched = false;
   let submitting = false;
-
-  $: items = Object.values($cart.items);
-  $: total = items.reduce((s, i) => s + calcSubtotal(i), 0);
-  $: canSubmit = items.length > 0 && !submitting;
-
-  function adjustQty(item, delta) {
-    const newQty = item.quantity + delta;
-    if (newQty <= 0) cart.removeItem(item.id);
-    else cart.setItem(item.id, newQty, [item]);
-  }
 
   const phoneRe = /^\+?[0-9]{7,15}$/;
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  $: items = Object.values($cart.items);
+  $: total = items.reduce((s, i) => s + calcSubtotal(i), 0);
+  $: phoneValid = phoneRe.test(phone.trim());
+  $: emailValid = email.trim() === '' || emailRe.test(email.trim());
+  $: phoneError = phoneTouched && !phoneValid;
+  $: emailError = emailTouched && !emailValid;
+  $: canSubmit = items.length > 0 && !submitting && phoneValid && emailValid;
+
   async function submitOrder() {
-    phoneError = !phoneRe.test(phone.trim());
-    emailError = email.trim() !== '' && !emailRe.test(email.trim());
-    if (phoneError || emailError) return;
+    phoneTouched = true;
+    emailTouched = true;
+    if (!phoneValid || !emailValid) return;
 
     submitting = true;
     try {
@@ -105,11 +103,15 @@
             <span class="ci-qty-label">{fmtQty(item)}</span>
           </div>
           <div class="ci-right">
-            <div class="ci-stepper">
-              <button class="qty-btn" on:click={() => adjustQty(item, -1)}>−</button>
-              <span class="ci-qty-val">{item.quantity}{item.sale_mode === 'bulk' ? 'g' : ''}</span>
-              <button class="qty-btn" on:click={() => adjustQty(item, 1)}>+</button>
-            </div>
+            <input type="number"
+                min={item.sale_mode === 'bulk' ? 50 : 1}
+                step={item.sale_mode === 'bulk' ? 50 : 1}
+                value={item.quantity}
+                on:change={e => {
+                  const v = +e.target.value;
+                  if (v > 0) cart.setItem(item.id, v, [item]);
+                  else cart.removeItem(item.id);
+                }} />
             <span class="ci-sub">{fmtCents(calcSubtotal(item))}</span>
             <button class="ci-remove" on:click={() => cart.removeItem(item.id)} aria-label="Eliminar">✕</button>
           </div>
@@ -133,13 +135,26 @@
       </label>
 
       <div class="cart-form" style="margin-top:var(--sp-4)">
-        <input type="tel" bind:value={phone} placeholder="Teléfono: 1123456789 o +541123456789"
-          autocomplete="tel" class:input-error={phoneError}
-          on:input={() => (phoneError = false)} />
-        <input type="email" bind:value={email} placeholder="Email (opcional)"
-          autocomplete="email" class:input-error={emailError}
-          on:input={() => (emailError = false)} />
-        <input type="text" bind:value={name} placeholder="Nombre (opcional)" autocomplete="name" />
+        <div class="cart-field">
+          <label>Teléfono <span class="req">*</span></label>
+          <input type="tel" bind:value={phone} placeholder="1123456789 o +541123456789"
+            autocomplete="tel" class:input-error={phoneError}
+            on:input={() => (phoneTouched = true)} />
+        </div>
+        <div class="cart-field">
+          <label>Email</label>
+          <input type="email" bind:value={email} placeholder="usuario@ejemplo.com"
+            autocomplete="email" class:input-error={emailError}
+            on:input={() => (emailTouched = true)} />
+        </div>
+        <div class="cart-field">
+          <label>Nombre</label>
+          <input type="text" bind:value={name} placeholder="María García" autocomplete="name" />
+        </div>
+        <div class="cart-wpp-note">
+          <span class="cart-wpp-note-icon">💬</span>
+          <span>Sin pagos online. Al confirmar te abrimos un chat de WhatsApp con tu pedido listo — desde ahí coordinamos entrega y pago con vos.</span>
+        </div>
         <button class="btn-wpp-submit" disabled={!canSubmit} on:click={submitOrder}>
           {#if submitting}
             <span class="spinner"></span> Enviando…

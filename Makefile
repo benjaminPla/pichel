@@ -1,7 +1,8 @@
 .PHONY: dev-up dev-down db-seed db-exec logs
 
 dev-up:
-	docker compose up -d db web
+	docker compose up -d db
+	cd web && npm run dev &
 	cd api && \
 	DATABASE_URL=postgres://pichel:pichel@localhost:5432/pichel \
 	PORT=3000 \

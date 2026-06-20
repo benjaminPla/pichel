@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { cart } from '$lib/cart.js';
-  import { fmtCents, fmtDate, fmtQty, calcSubtotal } from '$lib/format.js';
+  import { fmtCents, fmtDate } from '$lib/format.js';
   import { SYMBOL_DEFS } from '$lib/symbols.js';
 
   const API = '';
@@ -37,27 +37,20 @@
     }
   }
 
-  function addToCart(p) {
-    cart.setItem(p.id, p.sale_mode === 'bulk' ? 100 : 1, products);
+  let pending = {};
+
+  function stage(p) {
+    pending[p.id] = p.sale_mode === 'bulk' ? 50 : 1;
+    pending = pending;
   }
 
-  function adjustQty(p, delta) {
-    const item = $cart.items[p.id];
-    const newQty = (item ? item.quantity : 0) + delta;
-    if (newQty <= 0) cart.removeItem(p.id);
-    else cart.setItem(p.id, newQty, products);
+  function confirm(p) {
+    const qty = pending[p.id];
+    if (qty > 0) cart.setItem(p.id, qty, products);
+    delete pending[p.id];
+    pending = pending;
   }
 
-  function onQtyInput(p, value) {
-    const qty = parseInt(value);
-    if (!qty || qty <= 0) return;
-    cart.setItem(p.id, qty, products);
-  }
-
-  function onQtyBlur(p, value) {
-    const qty = parseInt(value) || 0;
-    if (qty <= 0) cart.removeItem(p.id);
-  }
 </script>
 
 <svelte:head>
@@ -132,19 +125,24 @@
                 {/if}
               </div>
               {#if qty > 0}
-                <div class="qty-stepper" style="display:flex">
-                  <button class="qty-btn" on:click={() => adjustQty(p, -1)}>−</button>
-                  <input class="qty-input" type="number" min="0" step="1"
-                    value={qty}
-                    on:input={e => onQtyInput(p, e.target.value)}
-                    on:blur={e => onQtyBlur(p, e.target.value)} />
-                  <button class="qty-btn" on:click={() => adjustQty(p, 1)}>+</button>
-                  {#if p.sale_mode === 'bulk'}<span class="qty-unit">g</span>{/if}
-                </div>
-                <div class="qty-hint">{fmtQty(item)}</div>
-                <div class="qty-subtotal">{fmtCents(calcSubtotal(item))}</div>
+                <input type="number"
+                  min={p.sale_mode === 'bulk' ? 50 : 1}
+                  step={p.sale_mode === 'bulk' ? 50 : 1}
+                  value={qty}
+                  on:change={e => {
+                    const v = +e.target.value;
+                    if (v > 0) cart.setItem(p.id, v, products);
+                    else cart.removeItem(p.id);
+                  }} />
+                <button class="btn-cart-remove" on:click={() => cart.removeItem(p.id)}>Quitar</button>
+              {:else if pending[p.id] != null}
+                <input type="number"
+                  min={p.sale_mode === 'bulk' ? 50 : 1}
+                  step={p.sale_mode === 'bulk' ? 50 : 1}
+                  bind:value={pending[p.id]} />
+                <button class="btn-cart-add" on:click={() => confirm(p)}>Agregar al carrito</button>
               {:else}
-                <button class="btn-cart-add" on:click={() => addToCart(p)}>Agregar</button>
+                <button class="btn-cart-add" on:click={() => stage(p)}>Seleccionar</button>
               {/if}
             </div>
           </div>
