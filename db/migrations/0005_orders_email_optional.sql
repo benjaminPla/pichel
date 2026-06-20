@@ -3,6 +3,11 @@ DO $$ BEGIN
 EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
+UPDATE orders
+SET customer_email = NULL
+WHERE customer_email IS NOT NULL
+  AND customer_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$';
+
 DO $$ BEGIN
     ALTER TABLE orders ADD CONSTRAINT orders_customer_email_format
         CHECK (customer_email IS NULL OR customer_email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$');

@@ -1,14 +1,16 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
-use crate::domain::order::{
-    ports::repository::OrderRepoError,
-    value_objects::{
-        email::Email,
-        id::{OrderId, OrderItemId},
-        order_status::OrderStatus,
-        quantity::Quantity,
+use crate::domain::{
+    order::{
+        ports::repository::OrderRepoError,
+        value_objects::{
+            id::{OrderId, OrderItemId},
+            order_status::OrderStatus,
+            quantity::Quantity,
+        },
+        Order, OrderItem,
     },
-    Order, OrderItem,
+    shared::value_objects::email::Email,
 };
 use crate::domain::product::value_objects::{
     id::ProductId,

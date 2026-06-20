@@ -9,10 +9,13 @@ mod update;
 mod update_password;
 
 use async_trait::async_trait;
-use crate::domain::user::{
-    ports::{UserRepo, UserRepoError},
-    value_objects::{email::Email, id::UserId, password_hash::PasswordHash},
-    User,
+use crate::domain::{
+    shared::value_objects::email::Email,
+    user::{
+        ports::{UserRepo, UserRepoError},
+        value_objects::{id::UserId, password_hash::PasswordHash},
+        User,
+    },
 };
 use sqlx::PgPool;
 

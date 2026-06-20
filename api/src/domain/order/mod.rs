@@ -2,8 +2,8 @@ pub mod ports;
 pub mod value_objects;
 
 use chrono::{DateTime, Utc};
+use crate::domain::shared::value_objects::email::Email;
 use value_objects::{
-    email::Email,
     id::{OrderId, OrderItemId},
     order_status::OrderStatus,
     quantity::Quantity,

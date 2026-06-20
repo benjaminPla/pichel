@@ -5,13 +5,14 @@ use crate::{
     domain::{
         order::{
             ports::repository::OrderRepo,
-            value_objects::{email::Email, quantity::Quantity},
+            value_objects::quantity::Quantity,
             Order, OrderItem,
         },
         product::{
             ports::repository::ProductRepo,
             value_objects::{id::ProductId, price_cents::PriceCents, sale_mode::SaleMode},
         },
+        shared::value_objects::email::Email,
     },
 };
 

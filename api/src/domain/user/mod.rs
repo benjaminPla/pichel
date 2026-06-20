@@ -1,7 +1,8 @@
 pub mod ports;
 pub mod value_objects;
 
-use value_objects::{email::Email, id::UserId, password_hash::PasswordHash};
+use crate::domain::shared::value_objects::email::Email;
+use value_objects::{id::UserId, password_hash::PasswordHash};
 
 pub struct User {
     email:         Email,

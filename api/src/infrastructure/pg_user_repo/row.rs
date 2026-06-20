@@ -1,7 +1,10 @@
-use crate::domain::user::{
-    ports::UserRepoError,
-    value_objects::{email::Email, id::UserId, password_hash::PasswordHash},
-    User,
+use crate::domain::{
+    shared::value_objects::email::Email,
+    user::{
+        ports::UserRepoError,
+        value_objects::{id::UserId, password_hash::PasswordHash},
+        User,
+    },
 };
 use uuid::Uuid;
 

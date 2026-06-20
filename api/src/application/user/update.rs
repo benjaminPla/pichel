@@ -1,9 +1,12 @@
 use crate::{
     application::user::errors::UserAppError,
-    domain::user::{
-        ports::UserRepo,
-        value_objects::{email::Email, id::UserId},
-        User,
+    domain::{
+        shared::value_objects::email::Email,
+        user::{
+            ports::UserRepo,
+            value_objects::id::UserId,
+            User,
+        },
     },
 };
 use std::sync::Arc;

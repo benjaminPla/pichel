@@ -1,6 +1,9 @@
-use crate::domain::order::{
-    ports::repository::OrderRepoError,
-    value_objects::{email::EmailError, order_status::OrderStatusError, quantity::QuantityError},
+use crate::domain::{
+    order::{
+        ports::repository::OrderRepoError,
+        value_objects::{order_status::OrderStatusError, quantity::QuantityError},
+    },
+    shared::value_objects::email::EmailError,
 };
 use crate::domain::product::value_objects::price_cents::PriceCentsError;
 

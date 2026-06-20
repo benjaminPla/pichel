@@ -1,9 +1,10 @@
 use crate::domain::{
     auth::ports::TokenServiceError,
     hasher::HasherServiceError,
+    shared::value_objects::email::EmailError,
     user::{
         ports::UserRepoError,
-        value_objects::{email::EmailError, password_raw::PasswordRawError},
+        value_objects::password_raw::PasswordRawError,
     },
 };
 

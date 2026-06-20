@@ -2,9 +2,10 @@ use crate::{
     application::user::errors::UserAppError,
     domain::{
         hasher::HasherService,
+        shared::value_objects::email::Email,
         user::{
             ports::UserRepo,
-            value_objects::{email::Email, password_raw::PasswordRaw},
+            value_objects::password_raw::PasswordRaw,
             User,
         },
     },

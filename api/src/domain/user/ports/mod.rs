@@ -1,10 +1,9 @@
-use crate::domain::user::{
-    value_objects::{
-        email::{Email, EmailError},
-        id::UserId,
-        password_hash::PasswordHash,
+use crate::domain::{
+    shared::value_objects::email::{Email, EmailError},
+    user::{
+        value_objects::{id::UserId, password_hash::PasswordHash},
+        User,
     },
-    User,
 };
 use async_trait::async_trait;
 

@@ -1,4 +1,4 @@
-use crate::domain::user::{ports::UserRepoError, value_objects::email::Email, User};
+use crate::domain::{shared::value_objects::email::Email, user::{ports::UserRepoError, User}};
 use crate::infrastructure::pg_user_repo::row::UserRowWithPasswordHash;
 use sqlx::PgPool;
 
