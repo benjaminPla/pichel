@@ -11,7 +11,7 @@ pub struct OrderItemRequestBody {
 
 #[derive(Deserialize)]
 pub struct OrderCreateRequestBody {
-    pub customer_email: String,
+    pub customer_email: Option<String>,
     pub customer_name:  Option<String>,
     pub customer_phone: String,
     pub items:          Vec<OrderItemRequestBody>,
@@ -43,7 +43,7 @@ impl From<OrderItem> for OrderItemResponse {
 #[derive(Serialize)]
 pub struct OrderCreateResponse {
     created_at:        DateTime<Utc>,
-    customer_email:    String,
+    customer_email:    Option<String>,
     customer_name:     Option<String>,
     customer_phone:    String,
     id:                Uuid,
@@ -56,7 +56,7 @@ impl From<(Order, Vec<OrderItem>)> for OrderCreateResponse {
     fn from((o, items): (Order, Vec<OrderItem>)) -> Self {
         Self {
             created_at:        o.get_created_at(),
-            customer_email:    o.get_customer_email().to_string(),
+            customer_email:    o.get_customer_email().map(|s| s.to_string()),
             customer_name:     o.get_customer_name().map(|s| s.to_string()),
             customer_phone:    o.get_customer_phone().to_string(),
             id:                o.get_id().value(),

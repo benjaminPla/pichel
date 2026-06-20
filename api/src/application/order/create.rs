@@ -5,7 +5,7 @@ use crate::{
     domain::{
         order::{
             ports::repository::OrderRepo,
-            value_objects::quantity::Quantity,
+            value_objects::{email::Email, quantity::Quantity},
             Order, OrderItem,
         },
         product::{
@@ -21,7 +21,7 @@ pub struct OrderItemInput {
 }
 
 pub struct CreateOrderInput {
-    pub customer_email: String,
+    pub customer_email: Option<String>,
     pub customer_name:  Option<String>,
     pub customer_phone: String,
     pub items:          Vec<OrderItemInput>,
@@ -73,7 +73,8 @@ impl CreateOrderUseCase {
             u32::try_from(total_cents).map_err(|_| OrderAppError::Validation("total price overflow".to_string()))?,
         )?;
 
-        let order      = Order::new(input.customer_email, input.customer_name, input.customer_phone, total_price_cents);
+        let customer_email = input.customer_email.map(Email::new).transpose()?;
+        let order      = Order::new(customer_email, input.customer_name, input.customer_phone, total_price_cents);
         let order_id   = order.get_id().clone();
         let order_items: Vec<OrderItem> = snapshots
             .into_iter()

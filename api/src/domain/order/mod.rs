@@ -3,6 +3,7 @@ pub mod value_objects;
 
 use chrono::{DateTime, Utc};
 use value_objects::{
+    email::Email,
     id::{OrderId, OrderItemId},
     order_status::OrderStatus,
     quantity::Quantity,
@@ -70,7 +71,7 @@ impl OrderItem {
 #[derive(Debug, Clone)]
 pub struct Order {
     created_at:        DateTime<Utc>,
-    customer_email:    String,
+    customer_email:    Option<Email>,
     customer_name:     Option<String>,
     customer_phone:    String,
     id:                OrderId,
@@ -80,7 +81,7 @@ pub struct Order {
 
 impl Order {
     pub fn new(
-        customer_email:    String,
+        customer_email:    Option<Email>,
         customer_name:     Option<String>,
         customer_phone:    String,
         total_price_cents: PriceCents,
@@ -98,14 +99,14 @@ impl Order {
 
     pub fn reconstitute(
         created_at:        DateTime<Utc>,
-        customer_email:    String,
+        customer_email:    Option<Email>,
         customer_name:     Option<String>,
         customer_phone:    String,
         id:                OrderId,
         status:            OrderStatus,
         total_price_cents: PriceCents,
     ) -> Self {
-        Self { 
+        Self {
             created_at,
             customer_email,
             customer_name,
@@ -119,7 +120,7 @@ impl Order {
     // ── Getters ──────────────────────────────────────────────────────────────
 
     pub fn get_created_at(&self)        -> DateTime<Utc> { self.created_at }
-    pub fn get_customer_email(&self)    -> &str          { &self.customer_email }
+    pub fn get_customer_email(&self)    -> Option<&str>  { self.customer_email.as_ref().map(|e| e.value()) }
     pub fn get_customer_name(&self)     -> Option<&str>  { self.customer_name.as_deref() }
     pub fn get_customer_phone(&self)    -> &str          { &self.customer_phone }
     pub fn get_id(&self)                -> &OrderId      { &self.id }

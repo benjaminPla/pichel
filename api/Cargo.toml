@@ -10,6 +10,7 @@ axum               = { version = "0.7", features = ["macros"] }
 chrono             = { version = "0.4", features = ["serde"] }
 envy               = "0.4.2"
 jsonwebtoken       = "9"
+regex              = "1"
 serde_json         = "1"
 serde              = { version = "1",   features = ["derive"] }
 sqlx               = { version = "0.8", features = ["postgres", "runtime-tokio", "uuid", "migrate", "chrono"] }

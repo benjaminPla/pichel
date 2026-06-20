@@ -3,6 +3,7 @@ use uuid::Uuid;
 use crate::domain::order::{
     ports::repository::OrderRepoError,
     value_objects::{
+        email::Email,
         id::{OrderId, OrderItemId},
         order_status::OrderStatus,
         quantity::Quantity,
@@ -18,7 +19,7 @@ use crate::domain::product::value_objects::{
 #[derive(sqlx::FromRow)]
 pub struct OrderRow {
     pub created_at:        DateTime<Utc>,
-    pub customer_email:    String,
+    pub customer_email:    Option<String>,
     pub customer_name:     Option<String>,
     pub customer_phone:    String,
     pub id:                Uuid,
@@ -33,7 +34,11 @@ impl TryFrom<OrderRow> for Order {
         let id                = OrderId::reconstitute(r.id);
         let status            = r.status.parse::<OrderStatus>()?;
         let total_price_cents = PriceCents::new(u32::try_from(r.total_price_cents)?)?;
-        Ok(Order::reconstitute(r.created_at, r.customer_email, r.customer_name, r.customer_phone, id, status, total_price_cents))
+        let customer_email    = r.customer_email
+            .map(Email::new)
+            .transpose()
+            .map_err(|e| OrderRepoError::Mapping(e.to_string()))?;
+        Ok(Order::reconstitute(r.created_at, customer_email, r.customer_name, r.customer_phone, id, status, total_price_cents))
     }
 }
 

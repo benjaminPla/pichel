@@ -130,10 +130,10 @@
       </label>
 
       <div class="cart-form" style="margin-top:var(--sp-4)">
-        <input type="tel" bind:value={phone} placeholder="📱 Teléfono (requerido)"
+        <input type="tel" bind:value={phone} placeholder="Teléfono (requerido)"
           autocomplete="tel" class:input-error={phoneError}
           on:input={() => (phoneError = false)} />
-        <input type="email" bind:value={email} placeholder="Email (requerido)"
+        <input type="email" bind:value={email} placeholder="Email (opcional)"
           autocomplete="email" class:input-error={emailError}
           on:input={() => (emailError = false)} />
         <input type="text" bind:value={name} placeholder="Nombre (opcional)" autocomplete="name" />
