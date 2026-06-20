@@ -6,6 +6,7 @@ use crate::domain::{
         value_objects::{
             id::{OrderId, OrderItemId},
             order_status::OrderStatus,
+            phone::Phone,
             quantity::Quantity,
         },
         Order, OrderItem,
@@ -36,11 +37,13 @@ impl TryFrom<OrderRow> for Order {
         let id                = OrderId::reconstitute(r.id);
         let status            = r.status.parse::<OrderStatus>()?;
         let total_price_cents = PriceCents::new(u32::try_from(r.total_price_cents)?)?;
-        let customer_email    = r.customer_email
+        let customer_email = r.customer_email
             .map(Email::new)
             .transpose()
             .map_err(|e| OrderRepoError::Mapping(e.to_string()))?;
-        Ok(Order::reconstitute(r.created_at, customer_email, r.customer_name, r.customer_phone, id, status, total_price_cents))
+        let customer_phone = Phone::new(r.customer_phone)
+            .map_err(|e| OrderRepoError::Mapping(e.to_string()))?;
+        Ok(Order::reconstitute(r.created_at, customer_email, r.customer_name, customer_phone, id, status, total_price_cents))
     }
 }
 

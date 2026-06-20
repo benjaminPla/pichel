@@ -6,6 +6,7 @@ use crate::domain::shared::value_objects::email::Email;
 use value_objects::{
     id::{OrderId, OrderItemId},
     order_status::OrderStatus,
+    phone::Phone,
     quantity::Quantity,
 };
 use crate::domain::product::value_objects::{
@@ -73,7 +74,7 @@ pub struct Order {
     created_at:        DateTime<Utc>,
     customer_email:    Option<Email>,
     customer_name:     Option<String>,
-    customer_phone:    String,
+    customer_phone:    Phone,
     id:                OrderId,
     status:            OrderStatus,
     total_price_cents: PriceCents,
@@ -83,7 +84,7 @@ impl Order {
     pub fn new(
         customer_email:    Option<Email>,
         customer_name:     Option<String>,
-        customer_phone:    String,
+        customer_phone:    Phone,
         total_price_cents: PriceCents,
     ) -> Self {
         Self {
@@ -101,7 +102,7 @@ impl Order {
         created_at:        DateTime<Utc>,
         customer_email:    Option<Email>,
         customer_name:     Option<String>,
-        customer_phone:    String,
+        customer_phone:    Phone,
         id:                OrderId,
         status:            OrderStatus,
         total_price_cents: PriceCents,
@@ -122,7 +123,7 @@ impl Order {
     pub fn get_created_at(&self)        -> DateTime<Utc> { self.created_at }
     pub fn get_customer_email(&self)    -> Option<&str>  { self.customer_email.as_ref().map(|e| e.value()) }
     pub fn get_customer_name(&self)     -> Option<&str>  { self.customer_name.as_deref() }
-    pub fn get_customer_phone(&self)    -> &str          { &self.customer_phone }
+    pub fn get_customer_phone(&self)    -> &str          { self.customer_phone.value() }
     pub fn get_id(&self)                -> &OrderId      { &self.id }
     pub fn get_status(&self)            -> &OrderStatus  { &self.status }
     pub fn get_total_price_cents(&self) -> PriceCents    { self.total_price_cents }

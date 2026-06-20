@@ -5,7 +5,7 @@ use crate::{
     domain::{
         order::{
             ports::repository::OrderRepo,
-            value_objects::quantity::Quantity,
+            value_objects::{phone::Phone, quantity::Quantity},
             Order, OrderItem,
         },
         product::{
@@ -75,7 +75,8 @@ impl CreateOrderUseCase {
         )?;
 
         let customer_email = input.customer_email.map(Email::new).transpose()?;
-        let order      = Order::new(customer_email, input.customer_name, input.customer_phone, total_price_cents);
+        let customer_phone = Phone::new(input.customer_phone)?;
+        let order      = Order::new(customer_email, input.customer_name, customer_phone, total_price_cents);
         let order_id   = order.get_id().clone();
         let order_items: Vec<OrderItem> = snapshots
             .into_iter()

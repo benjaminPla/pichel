@@ -23,9 +23,12 @@
     else cart.setItem(item.id, newQty, [item]);
   }
 
+  const phoneRe = /^\+?[0-9]{7,15}$/;
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   async function submitOrder() {
-    phoneError = !phone.trim();
-    emailError = !email.trim();
+    phoneError = !phoneRe.test(phone.trim());
+    emailError = email.trim() !== '' && !emailRe.test(email.trim());
     if (phoneError || emailError) return;
 
     submitting = true;
@@ -130,7 +133,7 @@
       </label>
 
       <div class="cart-form" style="margin-top:var(--sp-4)">
-        <input type="tel" bind:value={phone} placeholder="Teléfono (requerido)"
+        <input type="tel" bind:value={phone} placeholder="Teléfono: 1123456789 o +541123456789"
           autocomplete="tel" class:input-error={phoneError}
           on:input={() => (phoneError = false)} />
         <input type="email" bind:value={email} placeholder="Email (opcional)"
