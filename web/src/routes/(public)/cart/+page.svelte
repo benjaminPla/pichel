@@ -2,9 +2,9 @@
   import { goto } from '$app/navigation';
   import { cart } from '$lib/cart.js';
   import { fmtCents, fmtQty, calcSubtotal } from '$lib/format.js';
+  import { WA as WA_NUMBER } from '$lib/contact.js';
 
   const API = '';
-  const WA_NUMBER = '5492236045733';
 
   let phone = '';
   let email = '';
@@ -140,12 +140,14 @@
           <input type="tel" bind:value={phone} placeholder="1123456789 o +541123456789"
             autocomplete="tel" class:input-error={phoneError}
             on:input={() => (phoneTouched = true)} />
+          {#if phoneError}<span class="field-error">Ingresá un número válido (7–15 dígitos)</span>{/if}
         </div>
         <div class="cart-field">
           <label>Email</label>
           <input type="email" bind:value={email} placeholder="usuario@ejemplo.com"
             autocomplete="email" class:input-error={emailError}
             on:input={() => (emailTouched = true)} />
+          {#if emailError}<span class="field-error">Ingresá un email válido</span>{/if}
         </div>
         <div class="cart-field">
           <label>Nombre</label>
