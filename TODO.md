@@ -7,7 +7,4 @@
 
 - [ ] Product image file upload endpoint (saves to `/app/uploads`)
 - [ ] Admin UI: image upload field instead of URL string
-
-- [x] cart form client errors
-- [x] add more info on cart flow -> no se paga pero se manjea todo por wpp
 - [ ] add favicon
