@@ -12,3 +12,12 @@ export async function apiFetch(path, opts = {}) {
   }
   return res;
 }
+
+export async function apiUpload(path, formData) {
+  const res = await fetch(path, { method: 'POST', body: formData });
+  if (res.status === 401) {
+    if (browser) goto('/login');
+    return null;
+  }
+  return res;
+}

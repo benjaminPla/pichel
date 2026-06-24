@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { apiFetch } from '$lib/api.js';
+  import { apiFetch, apiUpload } from '$lib/api.js';
   import { toast } from '$lib/toast.js';
   import { topbarTitle } from '$lib/adminStore.js';
 
@@ -27,6 +27,8 @@
   let priceStr = '';
   let selectedSymbols = [];
   let imageUrl = '';
+  let imageFile = null;
+  let previewUrl = '';
   let submitting = false;
 
   $: isBulk = saleMode === 'bulk';
@@ -44,7 +46,15 @@
     priceStr        = (p.price_cents / 100).toFixed(2);
     selectedSymbols = p.symbols || [];
     imageUrl        = p.image_url || '';
+    previewUrl      = p.image_url || '';
   });
+
+  function handleImageChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    imageFile = file;
+    previewUrl = URL.createObjectURL(file);
+  }
 
   async function submit(e) {
     e.preventDefault();
@@ -53,6 +63,14 @@
 
     submitting = true;
     try {
+      if (imageFile) {
+        const fd = new FormData();
+        fd.append('image', imageFile);
+        const up = await apiUpload('/products/image', fd);
+        if (!up || !up.ok) { toast('Error al subir imagen', 'error'); return; }
+        imageUrl = (await up.json()).url;
+      }
+
       const res = await apiFetch(`/products/${productId}`, {
         method: 'PATCH',
         body: JSON.stringify({
@@ -61,7 +79,7 @@
           sale_mode:   saleMode,
           price_cents,
           symbols:     selectedSymbols,
-          image_url:   imageUrl.trim() || null,
+          image_url:   imageUrl || null,
         }),
       });
       if (!res || !res.ok) { toast('Error al guardar', 'error'); return; }
@@ -105,8 +123,12 @@
       </select>
     </div>
     <div>
-      <label for="p-img">URL de imagen</label>
-      <input id="p-img" type="text" placeholder="/images/products/nombre.webp" bind:value={imageUrl} />
+      <label for="p-img">Imagen</label>
+      {#if previewUrl}
+        <img src={previewUrl} alt="Vista previa" class="img-preview" />
+      {/if}
+      <input id="p-img" type="file" accept="image/jpeg,image/png,image/webp"
+        on:change={handleImageChange} />
     </div>
     <div class="form-actions">
       <button class="btn btn-primary" type="submit" disabled={submitting}>
