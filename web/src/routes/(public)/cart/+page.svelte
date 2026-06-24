@@ -36,7 +36,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customer_phone: phone.trim(),
-          customer_email: email.trim(),
+          customer_email: email.trim() || null,
           customer_name:  name.trim() || null,
           items: items.map(i => ({ product_id: i.id, quantity: i.quantity })),
         }),
