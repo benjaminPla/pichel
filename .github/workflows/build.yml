@@ -92,7 +92,7 @@ jobs:
             systemctl daemon-reload
             systemctl enable pichel
             systemctl enable pichel-nginx-reload.timer
-            systemctl start pichel-nginx-reload.timer
             docker compose -f /opt/pichel/docker-compose.prod.yml pull
-            docker compose -f /opt/pichel/docker-compose.prod.yml up -d
+            systemctl restart pichel
+            systemctl enable --now pichel-nginx-reload.timer
             docker image prune -f
