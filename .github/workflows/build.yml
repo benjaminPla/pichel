@@ -64,7 +64,7 @@ jobs:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          source: docker-compose.prod.yml,infra/pichel.service
+          source: docker-compose.prod.yml,infra/pichel.service,infra/pichel-nginx-reload.service,infra/pichel-nginx-reload.timer
           target: /opt/pichel/
           mkdir: true
 
@@ -87,8 +87,12 @@ jobs:
             RUST_LOG=${{ secrets.RUST_LOG }}
             EOF
             cp /opt/pichel/infra/pichel.service /etc/systemd/system/pichel.service
+            cp /opt/pichel/infra/pichel-nginx-reload.service /etc/systemd/system/pichel-nginx-reload.service
+            cp /opt/pichel/infra/pichel-nginx-reload.timer /etc/systemd/system/pichel-nginx-reload.timer
             systemctl daemon-reload
             systemctl enable pichel
+            systemctl enable pichel-nginx-reload.timer
+            systemctl start pichel-nginx-reload.timer
             docker compose -f /opt/pichel/docker-compose.prod.yml pull
             docker compose -f /opt/pichel/docker-compose.prod.yml up -d
             docker image prune -f

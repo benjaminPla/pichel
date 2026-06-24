@@ -7,4 +7,6 @@
 
 - [ ] Product image file upload endpoint (saves to `/app/uploads`)
 - [ ] Admin UI: image upload field instead of URL string
+
+- [ ] add logo
 - [ ] add favicon
