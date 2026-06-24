@@ -7,9 +7,10 @@ use axum::{
 
 pub fn products_router(app_state: AppState) -> Router<AppState> {
     let admin = Router::new()
-        .route("/:id", delete(handlers::delete))
-        .route("/:id", patch(handlers::update))
-        .route("/",    post(handlers::create))
+        .route("/:id",  delete(handlers::delete))
+        .route("/:id",  patch(handlers::update))
+        .route("/",     post(handlers::create))
+        .route("/image", post(handlers::upload_image))
         .route_layer(middleware::from_fn_with_state(app_state, auth_middleware));
 
     let public = Router::new()

@@ -23,5 +23,6 @@ services:
     volumes:
       - ./web/build:/usr/share/nginx/html:ro
       - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./api/uploads:/usr/share/nginx/html/uploads:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"

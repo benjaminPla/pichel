@@ -14,5 +14,6 @@ pub struct AppState {
     pub order_repo:     Arc<dyn OrderRepo>,
     pub product_repo:   Arc<dyn ProductRepo>,
     pub token_service:  Arc<dyn TokenService>,
+    pub uploads_path:   String,
     pub user_repo:      Arc<dyn UserRepo>,
 }

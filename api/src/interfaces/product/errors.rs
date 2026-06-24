@@ -7,7 +7,7 @@ use serde_json::json;
 use crate::application::product::errors::ProductAppError;
 
 #[derive(Debug)]
-pub struct ProductInterError(StatusCode, String);
+pub struct ProductInterError(pub StatusCode, pub String);
 
 impl From<ProductAppError> for ProductInterError {
     fn from(e: ProductAppError) -> Self {
