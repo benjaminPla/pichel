@@ -169,13 +169,13 @@ body.layout-auth {
 .topnav-links a:hover { color: var(--clr-text); }
 
 .nav-brand {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: var(--fw-bold);
-  letter-spacing: .04em;
-  color: var(--clr-accent);
-  text-decoration: none;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
+}
+
+.nav-brand img {
+  display: block;
 }
 
 .nav-hamburger {
