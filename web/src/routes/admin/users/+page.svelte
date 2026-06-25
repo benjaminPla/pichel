@@ -89,6 +89,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Usuarios — Pichel Admin</title>
+</svelte:head>
+
 <div class="form-card">
   <h2 class="form-title">Nuevo usuario</h2>
   <form class="form-stack" on:submit={createUser}>

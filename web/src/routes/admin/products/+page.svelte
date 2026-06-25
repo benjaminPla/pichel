@@ -39,6 +39,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Productos — Pichel Admin</title>
+</svelte:head>
+
 <div class="section-header section-header--flush">
   <h2>Todos los productos</h2>
   <div style="display:flex; align-items:center; gap:var(--sp-3)">

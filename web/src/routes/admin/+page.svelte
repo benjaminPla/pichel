@@ -35,6 +35,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Pedidos — Pichel Admin</title>
+</svelte:head>
+
 <div class="section-header section-header--flush">
   <h2>Todos los pedidos</h2>
   {#if total}<span class="text-muted">{total} pedido{total !== 1 ? 's' : ''}</span>{/if}

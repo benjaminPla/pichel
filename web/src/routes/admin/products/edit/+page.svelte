@@ -89,6 +89,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Editar producto — Pichel Admin</title>
+</svelte:head>
+
 <div class="form-card">
   <form class="form-stack" on:submit={submit}>
     <div>

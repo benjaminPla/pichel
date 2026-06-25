@@ -70,6 +70,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Nuevo producto — Pichel Admin</title>
+</svelte:head>
+
 <div class="form-card">
   <form class="form-stack" on:submit={submit}>
     <div>
