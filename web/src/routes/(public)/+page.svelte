@@ -54,12 +54,12 @@
 </script>
 
 <svelte:head>
-  <title>Pichel — Almacén Saludable</title>
+  <title>Pichel — Almacén Natural</title>
 </svelte:head>
 
 <section class="hero">
-  <h1>Dietética <span>natural de barrio.</span></h1>
-  <p>Productos a granel · Frutos secos · Semillas · Hierbas</p>
+  <h1>Pichel <span>almacén natural.</span></h1>
+  <p>Frutos secos, legumbres, harinas, productos sin TACC y veganos</p>
 </section>
 
 <section id="precios">

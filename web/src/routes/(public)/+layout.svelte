@@ -35,5 +35,5 @@
 <slot />
 
 <footer>
-  &copy; {new Date().getFullYear()} Pichel · Dietética Natural de Barrio
+  &copy; {new Date().getFullYear()} Pichel · Almacén Natural
 </footer>
