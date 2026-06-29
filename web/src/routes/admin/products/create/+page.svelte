@@ -18,7 +18,6 @@
   ];
 
   let name = '';
-  let description = '';
   let saleMode = '';
   let priceStr = '';
   let selectedSymbols = [];
@@ -55,7 +54,6 @@
         method: 'POST',
         body: JSON.stringify({
           name:        name.trim(),
-          description: description.trim() || null,
           sale_mode:   saleMode,
           price_cents,
           symbols:     selectedSymbols,
@@ -79,10 +77,6 @@
     <div>
       <label for="p-name">Nombre *</label>
       <input id="p-name" type="text" maxlength="100" required bind:value={name} />
-    </div>
-    <div>
-      <label for="p-desc">Descripción</label>
-      <textarea id="p-desc" maxlength="255" rows="3" bind:value={description}></textarea>
     </div>
     <div>
       <label for="p-salemode">Modalidad *</label>

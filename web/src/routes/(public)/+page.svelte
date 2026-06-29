@@ -107,7 +107,6 @@
             {/if}
             <div class="pc-body">
               <div class="pc-name">{p.name}</div>
-              {#if p.description}<div class="pc-desc">{p.description}</div>{/if}
               {#if p.symbols?.length}
                 <div class="pc-symbols">
                   {#each p.symbols as s}
@@ -126,26 +125,28 @@
                   <span class="pc-price">{fmtCents(p.price_cents)}</span>
                 {/if}
               </div>
-              {#if qty > 0}
-                <input type="number"
-                  min={p.sale_mode === 'bulk' ? 50 : 1}
-                  step={p.sale_mode === 'bulk' ? 50 : 1}
-                  value={qty}
-                  on:change={e => {
-                    const v = +e.target.value;
-                    if (v > 0) cart.setItem(p.id, v, products);
-                    else cart.removeItem(p.id);
-                  }} />
-                <button class="btn-cart-remove" on:click={() => cart.removeItem(p.id)}>Quitar</button>
-              {:else if pending[p.id] != null}
-                <input type="number"
-                  min={p.sale_mode === 'bulk' ? 50 : 1}
-                  step={p.sale_mode === 'bulk' ? 50 : 1}
-                  bind:value={pending[p.id]} />
-                <button class="btn-cart-add" on:click={() => confirm(p)}>Agregar al carrito</button>
-              {:else}
-                <button class="btn-cart-add" on:click={() => stage(p)}>Seleccionar</button>
-              {/if}
+              <div class="pc-actions">
+                {#if qty > 0}
+                  <input type="number"
+                    min={p.sale_mode === 'bulk' ? 50 : 1}
+                    step={p.sale_mode === 'bulk' ? 50 : 1}
+                    value={qty}
+                    on:change={e => {
+                      const v = +e.target.value;
+                      if (v > 0) cart.setItem(p.id, v, products);
+                      else cart.removeItem(p.id);
+                    }} />
+                  <button class="btn-cart-remove" on:click={() => cart.removeItem(p.id)}>Quitar</button>
+                {:else if pending[p.id] != null}
+                  <input type="number"
+                    min={p.sale_mode === 'bulk' ? 50 : 1}
+                    step={p.sale_mode === 'bulk' ? 50 : 1}
+                    bind:value={pending[p.id]} />
+                  <button class="btn-cart-add" on:click={() => confirm(p)}>Agregar al carrito</button>
+                {:else}
+                  <button class="btn-cart-add" on:click={() => stage(p)}>Seleccionar</button>
+                {/if}
+              </div>
             </div>
           </div>
         {/each}

@@ -65,10 +65,7 @@
       <tbody>
         {#each products as p (p.id)}
           <tr>
-            <td class="td-strong">
-              {p.name}
-              {#if p.description}<br><small class="text-muted">{p.description}</small>{/if}
-            </td>
+            <td class="td-strong">{p.name}</td>
             <td>
               {#if p.sale_mode === 'bulk'}
                 <span class="badge badge-bulk">A granel</span>
@@ -104,10 +101,7 @@
     {#each products as p (p.id)}
       <dl class="order-card">
         <dt>Nombre</dt>
-        <dd>
-          <span class="fw-semibold">{p.name}</span>
-          {#if p.description}<small>{p.description}</small>{/if}
-        </dd>
+        <dd class="fw-semibold">{p.name}</dd>
 
         <dt>Modalidad</dt>
         <dd>
