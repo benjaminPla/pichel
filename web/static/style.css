@@ -348,23 +348,61 @@ body.layout-auth {
 
 /* ── 8. Hero (mobile-first) ────────────────────────────────────── */
 .hero {
-  padding: var(--sp-10) var(--sp-4) var(--sp-8);
+  position: relative;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/images/hero.webp');
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  padding: var(--sp-6) var(--sp-5);
+  margin: var(--sp-4);
+  border-radius: var(--radius-lg);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .42);
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .hero::before {
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, .58) 0%,
+      rgba(0, 0, 0, .25) 55%,
+      transparent 100%
+    );
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  width: 100%;
   text-align: center;
 }
+
 .hero h1 {
   font-family: var(--font-display);
-  font-size: var(--text-hero);
+  font-size: clamp(2.2rem, 6.5vw, 4.2rem);
   font-weight: var(--fw-bold);
   letter-spacing: -.5px;
-  line-height: var(--lh-tight);
+  line-height: 1.05;
+  color: #fff;
 }
-.hero h1 span { color: var(--clr-accent); font-style: italic; }
+
+.hero h1 span { color: #fff; font-style: italic; }
+
 .hero p {
   margin-top: var(--sp-3);
-  color: var(--clr-text-muted);
-  font-size: var(--text-lg);
-  max-width: var(--container-narrow);
-  margin-inline: auto;
+  color: rgba(255, 255, 255, .82);
+  font-size: var(--text-base);
 }
 
 
@@ -1499,7 +1537,7 @@ input.input-error:not([type="checkbox"]):not([type="radio"]):not([type="range"])
   .contact-buttons { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; }
 
   /* Hero */
-  .hero { padding: var(--sp-16) var(--sp-6) var(--sp-12); }
+  .hero { height: 50vh; margin: var(--sp-6); padding: var(--sp-8) var(--sp-7); align-items: flex-end; justify-content: flex-start; }
 
   /* Section header */
   .section-header { padding: 0 var(--sp-6); }

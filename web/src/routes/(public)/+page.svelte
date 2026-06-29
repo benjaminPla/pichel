@@ -58,8 +58,10 @@
 </svelte:head>
 
 <section class="hero">
-  <h1>Pichel <span>almacén natural.</span></h1>
-  <p>Frutos secos, legumbres, harinas, productos sin TACC y veganos</p>
+  <div class="hero-content">
+    <h1>Pichel <span>almacén natural.</span></h1>
+    <p>Frutos secos, legumbres, harinas, productos sin TACC y veganos</p>
+  </div>
 </section>
 
 <section id="precios">
