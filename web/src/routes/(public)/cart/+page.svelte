@@ -1,7 +1,7 @@
 <script>
   import { goto } from '$app/navigation';
   import { cart } from '$lib/cart.js';
-  import { fmtCents, fmtQty, calcSubtotal } from '$lib/format.js';
+  import { fmtCents, calcSubtotal } from '$lib/format.js';
   import { WA as WA_NUMBER } from '$lib/contact.js';
 
   const API = '';
@@ -95,15 +95,15 @@
   {#if !items.length}
     <p class="cart-empty">Tu carrito está vacío 🛒</p>
   {:else}
-    <div class="cart-items" style="margin-bottom:var(--sp-4)">
+    <div class="ci-list" style="margin-bottom:var(--sp-4)">
       {#each items as item (item.id)}
         <div class="cart-item">
           <div class="ci-info">
             <span class="ci-name">{item.name}</span>
-            <span class="ci-qty-label">{fmtQty(item)}</span>
+            <span class="ci-mode">{item.sale_mode === 'bulk' ? 'A granel' : 'Unidad'}</span>
           </div>
-          <div class="ci-right">
-            <input type="number"
+          <div class="ci-controls">
+            <input class="ci-qty-input" type="number"
                 min={item.sale_mode === 'bulk' ? 50 : 1}
                 step={item.sale_mode === 'bulk' ? 50 : 1}
                 value={item.quantity}
