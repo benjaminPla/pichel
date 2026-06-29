@@ -15,8 +15,6 @@ pub enum OrderAppError {
     NotFound,
     #[error("{0}")]
     Validation(String),
-    #[error("invalid status transition")]
-    InvalidStatusTransition,
 }
 
 impl From<OrderRepoError> for OrderAppError {

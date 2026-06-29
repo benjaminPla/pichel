@@ -18,7 +18,6 @@ impl From<OrderAppError> for OrderInterError {
             }
             OrderAppError::NotFound              => Self(StatusCode::NOT_FOUND, "not found".to_string()),
             OrderAppError::Validation(msg)       => Self(StatusCode::BAD_REQUEST, msg),
-            OrderAppError::InvalidStatusTransition => Self(StatusCode::UNPROCESSABLE_ENTITY, "invalid status transition".to_string()),
         }
     }
 }
