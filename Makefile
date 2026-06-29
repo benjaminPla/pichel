@@ -8,6 +8,12 @@ dev-up:
 	PORT=3000 \
 	RUST_LOG=info \
 	JWT_SECRET=dev-secret-change-in-prod \
+	COOKIE_SECURE=false \
+	UPLOADS_PATH=./uploads \
+	DB_MAX_CONNECTIONS=20 \
+	DB_MIN_CONNECTIONS=2 \
+	DB_ACQUIRE_TIMEOUT_SECS=5 \
+	DB_IDLE_TIMEOUT_SECS=300 \
 	cargo watch -x run
 
 dev-down:

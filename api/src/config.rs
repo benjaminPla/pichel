@@ -1,14 +1,14 @@
 use serde::Deserialize;
 
-fn default_uploads_path() -> String { "./uploads".to_string() }
-
 #[derive(Deserialize)]
 pub struct Config {
-    #[serde(default)]
-    pub cookie_secure:  bool,
-    pub database_url:   String,
-    pub jwt_secret:     String,
-    pub port:           u16,
-    #[serde(default = "default_uploads_path")]
-    pub uploads_path:   String,
+    pub cookie_secure:           bool,
+    pub database_url:            String,
+    pub db_acquire_timeout_secs: u64,
+    pub db_idle_timeout_secs:    u64,
+    pub db_max_connections:      u32,
+    pub db_min_connections:      u32,
+    pub jwt_secret:              String,
+    pub port:                    u16,
+    pub uploads_path:            String,
 }

@@ -81,10 +81,15 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             PORT=${{ secrets.PORT }}
             COOKIE_SECURE=${{ secrets.COOKIE_SECURE }}
+            UPLOADS_PATH=${{ secrets.UPLOADS_PATH }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             RUST_LOG=${{ secrets.RUST_LOG }}
+            DB_MAX_CONNECTIONS=${{ secrets.DB_MAX_CONNECTIONS }}
+            DB_MIN_CONNECTIONS=${{ secrets.DB_MIN_CONNECTIONS }}
+            DB_ACQUIRE_TIMEOUT_SECS=${{ secrets.DB_ACQUIRE_TIMEOUT_SECS }}
+            DB_IDLE_TIMEOUT_SECS=${{ secrets.DB_IDLE_TIMEOUT_SECS }}
             EOF
             cp /opt/pichel/infra/pichel.service /etc/systemd/system/pichel.service
             cp /opt/pichel/infra/pichel-nginx-reload.service /etc/systemd/system/pichel-nginx-reload.service
