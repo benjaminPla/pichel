@@ -3,7 +3,6 @@ use crate::{
     domain::product::{
         ports::repository::ProductRepo,
         value_objects::{
-            description::Description,
             name::Name,
             price_cents::PriceCents,
             sale_mode::SaleMode,
@@ -17,7 +16,6 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct CreateProductInput {
-    pub description: Option<String>,
     pub image_url:   Option<String>,
     pub name:        String,
     pub price_cents: u32,
@@ -36,16 +34,15 @@ impl CreateProductUseCase {
     }
 
     pub async fn execute(&self, input: CreateProductInput) -> Result<Product, ProductAppError> {
-        let description     = input.description.map(Description::new).transpose()?;
         let name            = Name::new(input.name)?;
         let price_cents     = PriceCents::new(input.price_cents)?;
         let sale_mode       = input.sale_mode.parse::<SaleMode>()?;
         let symbols         = input.symbols.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?;
         let unit_of_measure = match &sale_mode {
             SaleMode::Unit => UnitOfMeasure::Unit,
-            SaleMode::Bulk    => UnitOfMeasure::Kilogram,
+            SaleMode::Bulk => UnitOfMeasure::Kilogram,
         };
-        let product = Product::new(description, input.image_url, name, price_cents, sale_mode, symbols, unit_of_measure);
+        let product = Product::new(input.image_url, name, price_cents, sale_mode, symbols, unit_of_measure);
         let product = self.product_repo.create(&product, input.updated_by).await?;
         Ok(product)
     }

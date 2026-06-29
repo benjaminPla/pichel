@@ -1,7 +1,6 @@
 use crate::domain::product::{
     ports::repository::ProductRepoError,
     value_objects::{
-        description::DescriptionError,
         name::NameError,
         price_cents::PriceCentsError,
         sale_mode::SaleModeError,
@@ -17,10 +16,6 @@ pub enum ProductAppError {
     NotFound,
     #[error("{0}")]
     Validation(String),
-}
-
-impl From<DescriptionError> for ProductAppError {
-    fn from(e: DescriptionError) -> Self { Self::Validation(e.to_string()) }
 }
 
 impl From<NameError> for ProductAppError {
