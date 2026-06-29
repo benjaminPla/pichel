@@ -7,9 +7,19 @@
 <svelte:document on:click={() => (navOpen = false)} />
 
 <nav class="topnav" class:open={navOpen}>
-  <a href="/" class="nav-brand">
+  <a href="/" class="nav-brand nav-brand--sm">
+    <img src="/images/logo-sm.webp" alt="Pichel" height="34" width="34" />
+  </a>
+  <a href="/" class="nav-brand nav-brand--lg">
     <img src="/images/logo.webp" alt="Pichel" height="40" />
   </a>
+  <ul class="topnav-links">
+    <li><a href="/">Precios</a></li>
+    <li><a href="/como-comprar">Cómo comprar</a></li>
+    <li><a href="/referencias">Referencias</a></li>
+    <li><a href="/nosotros">Nosotros</a></li>
+    <li><a href="/contacto">Contacto</a></li>
+  </ul>
   <a href="/cart" class="nav-cart" aria-label="Ver carrito" on:click|stopPropagation>
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -23,13 +33,6 @@
     on:click|stopPropagation={() => (navOpen = !navOpen)}>
     <span></span><span></span><span></span>
   </button>
-  <ul class="topnav-links">
-    <li><a href="/">Precios</a></li>
-    <li><a href="/como-comprar">Cómo comprar</a></li>
-    <li><a href="/referencias">Referencias</a></li>
-    <li><a href="/nosotros">Nosotros</a></li>
-    <li><a href="/contacto">Contacto</a></li>
-  </ul>
 </nav>
 
 <slot />
