@@ -44,12 +44,13 @@
   {#if total}<span class="text-muted">{total} pedido{total !== 1 ? 's' : ''}</span>{/if}
 </div>
 
-<div class="table-wrap">
-  {#if loading}
-    <p class="table-empty">Cargando…</p>
-  {:else if !orders.length}
-    <p class="table-empty">Sin pedidos todavía.</p>
-  {:else}
+{#if loading}
+  <div class="table-wrap"><p class="table-empty">Cargando…</p></div>
+{:else if !orders.length}
+  <div class="table-wrap"><p class="table-empty">Sin pedidos todavía.</p></div>
+{:else}
+  <!-- Desktop table -->
+  <div class="table-wrap orders-table">
     <table>
       <thead><tr>
         <th>Fecha</th>
@@ -76,14 +77,43 @@
         {/each}
       </tbody>
     </table>
-    {#if totalPages > 1}
-      <div class="pagination">
-        <button class="pagination-btn" disabled={currentPage <= 1}
-          on:click={() => loadOrders(currentPage - 1)}>← Anterior</button>
-        <span class="pagination-info">Página {currentPage} de {totalPages}</span>
-        <button class="pagination-btn" disabled={currentPage >= totalPages}
-          on:click={() => loadOrders(currentPage + 1)}>Siguiente →</button>
-      </div>
-    {/if}
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="orders-cards">
+    {#each orders as o (o.id)}
+      {@const s = STATUS_MAP[o.status] ?? { cls: '', label: o.status }}
+      <dl class="order-card">
+        <dt>Fecha</dt>
+        <dd class="order-card-meta">{fmtDate(new Date(o.created_at))}</dd>
+
+        <dt>Cliente</dt>
+        <dd>
+          <span class="fw-semibold">{o.customer_phone}</span>
+          {#if o.customer_name}<small>{o.customer_name}</small>{/if}
+        </dd>
+
+        <dt>Productos</dt>
+        <dd class="order-card-items">
+          {#each o.items as i}{i.product_name} · {fmtQty(i)}<br>{/each}
+        </dd>
+
+        <dt>Total</dt>
+        <dd class="fw-semibold">{fmtCents(o.total_price_cents)}</dd>
+
+        <dt>Estado</dt>
+        <dd><span class="badge {s.cls}">{s.label}</span></dd>
+      </dl>
+    {/each}
+  </div>
+
+  {#if totalPages > 1}
+    <div class="pagination">
+      <button class="pagination-btn" disabled={currentPage <= 1}
+        on:click={() => loadOrders(currentPage - 1)}>← Anterior</button>
+      <span class="pagination-info">Página {currentPage} de {totalPages}</span>
+      <button class="pagination-btn" disabled={currentPage >= totalPages}
+        on:click={() => loadOrders(currentPage + 1)}>Siguiente →</button>
+    </div>
   {/if}
-</div>
+{/if}

@@ -14,10 +14,6 @@
   let totalPages = 1;
   let loading = true;
 
-  let newEmail = '';
-  let newPassword = '';
-  let creating = false;
-
   let editingId = null;
   let editingMode = null;
   let editInput = '';
@@ -35,24 +31,6 @@
     total = data.total;
     totalPages = Math.ceil(total / PER_PAGE);
     loading = false;
-  }
-
-  async function createUser(e) {
-    e.preventDefault();
-    if (!newEmail || !newPassword) return;
-    creating = true;
-    try {
-      const res = await apiFetch('/users', {
-        method: 'POST',
-        body: JSON.stringify({ email: newEmail, password: newPassword }),
-      });
-      if (!res || !res.ok) { toast('Error al crear el usuario', 'error'); return; }
-      toast('Usuario creado');
-      newEmail = '';
-      newPassword = '';
-      await loadUsers(currentPage);
-    } catch { toast('Error del servidor', 'error'); }
-    finally   { creating = false; }
   }
 
   function openEditEmail(id, email) { editingId = id; editingMode = 'email'; editInput = email; }
@@ -93,25 +71,6 @@
   <title>Usuarios — Pichel Admin</title>
 </svelte:head>
 
-<div class="form-card">
-  <h2 class="form-title">Nuevo usuario</h2>
-  <form class="form-stack" on:submit={createUser}>
-    <div>
-      <label for="u-email">Email *</label>
-      <input id="u-email" type="email" required bind:value={newEmail} />
-    </div>
-    <div>
-      <label for="u-password">Contraseña *</label>
-      <input id="u-password" type="password" required bind:value={newPassword} />
-    </div>
-    <div>
-      <button class="btn btn-primary" type="submit" disabled={creating}>
-        {creating ? '…' : 'Agregar usuario'}
-      </button>
-    </div>
-  </form>
-</div>
-
 {#if editingId}
   <div class="form-card form-card--edit">
     <h2 class="form-title">{editingMode === 'email' ? 'Cambiar email' : 'Cambiar contraseña'}</h2>
@@ -136,22 +95,26 @@
 
 <div class="section-header section-header--flush">
   <h2>Todos los usuarios</h2>
-  {#if total}<span class="text-muted">{total} usuarios</span>{/if}
+  <div style="display:flex; align-items:center; gap:var(--sp-3)">
+    {#if total}<span class="text-muted">{total} usuarios</span>{/if}
+    <a href="/admin/users/create" class="btn btn-primary btn-sm">+ Agregar</a>
+  </div>
 </div>
 
-<div class="table-wrap">
-  {#if loading}
-    <p class="table-empty">Cargando…</p>
-  {:else if !users.length}
-    <p class="table-empty">Sin usuarios todavía.</p>
-  {:else}
+{#if loading}
+  <div class="table-wrap"><p class="table-empty">Cargando…</p></div>
+{:else if !users.length}
+  <div class="table-wrap"><p class="table-empty">Sin usuarios todavía.</p></div>
+{:else}
+  <!-- Desktop table -->
+  <div class="table-wrap orders-table">
     <table>
-      <thead><tr><th>Email</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Email</th><th class="nowrap">Acciones</th></tr></thead>
       <tbody>
         {#each users as u (u.id)}
           <tr>
             <td class="td-strong">{u.email}</td>
-            <td>
+            <td class="nowrap">
               <div class="actions-wrap">
                 <button class="btn btn-ghost btn-sm" on:click={() => openEditEmail(u.id, u.email)}>Cambiar email</button>
                 <button class="btn btn-ghost btn-sm" on:click={() => openEditPassword(u.id)}>Cambiar contraseña</button>
@@ -162,14 +125,32 @@
         {/each}
       </tbody>
     </table>
-    {#if totalPages > 1}
-      <div class="pagination">
-        <button class="pagination-btn" disabled={currentPage <= 1}
-          on:click={() => loadUsers(currentPage - 1)}>← Anterior</button>
-        <span class="pagination-info">Página {currentPage} de {totalPages}</span>
-        <button class="pagination-btn" disabled={currentPage >= totalPages}
-          on:click={() => loadUsers(currentPage + 1)}>Siguiente →</button>
-      </div>
-    {/if}
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="orders-cards">
+    {#each users as u (u.id)}
+      <dl class="order-card">
+        <dt>Email</dt>
+        <dd class="fw-semibold">{u.email}</dd>
+
+        <dt>Acciones</dt>
+        <dd class="actions-wrap">
+          <button class="btn btn-ghost btn-sm" on:click={() => openEditEmail(u.id, u.email)}>Cambiar email</button>
+          <button class="btn btn-ghost btn-sm" on:click={() => openEditPassword(u.id)}>Cambiar contraseña</button>
+          <button class="btn btn-danger btn-sm" on:click={() => deleteUser(u.id)}>Eliminar</button>
+        </dd>
+      </dl>
+    {/each}
+  </div>
+
+  {#if totalPages > 1}
+    <div class="pagination">
+      <button class="pagination-btn" disabled={currentPage <= 1}
+        on:click={() => loadUsers(currentPage - 1)}>← Anterior</button>
+      <span class="pagination-info">Página {currentPage} de {totalPages}</span>
+      <button class="pagination-btn" disabled={currentPage >= totalPages}
+        on:click={() => loadUsers(currentPage + 1)}>Siguiente →</button>
+    </div>
   {/if}
-</div>
+{/if}

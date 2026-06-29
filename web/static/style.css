@@ -764,10 +764,11 @@ nav.sidebar-nav {
 /* ── 19. Table ─────────────────────────────────────────────────── */
 .table-wrap {
   background: var(--clr-surface);
-  border: var(--border);
   border-radius: var(--radius-md);
+  border: var(--border);
   overflow: hidden;
   overflow-x: auto;
+  width: 100%;
 }
 table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
 thead { background: var(--clr-surface-2); }
@@ -784,15 +785,47 @@ td { padding: var(--sp-3) var(--sp-4); border-top: var(--border); vertical-align
 tr:hover td { background: var(--clr-surface-2); }
 
 .table-empty   { padding: var(--sp-8); text-align: center; color: var(--clr-text-muted); }
-.nowrap        { white-space: nowrap; }
+.nowrap        { white-space: nowrap; width: 1%; }
 .td-meta       { white-space: nowrap; font-size: var(--text-xs); color: var(--clr-text-muted); }
 .td-items      { font-size: var(--text-xs); color: var(--clr-text-muted); max-width: var(--td-items-max); }
 .td-amount     { font-weight: var(--fw-semibold); white-space: nowrap; }
 .td-strong     { font-weight: var(--fw-semibold); }
-.actions-wrap  { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.actions-wrap  { display: flex; gap: var(--sp-2); }
+.order-card .actions-wrap { flex-direction: column; }
 
 
-/* ── 20. Badge ─────────────────────────────────────────────────── */
+/* ── 20. Order cards (mobile) ──────────────────────────────────── */
+.orders-table { display: none; }
+.orders-cards { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-4); }
+
+.order-card {
+  background: var(--clr-bg);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4);
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--sp-2) var(--sp-5);
+  align-items: baseline;
+}
+
+.order-card dt {
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+
+.order-card dd { font-size: var(--text-sm); }
+.order-card dd small { display: block; color: var(--clr-text-muted); font-size: var(--text-xs); }
+
+.order-card-meta { color: var(--clr-text-muted); }
+.order-card-items { color: var(--clr-text-muted); line-height: 1.6; }
+
+
+/* ── 21. Badge ─────────────────────────────────────────────────── */
 .badge {
   display: inline-block;
   padding: var(--sp-1) var(--sp-3);
@@ -1475,6 +1508,10 @@ input.input-error:not([type="checkbox"]):not([type="radio"]):not([type="range"])
 
   /* Products grid */
   .products-grid { grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); padding: 0 var(--sp-6) var(--sp-16); }
+
+  /* Admin orders */
+  .orders-table { display: block; }
+  .orders-cards { display: none; }
 
   /* Admin sidebar */
   .sidebar { transform: none; }

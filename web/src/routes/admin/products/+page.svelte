@@ -51,15 +51,16 @@
   </div>
 </div>
 
-<div class="table-wrap">
-  {#if loading}
-    <p class="table-empty">Cargando…</p>
-  {:else if !products.length}
-    <p class="table-empty">Sin productos todavía.</p>
-  {:else}
+{#if loading}
+  <div class="table-wrap"><p class="table-empty">Cargando…</p></div>
+{:else if !products.length}
+  <div class="table-wrap"><p class="table-empty">Sin productos todavía.</p></div>
+{:else}
+  <!-- Desktop table -->
+  <div class="table-wrap orders-table">
     <table>
       <thead><tr>
-        <th>Nombre</th><th>Modalidad</th><th>Precio</th><th>Símbolos</th><th></th>
+        <th>Nombre</th><th>Modalidad</th><th>Precio</th><th>Símbolos</th><th class="nowrap">Acciones</th>
       </tr></thead>
       <tbody>
         {#each products as p (p.id)}
@@ -96,14 +97,57 @@
         {/each}
       </tbody>
     </table>
-    {#if totalPages > 1}
-      <div class="pagination">
-        <button class="pagination-btn" disabled={currentPage <= 1}
-          on:click={() => loadProducts(currentPage - 1)}>← Anterior</button>
-        <span class="pagination-info">Página {currentPage} de {totalPages}</span>
-        <button class="pagination-btn" disabled={currentPage >= totalPages}
-          on:click={() => loadProducts(currentPage + 1)}>Siguiente →</button>
-      </div>
-    {/if}
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="orders-cards">
+    {#each products as p (p.id)}
+      <dl class="order-card">
+        <dt>Nombre</dt>
+        <dd>
+          <span class="fw-semibold">{p.name}</span>
+          {#if p.description}<small>{p.description}</small>{/if}
+        </dd>
+
+        <dt>Modalidad</dt>
+        <dd>
+          {#if p.sale_mode === 'bulk'}
+            <span class="badge badge-bulk">A granel</span>
+          {:else}
+            <span class="badge badge-pkg">Unidad</span>
+          {/if}
+        </dd>
+
+        <dt>Precio</dt>
+        <dd class="fw-semibold">
+          {fmtCents(p.price_cents)}{#if p.sale_mode === 'bulk'}<small class="text-muted"> /kg</small>{/if}
+        </dd>
+
+        {#if p.symbols?.length}
+          <dt>Símbolos</dt>
+          <dd>
+            {#each p.symbols as s}
+              {#if SYMBOL_DEFS[s]}<span class="symbol-icon">{SYMBOL_DEFS[s].icon}</span>{/if}
+            {/each}
+          </dd>
+        {/if}
+
+        <dt>Acciones</dt>
+        <dd class="actions-wrap">
+          <a class="btn btn-ghost btn-sm" href="/admin/products/edit?id={p.id}">Editar</a>
+          <button class="btn btn-danger btn-sm" on:click={() => deleteProduct(p.id)}>Eliminar</button>
+        </dd>
+      </dl>
+    {/each}
+  </div>
+
+  {#if totalPages > 1}
+    <div class="pagination">
+      <button class="pagination-btn" disabled={currentPage <= 1}
+        on:click={() => loadProducts(currentPage - 1)}>← Anterior</button>
+      <span class="pagination-info">Página {currentPage} de {totalPages}</span>
+      <button class="pagination-btn" disabled={currentPage >= totalPages}
+        on:click={() => loadProducts(currentPage + 1)}>Siguiente →</button>
+    </div>
   {/if}
-</div>
+{/if}
