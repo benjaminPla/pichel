@@ -5,6 +5,7 @@ use crate::domain::product::Product;
 #[derive(Serialize)]
 pub struct ProductGetByIdResponse {
     id:              Uuid,
+    active:          bool,
     image_url:       Option<String>,
     name:            String,
     price_cents:     u32,
@@ -17,6 +18,7 @@ impl From<Product> for ProductGetByIdResponse {
     fn from(p: Product) -> Self {
         Self {
             id:              p.get_id().value(),
+            active:          p.get_active(),
             image_url:       p.get_image_url().map(|i| i.to_string()),
             name:            p.get_name().value().to_string(),
             price_cents:     p.get_price_cents().value(),

@@ -13,6 +13,7 @@ use value_objects::{
 #[derive(Debug, Clone)]
 pub struct Product {
     id:              ProductId,
+    active:          bool,
     image_url:       Option<String>,
     name:            Name,
     price_cents:     PriceCents,
@@ -23,6 +24,7 @@ pub struct Product {
 
 impl Product {
     pub fn new(
+        active:          bool,
         image_url:       Option<String>,
         name:            Name,
         price_cents:     PriceCents,
@@ -32,6 +34,7 @@ impl Product {
     ) -> Self {
         Self {
             id: ProductId::new(),
+            active,
             image_url,
             name,
             price_cents,
@@ -43,6 +46,7 @@ impl Product {
 
     pub fn reconstitute(
         id:              ProductId,
+        active:          bool,
         image_url:       Option<String>,
         name:            Name,
         price_cents:     PriceCents,
@@ -50,12 +54,13 @@ impl Product {
         symbols:         Vec<Symbol>,
         unit_of_measure: UnitOfMeasure,
     ) -> Self {
-        Self { id, image_url, name, price_cents, sale_mode, symbols, unit_of_measure }
+        Self { id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure }
     }
 
     // ── Getters ──────────────────────────────────────────────────────────────
 
     pub fn get_id(&self)              -> &ProductId     { &self.id }
+    pub fn get_active(&self)          -> bool           { self.active }
     pub fn get_image_url(&self)       -> Option<&str>   { self.image_url.as_deref() }
     pub fn get_name(&self)            -> &Name          { &self.name }
     pub fn get_price_cents(&self)     -> PriceCents     { self.price_cents }

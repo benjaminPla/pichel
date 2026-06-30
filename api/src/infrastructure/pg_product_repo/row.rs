@@ -15,6 +15,7 @@ use crate::domain::product::{
 #[derive(sqlx::FromRow)]
 pub struct ProductRow {
     id:              Uuid,
+    active:          bool,
     image_url:       Option<String>,
     name:            String,
     price_cents:     i32,
@@ -33,6 +34,6 @@ impl TryFrom<ProductRow> for Product {
         let sale_mode       = r.sale_mode.parse::<SaleMode>()?;
         let symbols         = r.symbols.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?;
         let unit_of_measure = r.unit_of_measure.parse::<UnitOfMeasure>()?;
-        Ok(Product::reconstitute(id, r.image_url, name, price_cents, sale_mode, symbols, unit_of_measure))
+        Ok(Product::reconstitute(id, r.active, r.image_url, name, price_cents, sale_mode, symbols, unit_of_measure))
     }
 }

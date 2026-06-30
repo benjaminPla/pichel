@@ -16,6 +16,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct CreateProductInput {
+    pub active:      bool,
     pub image_url:   Option<String>,
     pub name:        String,
     pub price_cents: u32,
@@ -42,7 +43,7 @@ impl CreateProductUseCase {
             SaleMode::Unit => UnitOfMeasure::Unit,
             SaleMode::Bulk => UnitOfMeasure::Kilogram,
         };
-        let product = Product::new(input.image_url, name, price_cents, sale_mode, symbols, unit_of_measure);
+        let product = Product::new(input.active, input.image_url, name, price_cents, sale_mode, symbols, unit_of_measure);
         let product = self.product_repo.create(&product, input.updated_by).await?;
         Ok(product)
     }

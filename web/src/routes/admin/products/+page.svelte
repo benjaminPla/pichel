@@ -60,12 +60,19 @@
   <div class="table-wrap orders-table">
     <table>
       <thead><tr>
-        <th>Nombre</th><th>Modalidad</th><th>Precio</th><th>Símbolos</th><th class="nowrap">Acciones</th>
+        <th>Nombre</th><th>Estado</th><th>Modalidad</th><th>Precio</th><th>Símbolos</th><th class="nowrap">Acciones</th>
       </tr></thead>
       <tbody>
         {#each products as p (p.id)}
           <tr>
             <td class="td-strong">{p.name}</td>
+            <td>
+              {#if p.active}
+                <span class="badge badge-green">Activo</span>
+              {:else}
+                <span class="badge badge-cancelled">Inactivo</span>
+              {/if}
+            </td>
             <td>
               {#if p.sale_mode === 'bulk'}
                 <span class="badge badge-bulk">A granel</span>
@@ -102,6 +109,15 @@
       <dl class="order-card">
         <dt>Nombre</dt>
         <dd class="fw-semibold">{p.name}</dd>
+
+        <dt>Estado</dt>
+        <dd>
+          {#if p.active}
+            <span class="badge badge-green">Activo</span>
+          {:else}
+            <span class="badge badge-cancelled">Inactivo</span>
+          {/if}
+        </dd>
 
         <dt>Modalidad</dt>
         <dd>

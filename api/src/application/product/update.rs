@@ -18,6 +18,7 @@ use uuid::Uuid;
 
 pub struct UpdateProductInput {
     pub id:          Uuid,
+    pub active:      Option<bool>,
     pub image_url:   Option<String>,
     pub name:        Option<String>,
     pub price_cents: Option<u32>,
@@ -38,6 +39,7 @@ impl UpdateProductUseCase {
     pub async fn execute(&self, input: UpdateProductInput) -> Result<Product, ProductAppError> {
         let product_id      = ProductId::reconstitute(input.id);
         let current         = self.product_repo.get_by_id(&product_id).await?;
+        let active          = input.active.unwrap_or_else(|| current.get_active());
         let image_url       = input.image_url.or_else(|| current.get_image_url().map(str::to_string));
         let name            = match input.name {
             Some(n) => Name::new(n)?,
@@ -61,6 +63,7 @@ impl UpdateProductUseCase {
         };
         let updated = Product::reconstitute(
             current.get_id().clone(),
+            active,
             image_url,
             name,
             price_cents,

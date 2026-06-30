@@ -28,6 +28,7 @@ pub async fn update(
     let product = UpdateProductUseCase::new(app_state.product_repo)
         .execute(UpdateProductInput {
             id,
+            active:      body.active,
             image_url:   body.image_url,
             name:        body.name,
             price_cents: body.price_cents,

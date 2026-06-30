@@ -21,6 +21,7 @@
   ];
 
   let productId = null;
+  let active = true;
   let name = '';
   let saleMode = '';
   let priceStr = '';
@@ -39,6 +40,7 @@
     const res = await apiFetch(`/products/${productId}`);
     if (!res || !res.ok) { goto('/admin/products'); return; }
     const p = await res.json();
+    active          = p.active ?? true;
     name            = p.name;
     saleMode        = p.sale_mode;
     priceStr        = (p.price_cents / 100).toFixed(2);
@@ -72,6 +74,7 @@
       const res = await apiFetch(`/products/${productId}`, {
         method: 'PATCH',
         body: JSON.stringify({
+          active,
           name:        name.trim(),
           sale_mode:   saleMode,
           price_cents,
@@ -110,6 +113,10 @@
         {#if isBulk}<small class="form-label-note">(por kg)</small>{/if}
       </label>
       <input id="p-price" type="number" min="0.01" step="0.01" required bind:value={priceStr} />
+    </div>
+    <div class="form-toggle-row">
+      <input id="p-active" type="checkbox" bind:checked={active} />
+      <label for="p-active" class="form-toggle-label">Producto activo</label>
     </div>
     <div>
       <label for="p-symbols">Símbolos</label>
