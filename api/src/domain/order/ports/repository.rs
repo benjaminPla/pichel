@@ -1,7 +1,7 @@
 use crate::domain::order::{
     value_objects::{
         id::OrderId,
-        order_status::OrderStatusError,
+        order_status::{OrderStatusError, OrderStatusTransitionError},
         quantity::QuantityError,
     },
     Order, OrderItem,
@@ -12,9 +12,10 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait OrderRepo: Send + Sync {
-    async fn create(&self, order: &Order, items: &[OrderItem]) -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
-    async fn get_all(&self, page: i64, per_page: i64)          -> Result<(Vec<(Order, Vec<OrderItem>)>, i64), OrderRepoError>;
-    async fn get_by_id(&self, order_id: &OrderId)              -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
+    async fn create(&self, order: &Order, items: &[OrderItem])                          -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
+    async fn get_all(&self, page: i64, per_page: i64)                                   -> Result<(Vec<(Order, Vec<OrderItem>)>, i64), OrderRepoError>;
+    async fn get_by_id(&self, order_id: &OrderId)                                       -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
+    async fn update(&self, order: &Order, new_items: Option<&[OrderItem]>)              -> Result<(Order, Vec<OrderItem>), OrderRepoError>;
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -41,4 +42,8 @@ impl From<QuantityError> for OrderRepoError {
 
 impl From<crate::domain::product::value_objects::sale_mode::SaleModeError> for OrderRepoError {
     fn from(e: crate::domain::product::value_objects::sale_mode::SaleModeError) -> Self { Self::Mapping(e.to_string()) }
+}
+
+impl From<OrderStatusTransitionError> for OrderRepoError {
+    fn from(e: OrderStatusTransitionError) -> Self { Self::Mapping(e.to_string()) }
 }

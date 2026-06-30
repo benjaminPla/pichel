@@ -35,3 +35,23 @@ pub enum OrderStatusError {
     #[error("invalid order status: {0}")]
     Invalid(String),
 }
+
+#[derive(Debug, thiserror::Error)]
+pub enum OrderStatusTransitionError {
+    #[error("cannot transition order from '{from}' to '{to}'")]
+    Invalid { from: String, to: String },
+}
+
+impl OrderStatus {
+    pub fn validate_transition(&self, next: &OrderStatus) -> Result<(), OrderStatusTransitionError> {
+        match (self, next) {
+            (Self::Pending, Self::Closed)    => Ok(()),
+            (Self::Pending, Self::Cancelled) => Ok(()),
+            (a, b) if a == b               => Ok(()),
+            _ => Err(OrderStatusTransitionError::Invalid {
+                from: self.as_str().to_string(),
+                to:   next.as_str().to_string(),
+            }),
+        }
+    }
+}

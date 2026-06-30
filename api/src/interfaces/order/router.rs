@@ -1,13 +1,14 @@
 use crate::interfaces::{app_state::AppState, middleware::auth_middleware, order::handlers};
 use axum::{
     middleware,
-    routing::{get, post},
+    routing::{get, patch, post},
     Router,
 };
 
 pub fn orders_router(app_state: AppState) -> Router<AppState> {
     let admin = Router::new()
-        .route("/", get(handlers::get_all))
+        .route("/",    get(handlers::get_all))
+        .route("/:id", patch(handlers::update))
         .route_layer(middleware::from_fn_with_state(app_state, auth_middleware));
 
     let public = Router::new()

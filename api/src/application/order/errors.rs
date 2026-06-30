@@ -1,7 +1,7 @@
 use crate::domain::{
     order::{
         ports::repository::OrderRepoError,
-        value_objects::{order_status::OrderStatusError, phone::PhoneError, quantity::QuantityError},
+        value_objects::{order_status::{OrderStatusError, OrderStatusTransitionError}, phone::PhoneError, quantity::QuantityError},
     },
     shared::value_objects::email::EmailError,
 };
@@ -29,6 +29,10 @@ impl From<OrderRepoError> for OrderAppError {
 
 impl From<OrderStatusError> for OrderAppError {
     fn from(e: OrderStatusError) -> Self { Self::Validation(e.to_string()) }
+}
+
+impl From<OrderStatusTransitionError> for OrderAppError {
+    fn from(e: OrderStatusTransitionError) -> Self { Self::Validation(e.to_string()) }
 }
 
 impl From<PriceCentsError> for OrderAppError {

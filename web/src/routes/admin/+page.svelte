@@ -58,6 +58,7 @@
         <th>Productos</th>
         <th>Total</th>
         <th>Estado</th>
+        <th class="nowrap">Acciones</th>
       </tr></thead>
       <tbody>
         {#each orders as o (o.id)}
@@ -73,6 +74,9 @@
             </td>
             <td class="td-amount">{fmtCents(o.total_price_cents)}</td>
             <td><span class="badge {s.cls}">{s.label}</span></td>
+            <td class="nowrap">
+              <a class="btn btn-ghost btn-sm" href="/admin/orders/edit?id={o.id}">Editar</a>
+            </td>
           </tr>
         {/each}
       </tbody>
@@ -103,6 +107,9 @@
 
         <dt>Estado</dt>
         <dd><span class="badge {s.cls}">{s.label}</span></dd>
+
+        <dt>Acciones</dt>
+        <dd><a class="btn btn-ghost btn-sm" href="/admin/orders/edit?id={o.id}">Editar</a></dd>
       </dl>
     {/each}
   </div>

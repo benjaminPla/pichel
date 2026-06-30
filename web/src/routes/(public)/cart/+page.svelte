@@ -1,7 +1,7 @@
 <script>
   import { goto } from '$app/navigation';
   import { cart } from '$lib/cart.js';
-  import { fmtCents, calcSubtotal } from '$lib/format.js';
+  import { calcSubtotal, fmtCents, fmtQty } from '$lib/format.js';
   import { WA as WA_NUMBER } from '$lib/contact.js';
 
   const API = '';

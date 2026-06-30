@@ -3,6 +3,7 @@ mod errors;
 mod get_all;
 mod get_by_id;
 mod row;
+mod update;
 
 use async_trait::async_trait;
 use sqlx::PgPool;
@@ -34,5 +35,9 @@ impl OrderRepo for PgOrderRepo {
 
     async fn get_by_id(&self, order_id: &OrderId) -> Result<(Order, Vec<OrderItem>), OrderRepoError> {
         get_by_id::get_by_id(&self.pool, order_id).await
+    }
+
+    async fn update(&self, order: &Order, new_items: Option<&[OrderItem]>) -> Result<(Order, Vec<OrderItem>), OrderRepoError> {
+        update::update(&self.pool, order, new_items).await
     }
 }
