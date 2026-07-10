@@ -2,4 +2,4 @@
 
 - [ ] `infra/backup.sh` + rclone B2 config on server + cron
 - [ ] add categories
-- [ ] add autosum id - plu (1 to 800) - list pritable per category and product.name
+- [ ] add admin products pagination (actually for all) and consider filtering on the pagination -> related to filter for plu. we can put the filter also on public (first check categories for this)
