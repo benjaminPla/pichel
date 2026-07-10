@@ -27,7 +27,10 @@
 {#if authed}
   <div style="display:flex; min-height:100vh; width:100%">
     <aside class="sidebar" class:open={$sidebarOpen}>
-      <a href="/admin" class="sidebar-brand">Pichel <small>ADMIN</small></a>
+      <a href="/admin" class="sidebar-brand">
+        <img src="/images/logo-sm.webp" alt="Pichel" height="28" width="28" />
+        Pichel <small>ADMIN</small>
+      </a>
       <nav class="sidebar-nav">
         <a class="nav-item" class:active={path === '/admin'} href="/admin">
           <span class="icon">📋</span> Pedidos

@@ -718,6 +718,10 @@ select[multiple] { appearance: auto; background-image: none; padding-right: var(
   align-items: center;
   gap: var(--sp-2);
 }
+.sidebar-brand img {
+  display: block;
+  border-radius: var(--radius-sm);
+}
 .sidebar-brand small {
   font-family: var(--font-body);
   font-size: var(--text-xs);
