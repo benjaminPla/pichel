@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /login
+Disallow: /cart
+
+Sitemap: https://tiendapichel.com/sitemap.xml
