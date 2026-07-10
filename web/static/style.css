@@ -1134,12 +1134,9 @@ footer {
   background: transparent;
   display: flex;
   flex-direction: column;
-  transition: transform var(--ease);
 }
-.product-card:hover { transform: translateY(-2px); }
 
 .pc-inactive { opacity: .5; pointer-events: none; }
-.pc-inactive:hover { transform: none; }
 
 .pc-unavailable-tag {
   background: var(--clr-surface-2);
