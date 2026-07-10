@@ -8,17 +8,19 @@ use uuid::Uuid;
 pub async fn update(pool: &PgPool, product: &Product, updated_by: Uuid) -> Result<Product, ProductRepoError> {
     let row = sqlx::query_as::<_, ProductRow>(
         "UPDATE products SET
-           active          = $2,
-           image_url       = $3,
-           name            = $4,
-           price_cents     = $5,
-           sale_mode       = $6,
-           symbols         = $7,
-           unit_of_measure = $8
+           description     = $2,
+           active          = $3,
+           image_url       = $4,
+           name            = $5,
+           price_cents     = $6,
+           sale_mode       = $7,
+           symbols         = $8,
+           unit_of_measure = $9
          WHERE id = $1
-         RETURNING id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure",
+         RETURNING description, id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure",
     )
     .bind(&product.get_id().value())
+    .bind(&product.get_description().map(|d| d.value()))
     .bind(product.get_active())
     .bind(&product.get_image_url())
     .bind(&product.get_name().value())

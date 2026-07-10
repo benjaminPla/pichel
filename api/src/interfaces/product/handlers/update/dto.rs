@@ -5,6 +5,7 @@ use crate::domain::product::Product;
 #[derive(Deserialize)]
 pub struct ProductUpdateRequestBody {
     pub active:      Option<bool>,
+    pub description: Option<String>,
     pub image_url:   Option<String>,
     pub name:        Option<String>,
     pub price_cents: Option<u32>,
@@ -14,6 +15,7 @@ pub struct ProductUpdateRequestBody {
 
 #[derive(Serialize)]
 pub struct ProductUpdateResponse {
+    description:     Option<String>,
     id:              Uuid,
     active:          bool,
     image_url:       Option<String>,
@@ -27,6 +29,7 @@ pub struct ProductUpdateResponse {
 impl From<Product> for ProductUpdateResponse {
     fn from(p: Product) -> Self {
         Self {
+            description:     p.get_description().map(|d| d.value().to_string()),
             id:              p.get_id().value(),
             active:          p.get_active(),
             image_url:       p.get_image_url().map(|i| i.to_string()),

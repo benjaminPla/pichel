@@ -8,10 +8,11 @@ use uuid::Uuid;
 pub async fn create(pool: &PgPool, product: &Product, updated_by: Uuid) -> Result<Product, ProductRepoError> {
     let row = sqlx::query_as::<_, ProductRow>(
         "INSERT INTO products
-           (id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-         RETURNING id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure",
+           (description, id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+         RETURNING description, id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure",
     )
+    .bind(&product.get_description().map(|d| d.value()))
     .bind(&product.get_id().value())
     .bind(product.get_active())
     .bind(&product.get_image_url())

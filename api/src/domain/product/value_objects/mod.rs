@@ -1,3 +1,4 @@
+pub mod description;
 pub mod id;
 pub mod name;
 pub mod price_cents;

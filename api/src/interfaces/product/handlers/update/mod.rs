@@ -27,6 +27,7 @@ pub async fn update(
 ) -> Result<impl IntoResponse, ProductInterError> {
     let product = UpdateProductUseCase::new(app_state.product_repo)
         .execute(UpdateProductInput {
+            description: body.description,
             id,
             active:      body.active,
             image_url:   body.image_url,

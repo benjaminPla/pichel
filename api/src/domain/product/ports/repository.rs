@@ -1,5 +1,6 @@
 use crate::domain::product::{
     value_objects::{
+        description::DescriptionError,
         id::ProductId,
         name::NameError,
         price_cents::PriceCentsError,
@@ -15,11 +16,11 @@ use uuid::Uuid;
 
 #[async_trait]
 pub trait ProductRepo: Send + Sync {
-    async fn create(&self, product: &Product, updated_by: Uuid)      -> Result<Product, ProductRepoError>;
+    async fn create(&self, product: &Product, updated_by: Uuid)    -> Result<Product, ProductRepoError>;
     async fn delete(&self, product_id: &ProductId, updated_by: Uuid) -> Result<Product, ProductRepoError>;
-    async fn get_all(&self, page: i64, per_page: i64)                -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError>;
-    async fn get_by_id(&self, product_id: &ProductId)                -> Result<Product, ProductRepoError>;
-    async fn update(&self, product: &Product, updated_by: Uuid)      -> Result<Product, ProductRepoError>;
+    async fn get_all(&self, page: i64, per_page: i64)              -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError>;
+    async fn get_by_id(&self, product_id: &ProductId)              -> Result<Product, ProductRepoError>;
+    async fn update(&self, product: &Product, updated_by: Uuid)    -> Result<Product, ProductRepoError>;
 }
 
 // ── Errors ───────────────────────────────────────────────────────────────
@@ -32,6 +33,10 @@ pub enum ProductRepoError {
     NotFound,
     #[error("{0}")]
     Mapping(String),
+}
+
+impl From<DescriptionError> for ProductRepoError {
+    fn from(e: DescriptionError) -> Self { Self::Mapping(e.to_string()) }
 }
 
 impl From<NameError> for ProductRepoError {

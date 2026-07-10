@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 #[derive(Serialize)]
 pub struct ProductGetAllItem {
+    description:     Option<String>,
     id:              Uuid,
     active:          bool,
     image_url:       Option<String>,
@@ -17,6 +18,7 @@ pub struct ProductGetAllItem {
 impl From<Product> for ProductGetAllItem {
     fn from(p: Product) -> Self {
         Self {
+            description:     p.get_description().map(|d| d.value().to_string()),
             id:              p.get_id().value(),
             active:          p.get_active(),
             image_url:       p.get_image_url().map(|i| i.to_string()),

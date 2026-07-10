@@ -3,6 +3,7 @@ use crate::{
     domain::product::{
         ports::repository::ProductRepo,
         value_objects::{
+            description::Description,
             id::ProductId,
             name::Name,
             price_cents::PriceCents,
@@ -17,6 +18,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct UpdateProductInput {
+    pub description: Option<String>,
     pub id:          Uuid,
     pub active:      Option<bool>,
     pub image_url:   Option<String>,
@@ -40,6 +42,10 @@ impl UpdateProductUseCase {
         let product_id      = ProductId::reconstitute(input.id);
         let current         = self.product_repo.get_by_id(&product_id).await?;
         let active          = input.active.unwrap_or_else(|| current.get_active());
+        let description     = match input.description {
+            Some(d) => Some(Description::new(d)?),
+            None    => current.get_description().cloned(),
+        };
         let image_url       = input.image_url.or_else(|| current.get_image_url().map(str::to_string));
         let name            = match input.name {
             Some(n) => Name::new(n)?,
@@ -55,13 +61,14 @@ impl UpdateProductUseCase {
         };
         let unit_of_measure = match &sale_mode {
             SaleMode::Unit => UnitOfMeasure::Unit,
-            SaleMode::Bulk => UnitOfMeasure::Kilogram,
+            SaleMode::Bulk    => UnitOfMeasure::Kilogram,
         };
         let symbols         = match input.symbols {
             Some(s) => s.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?,
             None    => current.get_symbols().to_vec(),
         };
         let updated = Product::reconstitute(
+            description,
             current.get_id().clone(),
             active,
             image_url,

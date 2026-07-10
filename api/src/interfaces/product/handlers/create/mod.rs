@@ -21,6 +21,7 @@ pub async fn create(
     let product = CreateProductUseCase::new(app_state.product_repo)
         .execute(CreateProductInput {
             active:      body.active.unwrap_or(true),
+            description: body.description,
             image_url:   body.image_url,
             name:        body.name,
             price_cents: body.price_cents,
