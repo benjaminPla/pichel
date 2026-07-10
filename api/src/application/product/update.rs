@@ -67,12 +67,14 @@ impl UpdateProductUseCase {
             Some(s) => s.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?,
             None    => current.get_symbols().to_vec(),
         };
+        let plu = current.get_plu().expect("persisted product always has plu");
         let updated = Product::reconstitute(
             description,
             current.get_id().clone(),
             active,
             image_url,
             name,
+            plu,
             price_cents,
             sale_mode,
             symbols,

@@ -17,7 +17,7 @@ pub async fn update(pool: &PgPool, product: &Product, updated_by: Uuid) -> Resul
            symbols         = $8,
            unit_of_measure = $9
          WHERE id = $1
-         RETURNING description, id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure",
+         RETURNING description, id, active, image_url, name, plu, price_cents, sale_mode, symbols, unit_of_measure",
     )
     .bind(&product.get_id().value())
     .bind(&product.get_description().map(|d| d.value()))

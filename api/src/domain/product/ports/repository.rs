@@ -3,6 +3,7 @@ use crate::domain::product::{
         description::DescriptionError,
         id::ProductId,
         name::NameError,
+        plu::PluError,
         price_cents::PriceCentsError,
         sale_mode::SaleModeError,
         symbol::SymbolError,
@@ -33,6 +34,8 @@ pub enum ProductRepoError {
     NotFound,
     #[error("{0}")]
     Mapping(String),
+    #[error("{0}")]
+    Validation(String),
 }
 
 impl From<DescriptionError> for ProductRepoError {
@@ -57,4 +60,8 @@ impl From<PriceCentsError> for ProductRepoError {
 
 impl From<SaleModeError> for ProductRepoError {
     fn from(e: SaleModeError) -> Self { Self::Mapping(e.to_string()) }
+}
+
+impl From<PluError> for ProductRepoError {
+    fn from(e: PluError) -> Self { Self::Mapping(e.to_string()) }
 }

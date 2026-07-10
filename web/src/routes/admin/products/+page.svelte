@@ -21,7 +21,7 @@
   async function loadProducts(page) {
     currentPage = page;
     loading = true;
-    const res = await apiFetch(`/products?page=${page}&per_page=${PER_PAGE}`);
+    const res = await apiFetch(`/products/admin?page=${page}&per_page=${PER_PAGE}`);
     if (!res || !res.ok) { loading = false; return; }
     const data = await res.json();
     products = data.products;
@@ -60,7 +60,7 @@
   <div class="table-wrap orders-table">
     <table>
       <thead><tr>
-        <th>Nombre</th><th>Estado</th><th>Modalidad</th><th>Precio</th><th>Símbolos</th><th class="nowrap">Acciones</th>
+        <th>Nombre</th><th>PLU</th><th>Estado</th><th>Modalidad</th><th>Precio</th><th>Símbolos</th><th class="nowrap">Acciones</th>
       </tr></thead>
       <tbody>
         {#each products as p (p.id)}
@@ -69,6 +69,7 @@
               {p.name}
               {#if p.description}<br><small class="text-muted">{p.description}</small>{/if}
             </td>
+            <td class="text-muted">{p.plu}</td>
             <td>
               {#if p.active}
                 <span class="badge badge-green">Activo</span>
@@ -115,6 +116,9 @@
           <span class="fw-semibold">{p.name}</span>
           {#if p.description}<small>{p.description}</small>{/if}
         </dd>
+
+        <dt>PLU</dt>
+        <dd>{p.plu}</dd>
 
         <dt>Estado</dt>
         <dd>

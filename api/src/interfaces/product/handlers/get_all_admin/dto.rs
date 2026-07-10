@@ -1,20 +1,9 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use crate::domain::product::Product;
-
-#[derive(Deserialize)]
-pub struct ProductCreateRequestBody {
-    pub active:      Option<bool>,
-    pub description: Option<String>,
-    pub image_url:   Option<String>,
-    pub name:        String,
-    pub price_cents: u32,
-    pub sale_mode:   String,
-    pub symbols:     Vec<String>,
-}
+use serde::Serialize;
+use uuid::Uuid;
 
 #[derive(Serialize)]
-pub struct ProductCreateResponse {
+pub struct ProductGetAllAdminItem {
     description:     Option<String>,
     id:              Uuid,
     active:          bool,
@@ -27,7 +16,7 @@ pub struct ProductCreateResponse {
     unit_of_measure: String,
 }
 
-impl From<Product> for ProductCreateResponse {
+impl From<Product> for ProductGetAllAdminItem {
     fn from(p: Product) -> Self {
         Self {
             description:     p.get_description().map(|d| d.value().to_string()),
@@ -42,4 +31,11 @@ impl From<Product> for ProductCreateResponse {
             unit_of_measure: p.get_unit_of_measure().as_str().to_string(),
         }
     }
+}
+
+#[derive(Serialize)]
+pub struct ProductGetAllAdminResponse {
+    pub products:              Vec<ProductGetAllAdminItem>,
+    pub total:                 i64,
+    pub price_list_updated_at: Option<String>,
 }

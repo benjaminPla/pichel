@@ -22,6 +22,7 @@
 
   let productId = null;
   let active = true;
+  let plu = null;
   let name = '';
   let description = '';
   let saleMode = '';
@@ -42,6 +43,7 @@
     if (!res || !res.ok) { goto('/admin/products'); return; }
     const p = await res.json();
     active          = p.active ?? true;
+    plu             = p.plu;
     name            = p.name;
     description     = p.description || '';
     saleMode        = p.sale_mode;
@@ -101,6 +103,10 @@
     <div>
       <label for="p-name">Nombre *</label>
       <input id="p-name" type="text" maxlength="100" required bind:value={name} />
+    </div>
+    <div>
+      <label for="p-plu">PLU</label>
+      <input id="p-plu" type="text" value={plu} disabled />
     </div>
     <div>
       <label for="p-desc">Descripción</label>

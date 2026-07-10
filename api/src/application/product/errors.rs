@@ -3,6 +3,7 @@ use crate::domain::product::{
     value_objects::{
         description::DescriptionError,
         name::NameError,
+        plu::PluError,
         price_cents::PriceCentsError,
         sale_mode::SaleModeError,
         symbol::SymbolError,
@@ -39,12 +40,17 @@ impl From<SymbolError> for ProductAppError {
     fn from(e: SymbolError) -> Self { Self::Validation(e.to_string()) }
 }
 
+impl From<PluError> for ProductAppError {
+    fn from(e: PluError) -> Self { Self::Validation(e.to_string()) }
+}
+
 impl From<ProductRepoError> for ProductAppError {
     fn from(e: ProductRepoError) -> Self {
         match e {
-            ProductRepoError::Database(msg) => Self::Internal(msg),
-            ProductRepoError::Mapping(msg)  => Self::Internal(msg),
-            ProductRepoError::NotFound      => Self::NotFound,
+            ProductRepoError::Database(msg)   => Self::Internal(msg),
+            ProductRepoError::Mapping(msg)    => Self::Internal(msg),
+            ProductRepoError::NotFound        => Self::NotFound,
+            ProductRepoError::Validation(msg) => Self::Validation(msg),
         }
     }
 }

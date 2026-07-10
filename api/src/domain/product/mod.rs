@@ -5,6 +5,7 @@ use value_objects::{
     description::Description,
     id::ProductId,
     name::Name,
+    plu::Plu,
     price_cents::PriceCents,
     sale_mode::SaleMode,
     symbol::Symbol,
@@ -18,6 +19,7 @@ pub struct Product {
     active:          bool,
     image_url:       Option<String>,
     name:            Name,
+    plu:             Option<Plu>,
     price_cents:     PriceCents,
     sale_mode:       SaleMode,
     symbols:         Vec<Symbol>,
@@ -41,6 +43,7 @@ impl Product {
             active,
             image_url,
             name,
+            plu: None,
             price_cents,
             sale_mode,
             symbols,
@@ -54,12 +57,13 @@ impl Product {
         active:          bool,
         image_url:       Option<String>,
         name:            Name,
+        plu:             Plu,
         price_cents:     PriceCents,
         sale_mode:       SaleMode,
         symbols:         Vec<Symbol>,
         unit_of_measure: UnitOfMeasure,
     ) -> Self {
-        Self { description, id, active, image_url, name, price_cents, sale_mode, symbols, unit_of_measure }
+        Self { description, id, active, image_url, name, plu: Some(plu), price_cents, sale_mode, symbols, unit_of_measure }
     }
 
     // ── Getters ──────────────────────────────────────────────────────────────
@@ -69,6 +73,7 @@ impl Product {
     pub fn get_active(&self)          -> bool                 { self.active }
     pub fn get_image_url(&self)       -> Option<&str>         { self.image_url.as_deref() }
     pub fn get_name(&self)            -> &Name                { &self.name }
+    pub fn get_plu(&self)             -> Option<Plu>          { self.plu }
     pub fn get_price_cents(&self)     -> PriceCents           { self.price_cents }
     pub fn get_sale_mode(&self)       -> &SaleMode            { &self.sale_mode }
     pub fn get_symbols(&self)         -> &[Symbol]            { &self.symbols }

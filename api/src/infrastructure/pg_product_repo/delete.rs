@@ -9,7 +9,7 @@ pub async fn delete(pool: &PgPool, product_id: &ProductId, updated_by: Uuid) -> 
     let row = sqlx::query_as::<_, ProductRow>(
         "DELETE FROM products
          WHERE id = $1
-         RETURNING description, id, image_url, name, price_cents, sale_mode, symbols, unit_of_measure",
+         RETURNING description, id, active, image_url, name, plu, price_cents, sale_mode, symbols, unit_of_measure",
     )
     .bind(product_id.value())
     .fetch_one(pool)

@@ -1,6 +1,7 @@
 pub mod description;
 pub mod id;
 pub mod name;
+pub mod plu;
 pub mod price_cents;
 pub mod sale_mode;
 pub mod symbol;
