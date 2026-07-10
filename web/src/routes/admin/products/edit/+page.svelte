@@ -23,6 +23,7 @@
   let productId = null;
   let active = true;
   let name = '';
+  let description = '';
   let saleMode = '';
   let priceStr = '';
   let selectedSymbols = [];
@@ -42,6 +43,7 @@
     const p = await res.json();
     active          = p.active ?? true;
     name            = p.name;
+    description     = p.description || '';
     saleMode        = p.sale_mode;
     priceStr        = (p.price_cents / 100).toFixed(2);
     selectedSymbols = p.symbols || [];
@@ -76,6 +78,7 @@
         body: JSON.stringify({
           active,
           name:        name.trim(),
+          description: description.trim() || null,
           sale_mode:   saleMode,
           price_cents,
           symbols:     selectedSymbols,
@@ -98,6 +101,10 @@
     <div>
       <label for="p-name">Nombre *</label>
       <input id="p-name" type="text" maxlength="100" required bind:value={name} />
+    </div>
+    <div>
+      <label for="p-desc">Descripción</label>
+      <textarea id="p-desc" maxlength="255" rows="3" bind:value={description}></textarea>
     </div>
     <div>
       <label for="p-salemode">Modalidad *</label>

@@ -65,7 +65,10 @@
       <tbody>
         {#each products as p (p.id)}
           <tr>
-            <td class="td-strong">{p.name}</td>
+            <td class="td-strong">
+              {p.name}
+              {#if p.description}<br><small class="text-muted">{p.description}</small>{/if}
+            </td>
             <td>
               {#if p.active}
                 <span class="badge badge-green">Activo</span>
@@ -108,7 +111,10 @@
     {#each products as p (p.id)}
       <dl class="order-card">
         <dt>Nombre</dt>
-        <dd class="fw-semibold">{p.name}</dd>
+        <dd>
+          <span class="fw-semibold">{p.name}</span>
+          {#if p.description}<small>{p.description}</small>{/if}
+        </dd>
 
         <dt>Estado</dt>
         <dd>
