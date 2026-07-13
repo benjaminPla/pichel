@@ -35,7 +35,7 @@ impl UserRepo for PgUserRepo {
         create::create(&self.pool, user).await
     }
 
-    async fn delete(&self, user_id: &UserId) -> Result<User, UserRepoError> {
+    async fn delete(&self, user_id: &UserId) -> Result<(), UserRepoError> {
         delete::delete(&self.pool, user_id).await
     }
 

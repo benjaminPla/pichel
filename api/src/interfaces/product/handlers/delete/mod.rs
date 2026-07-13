@@ -1,16 +1,8 @@
-pub mod dto;
-
-use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, Extension, Json};
+use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, Extension};
 use crate::{
     application::product::delete::{DeleteProductInput, DeleteProductUseCase},
     domain::auth::Claims,
-    interfaces::{
-        app_state::AppState,
-        product::{
-            errors::ProductInterError,
-            handlers::delete::dto::ProductDeleteResponse,
-        },
-    },
+    interfaces::{app_state::AppState, product::errors::ProductInterError},
 };
 use uuid::Uuid;
 
@@ -19,8 +11,8 @@ pub async fn delete(
     Extension(claims): Extension<Claims>,
     Path(id):          Path<Uuid>,
 ) -> Result<impl IntoResponse, ProductInterError> {
-    let product = DeleteProductUseCase::new(app_state.product_repo)
+    DeleteProductUseCase::new(app_state.product_repo)
         .execute(DeleteProductInput { id, updated_by: claims.get_sub().value() })
         .await?;
-    Ok((StatusCode::GONE, Json(ProductDeleteResponse::from(product))))
+    Ok(StatusCode::NO_CONTENT)
 }

@@ -1,6 +1,6 @@
 use crate::{
     application::user::errors::UserAppError,
-    domain::user::{ports::UserRepo, value_objects::id::UserId, User},
+    domain::user::{ports::UserRepo, value_objects::id::UserId},
 };
 use std::sync::Arc;
 use uuid::Uuid;
@@ -18,9 +18,9 @@ impl DeleteUserUseCase {
         Self { user_repo }
     }
 
-    pub async fn execute(&self, input: DeleteUserInput) -> Result<User, UserAppError> {
+    pub async fn execute(&self, input: DeleteUserInput) -> Result<(), UserAppError> {
         let user_id = UserId::reconstitute(input.id);
-        let user    = self.user_repo.delete(&user_id).await?;
-        Ok(user)
+        self.user_repo.delete(&user_id).await?;
+        Ok(())
     }
 }

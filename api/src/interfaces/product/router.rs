@@ -18,7 +18,5 @@ pub fn products_router(app_state: AppState) -> Router<AppState> {
     let public = Router::new()
         .route("/", get(handlers::get_all));
 
-    Router::new()
-        .merge(admin)
-        .merge(public)
+    Router::new().merge(admin).merge(public)
 }

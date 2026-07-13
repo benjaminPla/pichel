@@ -10,7 +10,7 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait UserRepo: Send + Sync {
     async fn create(&self, user: &User)                                             -> Result<User, UserRepoError>;
-    async fn delete(&self, user_id: &UserId)                                        -> Result<User, UserRepoError>;
+    async fn delete(&self, user_id: &UserId)                                        -> Result<(), UserRepoError>;
     async fn get_all(&self, page: i64, per_page: i64)                               -> Result<(Vec<User>, i64), UserRepoError>;
     async fn get_by_email(&self, email: &Email)                                     -> Result<User, UserRepoError>;
     async fn get_by_id(&self, user_id: &UserId)                                     -> Result<User, UserRepoError>;
