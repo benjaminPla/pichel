@@ -103,6 +103,7 @@
   --spinner-size:    14px;
   --spinner-border:  2px;
   --select-multi-h:  160px;
+  --filters-bar-h:   44px;
   --cart-max-height: 88vh;
 
   /* Motion */
@@ -407,6 +408,7 @@ body.layout-auth {
 /* ── 9. Section header (mobile-first) ──────────────────────────── */
 .section-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-4);
@@ -422,7 +424,26 @@ body.layout-auth {
   font-weight: var(--fw-semibold);
 }
 .section-header span { font-size: var(--text-sm); color: var(--clr-text-muted); }
-.section-header--flush { padding: 0; margin-bottom: var(--sp-4); }
+.section-header--flush { padding: 0; margin-bottom: var(--sp-4); max-width: none; margin-inline: 0; }
+
+.filters-bar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-4);
+  max-width: var(--container-max);
+  margin-inline: auto;
+  margin-bottom: var(--sp-4);
+  width: 100%;
+}
+.filters-bar--flush { padding: 0; max-width: none; margin-inline: 0; }
+.filters-bar input[type="text"],
+.filters-bar .form-select {
+  width: 100%;
+  height: var(--filters-bar-h);
+  padding: 0 var(--sp-4);
+  font-size: var(--text-base);
+}
 
 
 /* ── 10. Products grid (mobile-first: 2 col) ───────────────────── */
@@ -1574,6 +1595,7 @@ input.input-error:not([type="checkbox"]):not([type="radio"]):not([type="range"])
 
   /* Section header */
   .section-header { padding: 0 var(--sp-6); }
+  .filters-bar { padding: 0 var(--sp-6); grid-template-columns: 1fr 1fr; }
 
   /* Price list */
   .price-list-wrap { padding: 0 var(--sp-6) var(--sp-16); }
