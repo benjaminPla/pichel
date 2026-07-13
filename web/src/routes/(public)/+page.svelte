@@ -8,33 +8,51 @@
   const PER_PAGE = 50;
 
   let products = [];
+  let categories = [];
   let loading = true;
   let error = false;
   let currentPage = 1;
   let totalPages = 1;
   let totalCount = 0;
   let priceListUpdatedAt = null;
+  let nameFilter = '';
+  let categoryFilter = '';
+  let nameDebounce;
 
-  onMount(() => loadProducts(1));
+  onMount(async () => {
+    try {
+      const catRes = await fetch(`${API}/categories`);
+      if (catRes.ok) categories = (await catRes.json()).categories;
+    } catch { /* filter bar just won't offer categories */ }
+    loadProducts(1);
+  });
 
   async function loadProducts(page) {
     currentPage = page;
     loading = true;
     error = false;
     try {
-      const res = await fetch(`${API}/products?page=${page}&per_page=${PER_PAGE}`);
+      const params = new URLSearchParams({ page, per_page: PER_PAGE });
+      if (nameFilter.trim()) params.set('name', nameFilter.trim());
+      if (categoryFilter) params.set('category_id', categoryFilter);
+      const res = await fetch(`${API}/products?${params}`);
       if (!res.ok) throw new Error();
       const { products: data, total, price_list_updated_at } = await res.json();
       products = data;
       totalCount = total;
       totalPages = Math.ceil(total / PER_PAGE);
       priceListUpdatedAt = price_list_updated_at ? new Date(price_list_updated_at) : null;
-      if (page === 1) cart.reconcile(data, data.length === total);
+      if (page === 1 && !nameFilter && !categoryFilter) cart.reconcile(data, data.length === total);
     } catch {
       error = true;
     } finally {
       loading = false;
     }
+  }
+
+  function onNameFilterInput() {
+    clearTimeout(nameDebounce);
+    nameDebounce = setTimeout(() => loadProducts(1), 300);
   }
 
   let pending = {};
@@ -77,6 +95,16 @@
     </div>
   </div>
 
+  <div class="filters-bar">
+    <input type="text" placeholder="Buscar por nombre…" bind:value={nameFilter} on:input={onNameFilterInput} />
+    <select class="form-select" bind:value={categoryFilter} on:change={() => loadProducts(1)}>
+      <option value="">Todas las categorías</option>
+      {#each categories as c}
+        <option value={c.id}>{c.name}</option>
+      {/each}
+    </select>
+  </div>
+
   <div id="list-wrap">
     {#if loading}
       <div class="products-grid">
@@ -93,7 +121,9 @@
     {:else if error}
       <p class="pl-empty">No se pudo cargar la lista.</p>
     {:else if !products.length}
-      <p class="pl-empty">Sin productos por ahora.</p>
+      <p class="pl-empty">
+        {nameFilter || categoryFilter ? 'Sin productos que coincidan con la búsqueda.' : 'Sin productos por ahora.'}
+      </p>
     {:else}
       <div class="products-grid">
         {#each products as p (p.id)}

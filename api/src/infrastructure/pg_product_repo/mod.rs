@@ -36,8 +36,8 @@ impl ProductRepo for PgProductRepo {
         delete::delete(&self.pool, product_id, updated_by).await
     }
 
-    async fn get_all(&self, page: i64, per_page: i64) -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError> {
-        get_all::get_all(&self.pool, page, per_page).await
+    async fn get_all(&self, page: i64, per_page: i64, name: Option<String>, category_id: Option<Uuid>) -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError> {
+        get_all::get_all(&self.pool, page, per_page, name, category_id).await
     }
 
     async fn get_by_id(&self, product_id: &ProductId) -> Result<Product, ProductRepoError> {

@@ -26,8 +26,10 @@ pub async fn get_all_admin(
 ) -> Result<impl IntoResponse, ProductInterError> {
     let (products, total, price_list_updated_at) = GetAllProductsUseCase::new(app_state.product_repo)
         .execute(GetAllProductsInput {
-            page:     query.page.max(1),
-            per_page: query.per_page.clamp(1, GetAllQueryParams::MAX_PER_PAGE),
+            page:        query.page.max(1),
+            per_page:    query.per_page.clamp(1, GetAllQueryParams::MAX_PER_PAGE),
+            name:        query.name,
+            category_id: query.category_id,
         })
         .await?;
     let products = products.into_iter().map(ProductGetAllAdminItem::from).collect::<Vec<_>>();

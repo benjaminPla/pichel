@@ -48,8 +48,12 @@ pub struct ProductGetAllResponse {
 
 #[derive(Deserialize)]
 pub struct GetAllQueryParams {
-    pub page:     i64,
-    pub per_page: i64,
+    pub page:        i64,
+    pub per_page:    i64,
+    #[serde(default)]
+    pub name:        Option<String>,
+    #[serde(default)]
+    pub category_id: Option<Uuid>,
 }
 
 impl GetAllQueryParams {

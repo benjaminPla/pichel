@@ -11,23 +11,39 @@
   const PER_PAGE = 50;
 
   let products = [];
+  let categories = [];
   let total = 0;
   let currentPage = 1;
   let totalPages = 1;
   let loading = true;
+  let nameFilter = '';
+  let categoryFilter = '';
+  let nameDebounce;
 
-  onMount(() => loadProducts(1));
+  onMount(async () => {
+    const catRes = await apiFetch('/categories');
+    if (catRes && catRes.ok) categories = (await catRes.json()).categories;
+    loadProducts(1);
+  });
 
   async function loadProducts(page) {
     currentPage = page;
     loading = true;
-    const res = await apiFetch(`/products/admin?page=${page}&per_page=${PER_PAGE}`);
+    const params = new URLSearchParams({ page, per_page: PER_PAGE });
+    if (nameFilter.trim()) params.set('name', nameFilter.trim());
+    if (categoryFilter) params.set('category_id', categoryFilter);
+    const res = await apiFetch(`/products/admin?${params}`);
     if (!res || !res.ok) { loading = false; return; }
     const data = await res.json();
     products = data.products;
     total = data.total;
     totalPages = Math.ceil(total / PER_PAGE);
     loading = false;
+  }
+
+  function onNameFilterInput() {
+    clearTimeout(nameDebounce);
+    nameDebounce = setTimeout(() => loadProducts(1), 300);
   }
 
   async function deleteProduct(id) {
@@ -51,10 +67,22 @@
   </div>
 </div>
 
+<div class="filters-bar filters-bar--flush">
+  <input type="text" placeholder="Buscar por nombre…" bind:value={nameFilter} on:input={onNameFilterInput} />
+  <select class="form-select" bind:value={categoryFilter} on:change={() => loadProducts(1)}>
+    <option value="">Todas las categorías</option>
+    {#each categories as c}
+      <option value={c.id}>{c.name}</option>
+    {/each}
+  </select>
+</div>
+
 {#if loading}
   <div class="table-wrap"><p class="table-empty">Cargando…</p></div>
 {:else if !products.length}
-  <div class="table-wrap"><p class="table-empty">Sin productos todavía.</p></div>
+  <div class="table-wrap"><p class="table-empty">
+    {nameFilter || categoryFilter ? 'Sin productos que coincidan con el filtro.' : 'Sin productos todavía.'}
+  </p></div>
 {:else}
   <!-- Desktop table -->
   <div class="table-wrap orders-table">

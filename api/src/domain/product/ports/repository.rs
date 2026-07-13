@@ -19,7 +19,7 @@ use uuid::Uuid;
 pub trait ProductRepo: Send + Sync {
     async fn create(&self, product: &Product, category_ids: &[Uuid], updated_by: Uuid) -> Result<Product, ProductRepoError>;
     async fn delete(&self, product_id: &ProductId, updated_by: Uuid)                   -> Result<(), ProductRepoError>;
-    async fn get_all(&self, page: i64, per_page: i64)                                  -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError>;
+    async fn get_all(&self, page: i64, per_page: i64, name: Option<String>, category_id: Option<Uuid>) -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError>;
     async fn get_by_id(&self, product_id: &ProductId)                                  -> Result<Product, ProductRepoError>;
     async fn update(&self, product: &Product, category_ids: &[Uuid], updated_by: Uuid) -> Result<Product, ProductRepoError>;
 }
