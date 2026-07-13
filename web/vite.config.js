@@ -8,6 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': API_PROXY,
+      '/categories': API_PROXY,
       '/orders': API_PROXY,
       '/products': API_PROXY,
       '/users': API_PROXY,
