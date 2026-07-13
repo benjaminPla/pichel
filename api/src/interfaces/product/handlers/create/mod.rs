@@ -20,14 +20,15 @@ pub async fn create(
 ) -> Result<impl IntoResponse, ProductInterError> {
     let product = CreateProductUseCase::new(app_state.product_repo)
         .execute(CreateProductInput {
-            active:      body.active.unwrap_or(true),
-            description: body.description,
-            image_url:   body.image_url,
-            name:        body.name,
-            price_cents: body.price_cents,
-            sale_mode:   body.sale_mode,
-            symbols:     body.symbols,
-            updated_by:  claims.get_sub().value(),
+            active:       body.active.unwrap_or(true),
+            category_ids: body.category_ids,
+            description:  body.description,
+            image_url:    body.image_url,
+            name:         body.name,
+            price_cents:  body.price_cents,
+            sale_mode:    body.sale_mode,
+            symbols:      body.symbols,
+            updated_by:   claims.get_sub().value(),
         })
         .await?;
     Ok((StatusCode::CREATED, Json(ProductCreateResponse::from(product))))

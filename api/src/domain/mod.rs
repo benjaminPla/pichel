@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod category;
 pub mod hasher;
 pub mod order;
 pub mod product;

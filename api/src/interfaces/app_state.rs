@@ -1,5 +1,6 @@
 use crate::domain::{
     auth::ports::TokenService,
+    category::ports::repository::CategoryRepo,
     hasher::HasherService,
     order::ports::repository::OrderRepo,
     product::ports::repository::ProductRepo,
@@ -9,6 +10,7 @@ use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppState {
+    pub category_repo: Arc<dyn CategoryRepo>,
     pub cookie_secure:  bool,
     pub hasher_service: Arc<dyn HasherService>,
     pub order_repo:     Arc<dyn OrderRepo>,

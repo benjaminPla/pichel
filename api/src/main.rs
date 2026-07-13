@@ -8,11 +8,13 @@ use axum::Router;
 use config::Config;
 use infrastructure::{
     argon2_hasher_service::Argon2HasherService, jwt_token_service::JwtTokenService,
-    pg_order_repo::PgOrderRepo, pg_product_repo::PgProductRepo, pg_user_repo::PgUserRepo,
+    pg_category_repo::PgCategoryRepo, pg_order_repo::PgOrderRepo, pg_product_repo::PgProductRepo,
+    pg_user_repo::PgUserRepo,
 };
 use interfaces::{
     app_state::AppState,
     auth::router::auth_router,
+    category::router::categories_router,
     order::router::orders_router,
     product::router::products_router,
     user::router::users_router,
@@ -36,6 +38,7 @@ async fn main() {
     sqlx::migrate!("../db/migrations").run(&pool).await.expect("Failed to run migrations");
     tokio::fs::create_dir_all(&config.uploads_path).await.expect("Failed to create uploads directory");
     let app_state = AppState {
+        category_repo:  Arc::new(PgCategoryRepo::new(pool.clone())),
         cookie_secure:  config.cookie_secure,
         hasher_service: Arc::new(Argon2HasherService::new()),
         order_repo:     Arc::new(PgOrderRepo::new(pool.clone())),
@@ -45,10 +48,11 @@ async fn main() {
         user_repo:      Arc::new(PgUserRepo::new(pool.clone())),
     };
     let app = Router::new()
-        .nest("/auth",     auth_router())
-        .nest("/orders",   orders_router(app_state.clone()))
-        .nest("/products", products_router(app_state.clone()))
-        .nest("/users",    users_router(app_state.clone()))
+        .nest("/auth",       auth_router())
+        .nest("/categories", categories_router(app_state.clone()))
+        .nest("/orders",     orders_router(app_state.clone()))
+        .nest("/products",   products_router(app_state.clone()))
+        .nest("/users",      users_router(app_state.clone()))
         .with_state(app_state);
     let address  = SocketAddr::from(([0, 0, 0, 0], config.port));
     let listener = tokio::net::TcpListener::bind(address).await.unwrap();

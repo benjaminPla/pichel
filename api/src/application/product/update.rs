@@ -18,15 +18,16 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct UpdateProductInput {
-    pub description: Option<String>,
-    pub id:          Uuid,
-    pub active:      Option<bool>,
-    pub image_url:   Option<String>,
-    pub name:        Option<String>,
-    pub price_cents: Option<u32>,
-    pub sale_mode:   Option<String>,
-    pub symbols:     Option<Vec<String>>,
-    pub updated_by:  Uuid,
+    pub category_ids: Option<Vec<Uuid>>,
+    pub description:  Option<String>,
+    pub id:           Uuid,
+    pub active:       Option<bool>,
+    pub image_url:    Option<String>,
+    pub name:         Option<String>,
+    pub price_cents:  Option<u32>,
+    pub sale_mode:    Option<String>,
+    pub symbols:      Option<Vec<String>>,
+    pub updated_by:   Uuid,
 }
 
 pub struct UpdateProductUseCase {
@@ -68,7 +69,12 @@ impl UpdateProductUseCase {
             None    => current.get_symbols().to_vec(),
         };
         let plu = current.get_plu().expect("persisted product always has plu");
+        let category_ids = match input.category_ids {
+            Some(ids) => ids,
+            None      => current.get_categories().iter().map(|c| c.id).collect(),
+        };
         let updated = Product::reconstitute(
+            current.get_categories().to_vec(),
             description,
             current.get_id().clone(),
             active,
@@ -80,7 +86,7 @@ impl UpdateProductUseCase {
             symbols,
             unit_of_measure,
         );
-        let product = self.product_repo.update(&updated, input.updated_by).await?;
+        let product = self.product_repo.update(&updated, &category_ids, input.updated_by).await?;
         Ok(product)
     }
 }

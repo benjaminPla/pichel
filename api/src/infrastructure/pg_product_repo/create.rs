@@ -1,6 +1,6 @@
 use crate::{
-    domain::product::{ports::repository::ProductRepoError, Product},
-    infrastructure::pg_product_repo::row::ProductRow,
+    domain::product::{ports::repository::ProductRepoError, value_objects::category_summary::CategorySummary, Product},
+    infrastructure::pg_product_repo::row::{CategoryRow, ProductRow},
 };
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -8,7 +8,7 @@ use uuid::Uuid;
 const PLU_ASSIGNMENT_LOCK_KEY: i64 = 69_420;
 const PLU_MAX: i32 = 800;
 
-pub async fn create(pool: &PgPool, product: &Product, updated_by: Uuid) -> Result<Product, ProductRepoError> {
+pub async fn create(pool: &PgPool, product: &Product, category_ids: &[Uuid], updated_by: Uuid) -> Result<Product, ProductRepoError> {
     let mut tx = pool.begin().await.map_err(|e| ProductRepoError::Database(e.to_string()))?;
 
     sqlx::query("SELECT pg_advisory_xact_lock($1)")
@@ -34,7 +34,8 @@ pub async fn create(pool: &PgPool, product: &Product, updated_by: Uuid) -> Resul
         "INSERT INTO products
            (description, id, active, image_url, name, plu, price_cents, sale_mode, symbols, unit_of_measure)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-         RETURNING description, id, active, image_url, name, plu, price_cents, sale_mode, symbols, unit_of_measure",
+         RETURNING description, id, active, image_url, name, plu, price_cents, sale_mode, symbols, unit_of_measure,
+                   '{}'::uuid[] AS category_ids, '{}'::text[] AS category_names",
     )
     .bind(&product.get_description().map(|d| d.value()))
     .bind(&product.get_id().value())
@@ -49,6 +50,24 @@ pub async fn create(pool: &PgPool, product: &Product, updated_by: Uuid) -> Resul
     .fetch_one(&mut *tx)
     .await?;
 
+    sqlx::query(
+        "INSERT INTO product_categories (product_id, category_id)
+         SELECT $1, unnest($2::uuid[])",
+    )
+    .bind(&product.get_id().value())
+    .bind(category_ids)
+    .execute(&mut *tx)
+    .await
+    .map_err(|e| ProductRepoError::Database(e.to_string()))?;
+
+    let category_rows = sqlx::query_as::<_, CategoryRow>(
+        "SELECT id, name FROM categories WHERE id = ANY($1) ORDER BY name",
+    )
+    .bind(category_ids)
+    .fetch_all(&mut *tx)
+    .await
+    .map_err(|e| ProductRepoError::Database(e.to_string()))?;
+
     sqlx::query("UPDATE app_settings SET updated_by = $1 WHERE key = 'price_list_updated_at'")
         .bind(updated_by)
         .execute(&mut *tx)
@@ -57,5 +76,6 @@ pub async fn create(pool: &PgPool, product: &Product, updated_by: Uuid) -> Resul
 
     tx.commit().await.map_err(|e| ProductRepoError::Database(e.to_string()))?;
 
-    Ok(Product::try_from(row)?)
+    let categories = category_rows.into_iter().map(|r| CategorySummary { id: r.id, name: r.name }).collect();
+    Ok(Product::try_from(row)?.with_categories(categories))
 }

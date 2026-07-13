@@ -1,3 +1,4 @@
+pub mod category_summary;
 pub mod description;
 pub mod id;
 pub mod name;

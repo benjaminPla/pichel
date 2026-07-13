@@ -12,9 +12,15 @@ pub async fn get_all(pool: &PgPool, page: i64, per_page: i64) -> Result<(Vec<Pro
         .await
         .map_err(|e| ProductRepoError::Database(e.to_string()))?;
     let rows = sqlx::query_as::<_, ProductRow>(
-        "SELECT description, id, active, image_url, name, plu, price_cents, sale_mode, symbols, unit_of_measure
-         FROM products
-         ORDER BY name ASC
+        "SELECT
+           p.description, p.id, p.active, p.image_url, p.name, p.plu, p.price_cents, p.sale_mode, p.symbols, p.unit_of_measure,
+           COALESCE(array_agg(c.id ORDER BY c.name)   FILTER (WHERE c.id IS NOT NULL), '{}') AS category_ids,
+           COALESCE(array_agg(c.name ORDER BY c.name) FILTER (WHERE c.id IS NOT NULL), '{}') AS category_names
+         FROM products p
+         LEFT JOIN product_categories pc ON pc.product_id = p.id
+         LEFT JOIN categories c          ON c.id = pc.category_id
+         GROUP BY p.id
+         ORDER BY p.name ASC
          LIMIT $1 OFFSET $2",
     )
     .bind(per_page)

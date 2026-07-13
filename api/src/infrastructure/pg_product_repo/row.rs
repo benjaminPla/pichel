@@ -2,6 +2,7 @@ use uuid::Uuid;
 use crate::domain::product::{
     ports::repository::ProductRepoError,
     value_objects::{
+        category_summary::CategorySummary,
         description::Description,
         id::ProductId,
         name::Name,
@@ -16,6 +17,8 @@ use crate::domain::product::{
 
 #[derive(sqlx::FromRow)]
 pub struct ProductRow {
+    category_ids:    Vec<Uuid>,
+    category_names:  Vec<String>,
     description:     Option<String>,
     id:              Uuid,
     active:          bool,
@@ -28,10 +31,21 @@ pub struct ProductRow {
     unit_of_measure: String,
 }
 
+/// Minimal read model for `categories` rows, used to attach id/name pairs to a `Product`
+/// after a create/update write to the `product_categories` join table.
+#[derive(sqlx::FromRow)]
+pub struct CategoryRow {
+    pub id:   Uuid,
+    pub name: String,
+}
+
 impl TryFrom<ProductRow> for Product {
     type Error = ProductRepoError;
 
     fn try_from(r: ProductRow) -> Result<Product, ProductRepoError> {
+        let categories = r.category_ids.into_iter().zip(r.category_names)
+            .map(|(id, name)| CategorySummary { id, name })
+            .collect::<Vec<_>>();
         let description     = r.description.map(Description::new).transpose()?;
         let id              = ProductId::reconstitute(r.id);
         let name            = Name::new(r.name)?;
@@ -40,6 +54,6 @@ impl TryFrom<ProductRow> for Product {
         let sale_mode       = r.sale_mode.parse::<SaleMode>()?;
         let symbols         = r.symbols.iter().map(|s| s.parse::<Symbol>()).collect::<Result<Vec<_>, _>>()?;
         let unit_of_measure = r.unit_of_measure.parse::<UnitOfMeasure>()?;
-        Ok(Product::reconstitute(description, id, r.active, r.image_url, name, plu, price_cents, sale_mode, symbols, unit_of_measure))
+        Ok(Product::reconstitute(categories, description, id, r.active, r.image_url, name, plu, price_cents, sale_mode, symbols, unit_of_measure))
     }
 }

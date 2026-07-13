@@ -17,14 +17,15 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct CreateProductInput {
-    pub active:      bool,
-    pub description: Option<String>,
-    pub image_url:   Option<String>,
-    pub name:        String,
-    pub price_cents: u32,
-    pub sale_mode:   String,
-    pub symbols:     Vec<String>,
-    pub updated_by:  Uuid,
+    pub active:       bool,
+    pub category_ids: Vec<Uuid>,
+    pub description:  Option<String>,
+    pub image_url:    Option<String>,
+    pub name:         String,
+    pub price_cents:  u32,
+    pub sale_mode:    String,
+    pub symbols:      Vec<String>,
+    pub updated_by:   Uuid,
 }
 
 pub struct CreateProductUseCase {
@@ -47,7 +48,7 @@ impl CreateProductUseCase {
             SaleMode::Bulk    => UnitOfMeasure::Kilogram,
         };
         let product = Product::new(input.active, description, input.image_url, name, price_cents, sale_mode, symbols, unit_of_measure);
-        let product = self.product_repo.create(&product, input.updated_by).await?;
+        let product = self.product_repo.create(&product, &input.category_ids, input.updated_by).await?;
         Ok(product)
     }
 }

@@ -28,11 +28,11 @@ impl PgProductRepo {
 
 #[async_trait]
 impl ProductRepo for PgProductRepo {
-    async fn create(&self, product: &Product, updated_by: Uuid) -> Result<Product, ProductRepoError> {
-        create::create(&self.pool, product, updated_by).await
+    async fn create(&self, product: &Product, category_ids: &[Uuid], updated_by: Uuid) -> Result<Product, ProductRepoError> {
+        create::create(&self.pool, product, category_ids, updated_by).await
     }
 
-    async fn delete(&self, product_id: &ProductId, updated_by: Uuid) -> Result<Product, ProductRepoError> {
+    async fn delete(&self, product_id: &ProductId, updated_by: Uuid) -> Result<(), ProductRepoError> {
         delete::delete(&self.pool, product_id, updated_by).await
     }
 
@@ -44,7 +44,7 @@ impl ProductRepo for PgProductRepo {
         get_by_id::get_by_id(&self.pool, product_id).await
     }
 
-    async fn update(&self, product: &Product, updated_by: Uuid) -> Result<Product, ProductRepoError> {
-        update::update(&self.pool, product, updated_by).await
+    async fn update(&self, product: &Product, category_ids: &[Uuid], updated_by: Uuid) -> Result<Product, ProductRepoError> {
+        update::update(&self.pool, product, category_ids, updated_by).await
     }
 }

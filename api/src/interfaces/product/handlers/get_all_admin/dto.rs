@@ -3,7 +3,14 @@ use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(Serialize)]
+pub struct CategoryDto {
+    pub id:   Uuid,
+    pub name: String,
+}
+
+#[derive(Serialize)]
 pub struct ProductGetAllAdminItem {
+    categories:      Vec<CategoryDto>,
     description:     Option<String>,
     id:              Uuid,
     active:          bool,
@@ -19,6 +26,7 @@ pub struct ProductGetAllAdminItem {
 impl From<Product> for ProductGetAllAdminItem {
     fn from(p: Product) -> Self {
         Self {
+            categories:      p.get_categories().iter().map(|c| CategoryDto { id: c.id, name: c.name.clone() }).collect(),
             description:     p.get_description().map(|d| d.value().to_string()),
             id:              p.get_id().value(),
             active:          p.get_active(),

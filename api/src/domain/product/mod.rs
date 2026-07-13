@@ -2,6 +2,7 @@ pub mod ports;
 pub mod value_objects;
 
 use value_objects::{
+    category_summary::CategorySummary,
     description::Description,
     id::ProductId,
     name::Name,
@@ -14,6 +15,7 @@ use value_objects::{
 
 #[derive(Debug, Clone)]
 pub struct Product {
+    categories:      Vec<CategorySummary>,
     description:     Option<Description>,
     id:              ProductId,
     active:          bool,
@@ -38,6 +40,7 @@ impl Product {
         unit_of_measure: UnitOfMeasure,
     ) -> Self {
         Self {
+            categories: Vec::new(),
             description,
             id: ProductId::new(),
             active,
@@ -52,6 +55,7 @@ impl Product {
     }
 
     pub fn reconstitute(
+        categories:      Vec<CategorySummary>,
         description:     Option<Description>,
         id:              ProductId,
         active:          bool,
@@ -63,11 +67,19 @@ impl Product {
         symbols:         Vec<Symbol>,
         unit_of_measure: UnitOfMeasure,
     ) -> Self {
-        Self { description, id, active, image_url, name, plu: Some(plu), price_cents, sale_mode, symbols, unit_of_measure }
+        Self { categories, description, id, active, image_url, name, plu: Some(plu), price_cents, sale_mode, symbols, unit_of_measure }
+    }
+
+    /// Attaches the resolved category id/name pairs after a create/update round-trip
+    /// (the join-table write happens separately from the `products` row write).
+    pub fn with_categories(mut self, categories: Vec<CategorySummary>) -> Self {
+        self.categories = categories;
+        self
     }
 
     // ── Getters ──────────────────────────────────────────────────────────────
 
+    pub fn get_categories(&self)      -> &[CategorySummary]   { &self.categories }
     pub fn get_description(&self)     -> Option<&Description> { self.description.as_ref() }
     pub fn get_id(&self)              -> &ProductId           { &self.id }
     pub fn get_active(&self)          -> bool                 { self.active }

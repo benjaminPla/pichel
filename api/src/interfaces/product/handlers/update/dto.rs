@@ -4,17 +4,25 @@ use crate::domain::product::Product;
 
 #[derive(Deserialize)]
 pub struct ProductUpdateRequestBody {
-    pub active:      Option<bool>,
-    pub description: Option<String>,
-    pub image_url:   Option<String>,
-    pub name:        Option<String>,
-    pub price_cents: Option<u32>,
-    pub sale_mode:   Option<String>,
-    pub symbols:     Option<Vec<String>>,
+    pub active:       Option<bool>,
+    pub category_ids: Option<Vec<Uuid>>,
+    pub description:  Option<String>,
+    pub image_url:    Option<String>,
+    pub name:         Option<String>,
+    pub price_cents:  Option<u32>,
+    pub sale_mode:    Option<String>,
+    pub symbols:      Option<Vec<String>>,
+}
+
+#[derive(Serialize)]
+pub struct CategoryDto {
+    pub id:   Uuid,
+    pub name: String,
 }
 
 #[derive(Serialize)]
 pub struct ProductUpdateResponse {
+    categories:      Vec<CategoryDto>,
     description:     Option<String>,
     id:              Uuid,
     active:          bool,
@@ -30,6 +38,7 @@ pub struct ProductUpdateResponse {
 impl From<Product> for ProductUpdateResponse {
     fn from(p: Product) -> Self {
         Self {
+            categories:      p.get_categories().iter().map(|c| CategoryDto { id: c.id, name: c.name.clone() }).collect(),
             description:     p.get_description().map(|d| d.value().to_string()),
             id:              p.get_id().value(),
             active:          p.get_active(),
