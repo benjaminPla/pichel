@@ -60,7 +60,7 @@
   <div class="table-wrap orders-table">
     <table>
       <thead><tr>
-        <th>Nombre</th><th>PLU</th><th>Estado</th><th>Modalidad</th><th>Precio</th><th>Símbolos</th><th class="nowrap">Acciones</th>
+        <th>Nombre</th><th>PLU</th><th>Estado</th><th>Modalidad</th><th>Precio</th><th>Categorías</th><th>Símbolos</th><th class="nowrap">Acciones</th>
       </tr></thead>
       <tbody>
         {#each products as p (p.id)}
@@ -87,6 +87,13 @@
             <td>
               {fmtCents(p.price_cents)}
               {#if p.sale_mode === 'bulk'}<small class="text-muted"> /kg</small>{/if}
+            </td>
+            <td>
+              {#if p.categories?.length}
+                {#each p.categories as c}<span class="badge badge-pkg">{c.name}</span>{/each}
+              {:else}
+                <span class="text-muted">—</span>
+              {/if}
             </td>
             <td>
               {#if p.symbols?.length}
@@ -142,6 +149,13 @@
         <dd class="fw-semibold">
           {fmtCents(p.price_cents)}{#if p.sale_mode === 'bulk'}<small class="text-muted"> /kg</small>{/if}
         </dd>
+
+        {#if p.categories?.length}
+          <dt>Categorías</dt>
+          <dd>
+            {#each p.categories as c}<span class="badge badge-pkg">{c.name}</span>{/each}
+          </dd>
+        {/if}
 
         {#if p.symbols?.length}
           <dt>Símbolos</dt>

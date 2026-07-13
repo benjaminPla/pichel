@@ -28,6 +28,8 @@
   let saleMode = '';
   let priceStr = '';
   let selectedSymbols = [];
+  let categories = [];
+  let selectedCategoryIds = [];
   let imageUrl = '';
   let imageFile = null;
   let previewUrl = '';
@@ -39,18 +41,23 @@
     productId = $page.url.searchParams.get('id');
     if (!productId) { goto('/admin/products'); return; }
 
-    const res = await apiFetch(`/products/${productId}`);
+    const [catRes, res] = await Promise.all([
+      apiFetch('/categories'),
+      apiFetch(`/products/${productId}`),
+    ]);
+    if (catRes && catRes.ok) categories = (await catRes.json()).categories;
     if (!res || !res.ok) { goto('/admin/products'); return; }
     const p = await res.json();
-    active          = p.active ?? true;
-    plu             = p.plu;
-    name            = p.name;
-    description     = p.description || '';
-    saleMode        = p.sale_mode;
-    priceStr        = (p.price_cents / 100).toFixed(2);
-    selectedSymbols = p.symbols || [];
-    imageUrl        = p.image_url || '';
-    previewUrl      = p.image_url || '';
+    active              = p.active ?? true;
+    plu                 = p.plu;
+    name                = p.name;
+    description         = p.description || '';
+    saleMode            = p.sale_mode;
+    priceStr            = (p.price_cents / 100).toFixed(2);
+    selectedSymbols     = p.symbols || [];
+    selectedCategoryIds = (p.categories || []).map(c => c.id);
+    imageUrl            = p.image_url || '';
+    previewUrl          = p.image_url || '';
   });
 
   function handleImageChange(e) {
@@ -84,6 +91,7 @@
           sale_mode:   saleMode,
           price_cents,
           symbols:     selectedSymbols,
+          category_ids: selectedCategoryIds,
           image_url:   imageUrl || null,
         }),
       });
@@ -138,6 +146,18 @@
           <option value={s.value}>{s.label}</option>
         {/each}
       </select>
+    </div>
+    <div>
+      <label for="p-categories">Categorías</label>
+      {#if categories.length}
+        <select id="p-categories" class="form-select select-multi" multiple bind:value={selectedCategoryIds}>
+          {#each categories as c}
+            <option value={c.id}>{c.name}</option>
+          {/each}
+        </select>
+      {:else}
+        <p class="text-muted">No hay categorías creadas todavía. <a href="/admin/categories">Crear una</a></p>
+      {/if}
     </div>
     <div>
       <label for="p-img">Imagen</label>

@@ -38,6 +38,9 @@
         <a class="nav-item" class:active={path.startsWith('/admin/products')} href="/admin/products">
           <span class="icon">📦</span> Productos
         </a>
+        <a class="nav-item" class:active={path === '/admin/categories'} href="/admin/categories">
+          <span class="icon">🏷️</span> Categorías
+        </a>
         <a class="nav-item" class:active={path === '/admin/users'} href="/admin/users">
           <span class="icon">👤</span> Usuarios
         </a>

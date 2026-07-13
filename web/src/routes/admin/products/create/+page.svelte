@@ -1,10 +1,20 @@
 <script>
+  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { apiFetch, apiUpload } from '$lib/api.js';
   import { toast } from '$lib/toast.js';
   import { topbarTitle } from '$lib/adminStore.js';
 
   topbarTitle.set('Agregar producto');
+
+  let categories = [];
+  let selectedCategoryIds = [];
+
+  onMount(async () => {
+    const res = await apiFetch('/categories');
+    if (res && res.ok) categories = (await res.json()).categories;
+  });
+
   const SYMBOLS = [
     { value: 'vegan',         label: '🌱 Vegano'                },
     { value: 'vegetarian',    label: '🥕 Vegetariano'           },
@@ -59,6 +69,7 @@
           sale_mode:   saleMode,
           price_cents,
           symbols:     selectedSymbols,
+          category_ids: selectedCategoryIds,
           image_url:   imageUrl || null,
         }),
       });
@@ -106,6 +117,18 @@
           <option value={s.value}>{s.label}</option>
         {/each}
       </select>
+    </div>
+    <div>
+      <label for="p-categories">Categorías</label>
+      {#if categories.length}
+        <select id="p-categories" class="form-select select-multi" multiple bind:value={selectedCategoryIds}>
+          {#each categories as c}
+            <option value={c.id}>{c.name}</option>
+          {/each}
+        </select>
+      {:else}
+        <p class="text-muted">No hay categorías creadas todavía. <a href="/admin/categories">Crear una</a></p>
+      {/if}
     </div>
     <div>
       <label for="p-img">Imagen</label>

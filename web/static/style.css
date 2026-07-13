@@ -1212,6 +1212,7 @@ footer {
 }
 
 .pc-symbols { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
+.pc-categories { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
 
 .pc-actions {
   margin-top: auto;

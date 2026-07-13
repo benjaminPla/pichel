@@ -108,6 +108,11 @@
             <div class="pc-body">
               <div class="pc-name">{p.name}</div>
               {#if p.description}<div class="pc-desc">{p.description}</div>{/if}
+              {#if p.categories?.length}
+                <div class="pc-categories">
+                  {#each p.categories as c}<span class="badge badge-pkg">{c.name}</span>{/each}
+                </div>
+              {/if}
               {#if p.symbols?.length}
                 <div class="pc-symbols">
                   {#each p.symbols as s}
