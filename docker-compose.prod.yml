@@ -34,16 +34,17 @@ services:
 
   web:
     image: ${DOCKERHUB_USERNAME}/pichel_web:latest
+    container_name: pichel-web
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - /var/lib/pichel/uploads:/usr/share/nginx/html/uploads:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - certbot-www:/var/www/certbot:ro
     depends_on:
       - api
+    networks:
+      - default
+      - edge_net
     logging:
       driver: json-file
       options:
@@ -62,6 +63,11 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+networks:
+  default:
+  edge_net:
+    external: true
 
 volumes:
   certbot-www:
