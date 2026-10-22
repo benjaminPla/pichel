@@ -59,6 +59,9 @@ impl CreateOrderUseCase {
                 .get_by_id(&ProductId::reconstitute(item_input.product_id))
                 .await
                 .map_err(|_| OrderAppError::Validation(format!("product {} not found", item_input.product_id)))?;
+            if !product.get_active() {
+                return Err(OrderAppError::Validation(format!("product {} is not available", item_input.product_id)));
+            }
             let quantity = Quantity::new(item_input.quantity)?;
             total_cents += compute_subtotal(product.get_price_cents().value(), quantity.value(), product.get_sale_mode()) as u64;
             snapshots.push(ItemSnapshot {
