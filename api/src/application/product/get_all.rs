@@ -8,10 +8,10 @@ use uuid::Uuid;
 
 pub struct GetAllProductsInput {
     pub active_only: bool,
+    pub category_id: Option<Uuid>,
+    pub name:        Option<String>,
     pub page:        i64,
     pub per_page:    i64,
-    pub name:        Option<String>,
-    pub category_id: Option<Uuid>,
 }
 
 pub struct GetAllProductsUseCase {
@@ -26,7 +26,7 @@ impl GetAllProductsUseCase {
     pub async fn execute(&self, input: GetAllProductsInput) -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductAppError> {
         let name = input.name.filter(|s| !s.trim().is_empty());
         let (products, total, price_list_updated_at) = self.product_repo
-            .get_all(input.page, input.per_page, name, input.category_id, input.active_only)
+            .get_all(input.active_only, input.category_id, name, input.page, input.per_page)
             .await?;
         Ok((products, total, price_list_updated_at))
     }

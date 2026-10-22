@@ -24,10 +24,10 @@ pub async fn get_all(
     let (products, total, price_list_updated_at) = GetAllProductsUseCase::new(app_state.product_repo)
         .execute(GetAllProductsInput {
             active_only: true,
+            category_id: query.category_id,
+            name:        query.name,
             page:        query.page.max(1),
             per_page:    query.per_page.clamp(1, GetAllQueryParams::MAX_PER_PAGE),
-            name:        query.name,
-            category_id: query.category_id,
         })
         .await?;
     let products = products.into_iter().map(ProductGetAllItem::from).collect::<Vec<_>>();
