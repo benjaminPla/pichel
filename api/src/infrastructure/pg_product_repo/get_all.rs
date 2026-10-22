@@ -12,6 +12,7 @@ pub async fn get_all(
     per_page:    i64,
     name:        Option<String>,
     category_id: Option<Uuid>,
+    active_only: bool,
 ) -> Result<(Vec<Product>, i64, Option<DateTime<Utc>>), ProductRepoError> {
     let offset = (page - 1) * per_page;
 
@@ -21,10 +22,12 @@ pub async fn get_all(
            AND ($2::uuid IS NULL OR EXISTS (
                  SELECT 1 FROM product_categories pc2
                  WHERE pc2.product_id = p.id AND pc2.category_id = $2
-               ))",
+               ))
+           AND (NOT $3 OR p.active)",
     )
     .bind(&name)
     .bind(category_id)
+    .bind(active_only)
     .fetch_one(pool)
     .await
     .map_err(|e| ProductRepoError::Database(e.to_string()))?;
@@ -42,6 +45,7 @@ pub async fn get_all(
                  SELECT 1 FROM product_categories pc2
                  WHERE pc2.product_id = p.id AND pc2.category_id = $2
                ))
+           AND (NOT $5 OR p.active)
          GROUP BY p.id
          ORDER BY p.name ASC
          LIMIT $3 OFFSET $4",
@@ -50,6 +54,7 @@ pub async fn get_all(
     .bind(category_id)
     .bind(per_page)
     .bind(offset)
+    .bind(active_only)
     .fetch_all(pool)
     .await?;
 
