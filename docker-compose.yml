@@ -22,7 +22,7 @@ services:
         max-file: "3"
 
   web:
-    image: nginx:alpine
+    image: nginx:1.30.7-alpine
     ports:
       - "8080:80"
     volumes:
