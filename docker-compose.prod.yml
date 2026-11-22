@@ -1,73 +1,84 @@
+name: pichel
+
 services:
 
-  db:
-    image: postgres:18-alpine
-    restart: unless-stopped
-    env_file: .env
-    volumes:
-      - /var/lib/pichel/pg-data:/var/lib/postgresql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pichel -d pichel"]
-      interval: 3s
-      timeout: 5s
-      retries: 10
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  api:
-    image: ${DOCKERHUB_USERNAME}/pichel_api:latest
-    restart: unless-stopped
-    env_file: .env
+  backend:
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - /var/lib/pichel/uploads:/app/uploads
+    env_file: .env
+    image: ${DOCKERHUB_USERNAME}/pichel-backend:latest
     logging:
       driver: json-file
       options:
-        max-size: "10m"
         max-file: "3"
-
-  web:
-    image: ${DOCKERHUB_USERNAME}/pichel_web:latest
-    container_name: pichel-web
+        max-size: "10m"
+    networks:
+      - data
+      - front
     restart: unless-stopped
     volumes:
-      - /var/lib/pichel/uploads:/usr/share/nginx/html/uploads:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - certbot-www:/var/www/certbot:ro
-    depends_on:
-      - api
-    networks:
-      - default
-      - edge_net
+      - /var/lib/pichel/uploads:/app/uploads
+
+  certbot:
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done'"
+    image: certbot/certbot
     logging:
       driver: json-file
       options:
-        max-size: "10m"
         max-file: "3"
-
-  certbot:
-    image: certbot/certbot
+        max-size: "10m"
     restart: unless-stopped
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
       - certbot-www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done'"
+
+  db:
+    env_file: .env
+    healthcheck:
+      interval: 3s
+      retries: 10
+      test: ["CMD-SHELL", "pg_isready -U pichel -d pichel"]
+      timeout: 5s
+    image: postgres:18-alpine
     logging:
       driver: json-file
       options:
-        max-size: "10m"
         max-file: "3"
+        max-size: "10m"
+    networks:
+      - data
+    restart: unless-stopped
+    volumes:
+      - /var/lib/pichel/pg-data:/var/lib/postgresql
+
+  frontend:
+    depends_on:
+      - backend
+    image: ${DOCKERHUB_USERNAME}/pichel-frontend:latest
+    logging:
+      driver: json-file
+      options:
+        max-file: "3"
+        max-size: "10m"
+    networks:
+      edge:
+        aliases:
+          - pichel-frontend
+      front:
+    restart: unless-stopped
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/lib/pichel/uploads:/usr/share/nginx/html/uploads:ro
+      - certbot-www:/var/www/certbot:ro
 
 networks:
-  default:
-  edge_net:
+  data:
+    internal: true
+  edge:
     external: true
+    name: pichel_edge
+  front:
 
 volumes:
   certbot-www:

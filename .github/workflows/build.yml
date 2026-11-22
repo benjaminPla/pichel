@@ -8,28 +8,33 @@ env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
-  build-api:
+  build-backend:
     runs-on: ubuntu-latest
     environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
 
-      - name: Build and push API image
+      - name: Build and push backend image
         uses: docker/build-push-action@v6
         with:
+          cache-from: type=gha,scope=pichel-backend
+          cache-to: type=gha,mode=max,scope=pichel-backend
           context: .
           file: ./api/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/pichel_api:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/pichel-backend:latest
 
-  build-web:
+  build-frontend:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -39,21 +44,21 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
 
-      - name: Build and push web image
+      - name: Build and push frontend image
         uses: docker/build-push-action@v6
         with:
           context: ./web
           file: ./web/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/pichel_web:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/pichel-frontend:latest
 
   deploy:
     runs-on: ubuntu-latest
     environment: production
-    needs: [build-api, build-web]
+    needs: [build-backend, build-frontend]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,18 +67,18 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HETZNER_HOST }}
-          username: ${{ secrets.HETZNER_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
+          mkdir: true
           source: docker-compose.prod.yml,infra/pichel.service,infra/pichel-nginx-reload.service,infra/pichel-nginx-reload.timer
           target: /opt/pichel/
-          mkdir: true
+          username: ${{ secrets.HETZNER_USER }}
 
       - name: Deploy to Hetzner
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.HETZNER_HOST }}
-          username: ${{ secrets.HETZNER_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
+          username: ${{ secrets.HETZNER_USER }}
           script: |
             cat > /opt/pichel/.env <<'EOF'
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
@@ -91,13 +96,13 @@ jobs:
             DB_ACQUIRE_TIMEOUT_SECS=${{ secrets.DB_ACQUIRE_TIMEOUT_SECS }}
             DB_IDLE_TIMEOUT_SECS=${{ secrets.DB_IDLE_TIMEOUT_SECS }}
             EOF
+            docker network inspect pichel_edge >/dev/null 2>&1 || docker network create pichel_edge
             cp /opt/pichel/infra/pichel.service /etc/systemd/system/pichel.service
             cp /opt/pichel/infra/pichel-nginx-reload.service /etc/systemd/system/pichel-nginx-reload.service
             cp /opt/pichel/infra/pichel-nginx-reload.timer /etc/systemd/system/pichel-nginx-reload.timer
             systemctl daemon-reload
             systemctl enable pichel
-            systemctl enable pichel-nginx-reload.timer
-            docker compose -f /opt/pichel/docker-compose.prod.yml pull
-            systemctl restart pichel
             systemctl enable --now pichel-nginx-reload.timer
+            docker compose -f /opt/pichel/docker-compose.prod.yml pull
+            docker compose -f /opt/pichel/docker-compose.prod.yml up -d --remove-orphans
             docker image prune -f

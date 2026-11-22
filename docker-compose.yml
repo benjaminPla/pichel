@@ -1,38 +1,38 @@
 services:
 
   db:
-    image: postgres:18-alpine
     environment:
       POSTGRES_DB:       pichel
-      POSTGRES_USER:     pichel
       POSTGRES_PASSWORD: pichel
+      POSTGRES_USER:     pichel
+    healthcheck:
+      interval: 3s
+      retries: 10
+      test: ["CMD-SHELL", "pg_isready -U pichel -d pichel"]
+      timeout: 5s
+    image: postgres:18-alpine
+    logging:
+      driver: json-file
+      options:
+        max-file: "3"
+        max-size: "10m"
     ports:
       - "5432:5432"
     volumes:
       - /tmp/pichel-pg:/var/lib/postgresql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pichel -d pichel"]
-      interval: 3s
-      timeout: 5s
-      retries: 10
+
+  frontend:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    image: nginx:1.30.7-alpine
     logging:
       driver: json-file
       options:
-        max-size: "10m"
         max-file: "3"
-
-  web:
-    image: nginx:1.30.7-alpine
+        max-size: "10m"
     ports:
       - "8080:80"
     volumes:
+      - ./api/uploads:/usr/share/nginx/html/uploads:ro
       - ./web/build:/usr/share/nginx/html:ro
       - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./api/uploads:/usr/share/nginx/html/uploads:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
