@@ -1,6 +1,5 @@
 [Unit]
 Description=Weekly nginx reload for Let's Encrypt cert renewal
-Requires=pichel-nginx-reload.service
 
 [Timer]
 OnCalendar=weekly
